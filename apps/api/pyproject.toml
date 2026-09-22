@@ -1,0 +1,20 @@
+[project]
+name = "kindred-api"
+version = "0.1.0"
+description = "Kindred backend API"
+authors = [
+    { name = "Rishikesh", email = "rishikeshvk2001@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+    "kindred-llm",
+    "pydantic-settings>=2.15.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+kindred-llm = { workspace = true }

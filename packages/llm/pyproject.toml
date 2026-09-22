@@ -1,0 +1,16 @@
+[project]
+name = "kindred-llm"
+version = "0.1.0"
+description = "OpenAI-compatible LLM client"
+authors = [
+    { name = "Rishikesh", email = "rishikeshvk2001@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx2>=2.13.0",
+    "openai>=3.17.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"
