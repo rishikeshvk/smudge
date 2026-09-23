@@ -27,3 +27,15 @@ def test_export_writes_the_schemas_the_app_reads(
         "TurnTrace",
     ]:
         assert name in schemas
+
+
+def test_operation_ids_are_route_names(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = tmp_path / "openapi.json"
+    monkeypatch.setattr("sys.argv", ["openapi_export", str(out)])
+
+    openapi_export.main()
+
+    paths = json.loads(out.read_text())["paths"]
+    assert paths["/roadmap"]["get"]["operationId"] == "read_roadmap"
