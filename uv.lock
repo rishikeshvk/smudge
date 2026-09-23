@@ -13,6 +13,7 @@ members = [
     "kindred-api",
     "kindred-contracts",
     "kindred-db",
+    "kindred-gate",
     "kindred-llm",
 ]
 
@@ -718,6 +719,25 @@ dependencies = [
 requires-dist = [
     { name = "pgvector", specifier = ">=0.5.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.6" },
+    { name = "sqlalchemy", specifier = ">=2.0.54" },
+]
+
+[[package]]
+name = "kindred-gate"
+version = "0.1.0"
+source = { editable = "packages/gate" }
+dependencies = [
+    { name = "kindred-contracts" },
+    { name = "kindred-db" },
+    { name = "kindred-llm" },
+    { name = "sqlalchemy" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "kindred-contracts", editable = "packages/contracts" },
+    { name = "kindred-db", editable = "packages/db" },
+    { name = "kindred-llm", editable = "packages/llm" },
     { name = "sqlalchemy", specifier = ">=2.0.54" },
 ]
 
