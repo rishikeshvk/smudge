@@ -5,7 +5,17 @@ members = ["apps/api", "packages/*"]
 src = ["apps/*/src", "packages/*/src"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM"]
+select = ["E", "F", "I", "UP", "B", "SIM", "TID"]
+
+[tool.ruff.lint.per-file-ignores]
+"apps/api/src/kindred_api/clock.py" = ["TID251"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"datetime.datetime.now".msg = "Read time through the Clock service."
+"datetime.datetime.utcnow".msg = "Read time through the Clock service."
+"datetime.datetime.today".msg = "Read time through the Clock service."
+"datetime.date.today".msg = "Read time through the Clock service."
+"time.time".msg = "Read time through the Clock service."
 
 [tool.mypy]
 strict = true
