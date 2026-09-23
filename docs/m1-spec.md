@@ -93,7 +93,11 @@ OpenAI-compatible `/v1/embeddings` endpoint and configured like the LLM, with it
 - Details to handle:
   - Pin the tag to `:0.6b`; `latest` is the 8B model.
   - Queries need the `Instruct: …\nQuery: …` prefix; documents don't.
-  - Measure CPU latency on the dev machine in M1b.
+  - Measured on the dev machine (8 cores, no GPU), 2026-09-23:
+    - A warm query takes 0.1–0.4 s, fine for every turn.
+    - A ~300-word note takes 6–9 s, so seeding 28 notes takes about 4 minutes. That's acceptable for batch jobs
+      (seed, nightly Curator), not for anything per-message.
+    - Ollama's resident memory is about 1.5 GB.
 - Rejected:
   - Gemini: the free tier may train on the content, which would include users' chats.
   - Jina v5 nano: licensed CC BY-NC.
