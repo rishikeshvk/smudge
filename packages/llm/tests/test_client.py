@@ -210,3 +210,32 @@ async def test_an_unreachable_endpoint_is_unavailable() -> None:
         await failing_client(httpx2.MockTransport(handler)).complete(
             "hello", session_id="s"
         )
+
+
+@pytest.mark.anyio
+async def test_models_are_listed_for_a_connection_check() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        assert request.url.path == "/v1/models"
+        return httpx2.Response(
+            200,
+            json={
+                "object": "list",
+                "data": [
+                    {"id": "glm-5.3", "object": "model", "created": 0, "owned_by": "x"},
+                    {"id": "kimi-k3", "object": "model", "created": 0, "owned_by": "x"},
+                ],
+            },
+        )
+
+    client = failing_client(httpx2.MockTransport(handler))
+
+    assert await client.list_models() == ["glm-5.3", "kimi-k3"]
+
+
+@pytest.mark.anyio
+async def test_a_refused_key_fails_the_connection_check() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(401, json={"error": {"message": "bad key"}})
+
+    with pytest.raises(LLMUnavailableError):
+        await failing_client(httpx2.MockTransport(handler)).list_models()
