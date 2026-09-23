@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed ingest embed-model turn probe test check fmt llm-ping mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping mobile mobile-tunnel
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -37,6 +37,11 @@ turn:
 probe:
 	docker compose up -d --wait db ollama
 	uv run python -m kindred_api.probes $(ARGS)
+
+# make simulate ARGS='--days 14'. Real LLM calls: about 150 for 14 days.
+simulate:
+	docker compose up -d --wait db ollama
+	uv run python -m kindred_api.simulate $(ARGS)
 
 test:
 	docker compose up -d --wait db
