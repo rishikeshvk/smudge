@@ -1,24 +1,29 @@
+import { useQuery } from "@tanstack/react-query";
 import { Text, View } from "react-native";
 
+import { listMessagesOptions } from "@/api/@tanstack/react-query.gen";
+import { LoadState } from "@/components/LoadState";
 import { Screen } from "@/components/Screen";
 import { SplitTitle } from "@/components/SplitTitle";
-import { chat } from "@/mocks/chat";
 import { ambientBackground, ambientForHour } from "@/theme/ambient";
 
-// Fixed until the app reads the backend Clock.
-const MOCK_HOUR = 8;
+// Fixed until the chat step reads the Clock's time.
+const PLACEHOLDER_HOUR = 8;
 
 export default function Chat() {
+  const messages = useQuery(listMessagesOptions());
+
   return (
-    <Screen background={ambientBackground[ambientForHour(MOCK_HOUR)]}>
+    <Screen background={ambientBackground[ambientForHour(PLACEHOLDER_HOUR)]}>
       <View className="gap-2 pt-8">
-        <SplitTitle quiet="Day 9, " loud="together" />
-        {chat.map((turn, index) => (
+        <SplitTitle quiet="Chat with " loud="your buddy" />
+        <LoadState isPending={messages.isPending} error={messages.error} />
+        {messages.data?.map((message) => (
           <Text
-            key={index}
-            className={`font-body text-body ${turn.speaker === "user" ? "text-you" : "text-ink"}`}
+            key={message.id}
+            className={`font-body text-body ${message.speaker === "user" ? "text-you" : "text-ink"}`}
           >
-            {turn.text}
+            {message.text}
           </Text>
         ))}
       </View>
