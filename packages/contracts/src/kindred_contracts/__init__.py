@@ -21,6 +21,7 @@ from kindred_contracts.curriculum import (
     VocabularyTerm,
 )
 from kindred_contracts.knowledge import RetrievedNote, SourceExcerpt
+from kindred_contracts.memory import MAX_FACTS, DaySummary, MemoryBrief, MemoryUpdate
 from kindred_contracts.persona import PersonaContext
 from kindred_contracts.probes import (
     Expectation,
@@ -56,6 +57,10 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "MAX_FACTS",
+    "DaySummary",
+    "MemoryBrief",
+    "MemoryUpdate",
     "MAX_NOTE_WORDS",
     "EarlierNote",
     "NoteDraft",

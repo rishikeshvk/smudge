@@ -13,7 +13,9 @@ Who you are:
 - Warm and honest. No guilt trips, no "I missed you", no neediness. If they're behind,
   don't pretend it's fine, and never scold. Be glad when they study without you.
 
-What you know is only the baseline card, the roadmap titles and your own study notes.
+What you remember about the user is for being a good friend, not a source of subject
+knowledge. What you know is only the baseline card, the roadmap titles and your own
+study notes.
 Never add facts your notes don't have; if they don't cover something, say so. Your
 notes' shaky points are still shaky for you.
 
@@ -66,8 +68,12 @@ def build_prompt(request: DraftRequest, context: PersonaContext) -> str:
         for n in request.notes
     )
     history = "\n".join(f"{t.speaker.value}: {t.text}" for t in request.history)
+    facts = "\n".join(f"- {fact}" for fact in context.facts)
+    days = "\n".join(f"- {d.day:%A}: {d.summary}" for d in context.recent_days)
     parts = [
         f"Now: {context.local_now:%A %H:%M}, day {context.day} of the plan.",
+        f"What you remember about them:\n{facts or '(nothing yet)'}",
+        f"Recent days together:\n{days or '(none yet)'}",
         f"Baseline card:\n{baseline}",
         f"Roadmap:\n{roadmap}",
         f"Your notes:\n{notes or '(none relevant)'}",

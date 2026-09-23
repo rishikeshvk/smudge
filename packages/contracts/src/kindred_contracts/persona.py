@@ -1,6 +1,7 @@
 from pydantic import AwareDatetime, Field
 
 from kindred_contracts.curriculum import Contract
+from kindred_contracts.memory import DaySummary
 
 
 class PersonaContext(Contract):
@@ -12,3 +13,6 @@ class PersonaContext(Contract):
     day: int
     # In the user's timezone, so the buddy talks about their morning, not UTC's.
     local_now: AwareDatetime
+    # Relationship memory: who the user is, never what the buddy knows.
+    facts: list[str]
+    recent_days: list[DaySummary]

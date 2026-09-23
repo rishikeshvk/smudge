@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from datetime import datetime
+from datetime import date, datetime
 from zoneinfo import ZoneInfo
 
 import httpx2
@@ -8,6 +8,7 @@ import pytest
 from kindred_buddy.persona import Persona, build_prompt
 from kindred_contracts import (
     ChatTurn,
+    DaySummary,
     Directive,
     DraftRequest,
     PersonaContext,
@@ -31,6 +32,8 @@ CONTEXT = PersonaContext(
     plan_title="AWS fundamentals in two weeks",
     day=5,
     local_now=datetime(2026, 10, 5, 21, 15, tzinfo=ZoneInfo("Asia/Kolkata")),
+    facts=["Studies after work."],
+    recent_days=[DaySummary(day=date(2026, 10, 4), summary="they were tired.")],
 )
 
 
@@ -110,3 +113,10 @@ async def test_persona_speaks_as_the_named_buddy(
     assert system.startswith("You are Juno, an AI study buddy.")
     assert '"AWS fundamentals in two weeks"' in system
     assert seen[0].headers["x-opencode-session"] == "thread-1:drafter"
+
+
+def test_prompt_carries_relationship_memory() -> None:
+    prompt = build_prompt(request(DEFLECT), CONTEXT)
+
+    assert "What you remember about them:\n- Studies after work." in prompt
+    assert "Recent days together:\n- Sunday: they were tired." in prompt
