@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types mobile mobile-tunnel mobile-usb
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -71,3 +71,9 @@ mobile:
 
 mobile-tunnel:
 	cd apps/mobile && npx expo start --tunnel
+
+# The phone reaches Metro and the API as localhost over a USB cable.
+mobile-usb:
+	adb reverse tcp:8081 tcp:8081
+	adb reverse tcp:8000 tcp:8000
+	cd apps/mobile && npx expo start --localhost
