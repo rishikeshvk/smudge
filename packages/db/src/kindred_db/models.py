@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
@@ -123,3 +123,12 @@ class Turn(Base):
     fell_back: Mapped[bool]
     final_reply: Mapped[str]
     trace: Mapped[dict[str, object]] = mapped_column(JSONB)
+
+
+# Dev-only time travel: how far Kindred's clock runs ahead of real time.
+class DevClock(Base):
+    __tablename__ = "dev_clock"
+    __table_args__ = (CheckConstraint("id = 1", name="single_row"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    offset: Mapped[timedelta]

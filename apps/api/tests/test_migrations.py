@@ -13,6 +13,7 @@ TABLES = {
     "ledger_notes",
     "note_embeddings",
     "turns",
+    "dev_clock",
 }
 
 

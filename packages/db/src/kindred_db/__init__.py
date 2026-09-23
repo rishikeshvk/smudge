@@ -2,6 +2,7 @@ from kindred_db.engine import create_engine, session_factory
 from kindred_db.models import (
     EMBEDDING_DIMENSIONS,
     Base,
+    DevClock,
     LedgerNote,
     NoteEmbedding,
     Plan,
@@ -15,6 +16,7 @@ from kindred_db.models import (
 __all__ = [
     "EMBEDDING_DIMENSIONS",
     "Base",
+    "DevClock",
     "LedgerNote",
     "NoteEmbedding",
     "Plan",
