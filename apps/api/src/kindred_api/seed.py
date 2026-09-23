@@ -16,6 +16,7 @@ from kindred_api.llm_clients import build_embedder
 from kindred_api.schedule import plan_moment
 from kindred_contracts import Curriculum
 from kindred_db import (
+    Buddy,
     LedgerNote,
     NoteEmbedding,
     Plan,
@@ -48,6 +49,7 @@ async def seed_plan(
     start_date: date,
     tz: ZoneInfo,
     embedder: DocumentEmbedder,
+    buddy_name: str,
 ) -> None:
     # Seeded notes can't be removed from the ledger, so never seed on top of a plan.
     if await session.scalar(select(Plan.id).limit(1)) is not None:
@@ -56,6 +58,7 @@ async def seed_plan(
     user = User(timezone=tz.key)
     session.add(user)
     await session.flush()
+    session.add(Buddy(user_id=user.id, name=buddy_name))
 
     plan = Plan(
         user_id=user.id,
@@ -125,7 +128,9 @@ async def seed_plan(
     await session.flush()
 
 
-async def run(path: Path, start_date: date | None, tz: ZoneInfo) -> None:
+async def run(
+    path: Path, start_date: date | None, tz: ZoneInfo, buddy_name: str
+) -> None:
     curriculum = load_curriculum(path)
     start = start_date or SystemClock().now().astimezone(tz).date()
 
@@ -133,7 +138,9 @@ async def run(path: Path, start_date: date | None, tz: ZoneInfo) -> None:
     engine = create_engine(settings.database_url)
     try:
         async with session_factory(engine)() as session, session.begin():
-            await seed_plan(session, curriculum, start, tz, build_embedder(settings))
+            await seed_plan(
+                session, curriculum, start, tz, build_embedder(settings), buddy_name
+            )
     finally:
         await engine.dispose()
 
@@ -146,10 +153,18 @@ def main() -> None:
     parser.add_argument("curriculum", type=Path)
     parser.add_argument("--start-date", type=date.fromisoformat)
     parser.add_argument("--timezone", default=get_localzone_name())
+    parser.add_argument("--buddy-name", default="Juno")
     args = parser.parse_args()
 
     try:
-        asyncio.run(run(args.curriculum, args.start_date, ZoneInfo(args.timezone)))
+        asyncio.run(
+            run(
+                args.curriculum,
+                args.start_date,
+                ZoneInfo(args.timezone),
+                args.buddy_name,
+            )
+        )
     except AlreadySeededError as error:
         raise SystemExit(str(error)) from error
 

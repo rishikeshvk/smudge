@@ -6,6 +6,7 @@ from datetime import time
 from kindred_api.clock import FixedClock
 from kindred_api.config import get_settings
 from kindred_api.llm_clients import build_turn_components
+from kindred_api.persona_context import load_persona_context
 from kindred_api.plans import load_current_plan
 from kindred_api.schedule import plan_moment
 from kindred_api.turn_log import record_turn
@@ -24,13 +25,14 @@ async def run(message: str, day: int, local_time: time, user_through: int) -> Tu
                 raise SystemExit("no plan yet; run `make seed` first")
             clock = FixedClock(plan_moment(plan.start_date, day, local_time, plan.tz))
             topics = await load_topic_map(session, plan.id)
+            persona = await load_persona_context(session, plan.id, clock.now())
             session_id = f"try-{uuid.uuid4()}"
             trace = await run_turn(
                 message,
                 [],
                 now=clock.now(),
                 topics=topics,
-                components=build_turn_components(settings, session, plan.id),
+                components=build_turn_components(settings, session, plan.id, persona),
                 session_id=session_id,
                 user_studied=frozenset(
                     t.slug for t in topics.topics if t.day <= user_through

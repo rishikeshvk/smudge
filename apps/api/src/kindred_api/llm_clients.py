@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.config import Settings
-from kindred_api.drafter import StubDrafter
+from kindred_buddy.persona import Persona
+from kindred_contracts import PersonaContext
 from kindred_db import EMBEDDING_DIMENSIONS
 from kindred_gate import GatedRetriever, LLMAuditor, LLMClassifier, TurnComponents
 from kindred_llm import Embedder, LLMClient
@@ -25,11 +26,14 @@ def build_embedder(settings: Settings) -> Embedder:
 
 
 def build_turn_components(
-    settings: Settings, session: AsyncSession, plan_id: int
+    settings: Settings,
+    session: AsyncSession,
+    plan_id: int,
+    persona: PersonaContext,
 ) -> TurnComponents:
     return TurnComponents(
         classifier=LLMClassifier(build_llm(settings, settings.llm_model_classifier)),
         retriever=GatedRetriever(session, build_embedder(settings), plan_id),
-        drafter=StubDrafter(build_llm(settings, settings.llm_model_drafter)),
+        drafter=Persona(build_llm(settings, settings.llm_model_persona), persona),
         auditor=LLMAuditor(build_llm(settings, settings.llm_model_auditor)),
     )

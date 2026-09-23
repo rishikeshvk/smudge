@@ -56,6 +56,20 @@ Settings roles become classifier, persona (replacing `LLM_MODEL_DRAFTER`), audit
 added in the step that first uses it. `TurnTrace.models.drafter` keeps its name so the app's generated types don't
 change.
 
+## Persona (step 2)
+
+- `Persona` in `packages/buddy` is the gate's drafter. Per turn it gets a `PersonaContext`: buddy name, plan title,
+  plan day and the user's local time. `StubDrafter` is gone.
+- **Ahead rule.** `run_turn` takes the slugs the user has studied. Routing marks unlocked topics outside that set as
+  `ahead_topics`, and the Persona says how they went without teaching them. The decision stays in code. Probes pass
+  "kept up", so eval behaviour is unchanged. Real check-ins arrive with the chat API in step 3; until then `make
+  turn --user-through N` plays a user who is behind.
+- **Crisis.** The classifier has a `crisis` category that beats every other one; it routes to a fixed template that
+  drops the persona, says it's an AI and points to emergency numbers and findahelpline.com. Like the fallbacks it is
+  vetted by tests, not audited at runtime, and no draft is attempted. Rejected: letting the Persona write crisis
+  replies, which puts a model's wording between the user and real help.
+- `buddies` holds one buddy per user; `make seed` takes `--buddy-name` (default Juno).
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.

@@ -14,6 +14,7 @@ TABLES = {
     "note_embeddings",
     "turns",
     "dev_clock",
+    "buddies",
 }
 
 

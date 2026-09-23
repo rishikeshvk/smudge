@@ -35,6 +35,15 @@ class User(Base):
     timezone: Mapped[str]
 
 
+# One persona per user, kept across every goal they take on.
+class Buddy(Base):
+    __tablename__ = "buddies"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
+    name: Mapped[str]
+
+
 class Plan(Base):
     __tablename__ = "plans"
 

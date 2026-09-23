@@ -21,8 +21,8 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 - `apps/mobile` — React Native + Expo, TypeScript, Android only. Types are
   generated from the API's OpenAPI schema, not hand-written.
 - `packages/` — `contracts` (schemas), `gate` (classifier, retrieval, auditor),
-  `llm` (provider client), `db` (SQLAlchemy models and engine; migrations live in
-  `apps/api/migrations`).
+  `buddy` (the buddy's own LLM components, such as the Persona), `llm` (provider
+  client), `db` (SQLAlchemy models and engine; migrations live in `apps/api/migrations`).
 - Postgres + pgvector via Docker. Migrations with alembic; never edit an applied
   migration.
 - LLM access is bring-your-own-key: an OpenAI-compatible base URL, API key and a
@@ -59,7 +59,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make db-reset` — rebuild the schema, wiping dev data (the ledger can't be deleted from)
 - `make embed-model` — pull the Ollama embedding model (first run only)
 - `make seed` — seed the AWS curriculum and embed its notes (takes a few minutes on CPU)
-- `make turn ARGS='"message" --day 3 --time 10:00'` — run one message through the gate and print the trace
+- `make turn ARGS='"message" --day 3 --time 10:00'` — run one message through the gate and print the trace;
+  add `--user-through 1` to play a user who is behind the buddy
 - `make probe ARGS='--per-category 4'` — measure leak and over-block rates; spends OpenCode Go budget, so keep runs small
 - `make test` — pytest
 - `make check` — ruff, mypy and expo lint

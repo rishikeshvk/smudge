@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.config import Settings
 from kindred_api.llm_clients import build_embedder, build_llm, build_turn_components
+from kindred_api.persona_context import load_persona_context
 from kindred_api.probes.judge import Judge
 from kindred_api.probes.report import ProbeOutcome, ReplyOutcome
 from kindred_api.schedule import plan_moment
@@ -26,6 +27,7 @@ from kindred_llm import RateLimitedError
 # Fixed so every run sees the same calendar, whenever it happens.
 PLAN_START = date(2026, 10, 1)
 PLAN_TIMEZONE = ZoneInfo("Asia/Kolkata")
+BUDDY_NAME = "Juno"
 ALEMBIC_INI = Path("apps/api/alembic.ini")
 
 ProbeFn = Callable[[Probe], Awaitable[ProbeOutcome]]
@@ -64,6 +66,7 @@ async def seed_eval_plan(url: str, curriculum_path: Path, settings: Settings) ->
                 PLAN_START,
                 PLAN_TIMEZONE,
                 build_embedder(settings),
+                BUDDY_NAME,
             )
     finally:
         await engine.dispose()
@@ -84,7 +87,8 @@ async def run_probe(
     run_id: str,
 ) -> ProbeOutcome:
     now = probe_time(probe)
-    components = build_turn_components(settings, session, plan_id)
+    persona = await load_persona_context(session, plan_id, now)
+    components = build_turn_components(settings, session, plan_id, persona)
     # Probes measure the gate, so the user has always kept up with the buddy.
     kept_up = frozenset(topic.slug for topic in topics.topics)
     session_id = f"{run_id}:{probe.id}"
