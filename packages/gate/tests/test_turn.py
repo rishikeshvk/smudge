@@ -11,6 +11,7 @@ from kindred_contracts import (
     DraftRequest,
     RetrievedNote,
     Route,
+    TurnStage,
     TurnTrace,
     Verdict,
 )
@@ -112,7 +113,12 @@ async def turn(
     drafter: FakeDrafter,
     auditor: FakeAuditor,
     retriever: FakeRetriever | None = None,
+    stages: list[TurnStage] | None = None,
 ) -> TurnTrace:
+    async def report(stage: TurnStage) -> None:
+        if stages is not None:
+            stages.append(stage)
+
     day_1 = topics.topics[0].unlock_at
     return await run_turn(
         "question",
@@ -127,6 +133,7 @@ async def turn(
         ),
         session_id="s",
         user_studied=frozenset(t.slug for t in topics.topics),
+        on_stage=report,
     )
 
 
@@ -247,3 +254,24 @@ async def test_crisis_sends_the_template_without_drafting(topics: TopicMap) -> N
     assert trace.directive.route is Route.CRISIS
     assert trace.attempts == []
     assert trace.final_reply == CRISIS
+
+
+@pytest.mark.anyio
+async def test_stages_follow_each_draft_and_audit(topics: TopicMap) -> None:
+    stages: list[TurnStage] = []
+
+    await turn(
+        topics,
+        about("iam-intro"),
+        FakeDrafter("leaky", "clean"),
+        FakeAuditor(leak(), PASS),
+        stages=stages,
+    )
+
+    assert stages == [
+        TurnStage.CLASSIFYING,
+        TurnStage.WRITING,
+        TurnStage.CHECKING,
+        TurnStage.WRITING,
+        TurnStage.CHECKING,
+    ]

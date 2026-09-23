@@ -35,6 +35,7 @@ from kindred_contracts.turn import (
     Route,
     Speaker,
     TopicRef,
+    TurnStage,
     TurnTrace,
     Verdict,
 )
@@ -68,6 +69,7 @@ __all__ = [
     "StudyNote",
     "TopicNode",
     "TopicRef",
+    "TurnStage",
     "TurnTrace",
     "Verdict",
     "VocabularyKind",

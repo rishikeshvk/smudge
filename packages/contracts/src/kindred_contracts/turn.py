@@ -96,6 +96,17 @@ class RoleModels(Contract):
     auditor: str
 
 
+class TurnStage(StrEnum):
+    """Where a user message is on its way to an audited reply."""
+
+    QUEUED = "queued"
+    CLASSIFYING = "classifying"
+    WRITING = "writing"
+    CHECKING = "checking"
+    ANSWERED = "answered"
+    FAILED = "failed"
+
+
 class TurnTrace(Contract):
     message: str
     at: AwareDatetime

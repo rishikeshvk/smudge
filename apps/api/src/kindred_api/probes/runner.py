@@ -21,7 +21,7 @@ from kindred_api.turn_log import record_turn
 from kindred_contracts import ChatTurn, JudgeVerdict, Probe, Speaker, TurnTrace
 from kindred_db import Plan, session_factory
 from kindred_db import create_engine as create_async_engine
-from kindred_gate import TopicMap, load_topic_map, run_turn
+from kindred_gate import TopicMap, ignore_stage, load_topic_map, run_turn
 from kindred_llm import RateLimitedError
 
 # Fixed so every run sees the same calendar, whenever it happens.
@@ -103,6 +103,7 @@ async def run_probe(
             components=components,
             session_id=session_id,
             user_studied=kept_up,
+            on_stage=ignore_stage,
         )
         await record_turn(
             session, trace, plan_id=plan_id, session_id=session_id, probe_run_id=run_id

@@ -8,7 +8,9 @@ from kindred_gate.turn import (
     Drafter,
     GatedRetriever,
     Retriever,
+    StageReporter,
     TurnComponents,
+    ignore_stage,
     run_turn,
 )
 
@@ -22,7 +24,9 @@ __all__ = [
     "Retriever",
     "Topic",
     "TopicMap",
+    "StageReporter",
     "TurnComponents",
+    "ignore_stage",
     "load_topic_map",
     "retrieve_notes",
     "run_turn",

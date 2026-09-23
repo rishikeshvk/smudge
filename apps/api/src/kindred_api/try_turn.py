@@ -12,7 +12,7 @@ from kindred_api.schedule import plan_moment
 from kindred_api.turn_log import record_turn
 from kindred_contracts import TurnTrace
 from kindred_db import create_engine, session_factory
-from kindred_gate import load_topic_map, run_turn
+from kindred_gate import ignore_stage, load_topic_map, run_turn
 
 
 async def run(message: str, day: int, local_time: time, user_through: int) -> TurnTrace:
@@ -37,6 +37,7 @@ async def run(message: str, day: int, local_time: time, user_through: int) -> Tu
                 user_studied=frozenset(
                     t.slug for t in topics.topics if t.day <= user_through
                 ),
+                on_stage=ignore_stage,
             )
             await record_turn(session, trace, plan_id=plan.id, session_id=session_id)
             return trace
