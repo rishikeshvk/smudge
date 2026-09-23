@@ -66,7 +66,7 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make probe ARGS='--per-category 4'` — measure leak and over-block rates; spends OpenCode Go budget, so keep runs small
 - `make simulate ARGS='--days 14'` — onboard, then run simulated days end to end through the Clock on a fresh
   `kindred_sim` database; about 150 real LLM calls for 14 days, so ask first
-- `make test` — pytest
+- `make test` — pytest and the app's jest tests
 - `make check` — ruff, mypy and expo lint
 - `make fmt` — ruff format and autofix
 - `make llm-ping` — one real call to the configured LLM endpoint

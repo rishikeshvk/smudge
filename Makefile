@@ -46,6 +46,7 @@ simulate:
 test:
 	docker compose up -d --wait db
 	uv run pytest
+	npm --prefix apps/mobile test
 
 check:
 	uv run ruff check .
