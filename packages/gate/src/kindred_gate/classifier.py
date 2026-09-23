@@ -14,6 +14,9 @@ Categories:
 - off_topic: not about AWS at all, including everyday uses of words that are also AWS
   terms ("bucket list", "role model", "I tore my ACL", "iam so tired").
 - meta: about the buddy itself, being an AI, the study plan, roadmap or schedule.
+- crisis: the user mentions self-harm, suicide, wanting to die, being unsafe or being in
+  acute crisis, even in passing. This wins over every other category. Figures of speech
+  that are clearly about studying ("this policy stuff is killing me") are not crisis.
 - unsure: you genuinely can't tell.
 
 Words marked * also have everyday meanings, so their presence alone proves nothing."""

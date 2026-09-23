@@ -14,7 +14,7 @@ from kindred_db import create_engine, session_factory
 from kindred_gate import load_topic_map, run_turn
 
 
-async def run(message: str, day: int, local_time: time) -> TurnTrace:
+async def run(message: str, day: int, local_time: time, user_through: int) -> TurnTrace:
     settings = get_settings()
     engine = create_engine(settings.database_url)
     try:
@@ -23,14 +23,18 @@ async def run(message: str, day: int, local_time: time) -> TurnTrace:
             if plan is None:
                 raise SystemExit("no plan yet; run `make seed` first")
             clock = FixedClock(plan_moment(plan.start_date, day, local_time, plan.tz))
+            topics = await load_topic_map(session, plan.id)
             session_id = f"try-{uuid.uuid4()}"
             trace = await run_turn(
                 message,
                 [],
                 now=clock.now(),
-                topics=await load_topic_map(session, plan.id),
+                topics=topics,
                 components=build_turn_components(settings, session, plan.id),
                 session_id=session_id,
+                user_studied=frozenset(
+                    t.slug for t in topics.topics if t.day <= user_through
+                ),
             )
             await record_turn(session, trace, plan_id=plan.id, session_id=session_id)
             return trace
@@ -47,6 +51,7 @@ def show(trace: TurnTrace) -> None:
         f"route     {d.route.value}"
         f" answer={[t.slug for t in d.answer_topics]}"
         f" deflect={[t.slug for t in d.deflect_topics]}"
+        f" ahead={[t.slug for t in d.ahead_topics]}"
     )
     notes = [(n.day, n.topic_slug, round(n.distance, 3)) for n in trace.retrieved]
     print(f"notes     {notes}")
@@ -65,8 +70,14 @@ def main() -> None:
     parser.add_argument("message")
     parser.add_argument("--day", type=int, required=True)
     parser.add_argument("--time", type=time.fromisoformat, default=time(12, 0))
+    parser.add_argument(
+        "--user-through",
+        type=int,
+        help="last plan day the user has studied (default: kept up with --day)",
+    )
     args = parser.parse_args()
-    show(asyncio.run(run(args.message, args.day, args.time)))
+    user_through = args.day if args.user_through is None else args.user_through
+    show(asyncio.run(run(args.message, args.day, args.time, user_through)))
 
 
 if __name__ == "__main__":

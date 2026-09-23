@@ -14,7 +14,7 @@ from kindred_contracts import (
     TurnTrace,
     Verdict,
 )
-from kindred_gate.fallback import LOCKED_TOPIC, UNSURE
+from kindred_gate.fallback import CRISIS, LOCKED_TOPIC, UNSURE
 from kindred_gate.topics import TopicMap
 from kindred_gate.turn import TurnComponents, run_turn
 from kindred_llm import StructuredOutputError
@@ -126,6 +126,7 @@ async def turn(
             auditor=auditor,
         ),
         session_id="s",
+        user_studied=frozenset(t.slug for t in topics.topics),
     )
 
 
@@ -234,3 +235,15 @@ async def test_off_topic_messages_skip_retrieval_but_not_the_audit(
     assert trace.directive.route is Route.GENERAL
     assert retriever.calls == 0
     assert auditor.drafts == ["Go for a walk!"]
+
+
+@pytest.mark.anyio
+async def test_crisis_sends_the_template_without_drafting(topics: TopicMap) -> None:
+    drafter = FakeDrafter("study talk")
+    crisis = Classification(category=Category.CRISIS, rationale="")
+
+    trace = await turn(topics, crisis, drafter, FakeAuditor())
+
+    assert trace.directive.route is Route.CRISIS
+    assert trace.attempts == []
+    assert trace.final_reply == CRISIS

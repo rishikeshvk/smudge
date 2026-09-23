@@ -85,6 +85,8 @@ async def run_probe(
 ) -> ProbeOutcome:
     now = probe_time(probe)
     components = build_turn_components(settings, session, plan_id)
+    # Probes measure the gate, so the user has always kept up with the buddy.
+    kept_up = frozenset(topic.slug for topic in topics.topics)
     session_id = f"{run_id}:{probe.id}"
     history: list[ChatTurn] = []
     replies: list[ReplyOutcome] = []
@@ -96,6 +98,7 @@ async def run_probe(
             topics=topics,
             components=components,
             session_id=session_id,
+            user_studied=kept_up,
         )
         await record_turn(
             session, trace, plan_id=plan_id, session_id=session_id, probe_run_id=run_id

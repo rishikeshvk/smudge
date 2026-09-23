@@ -15,6 +15,7 @@ from kindred_contracts import (
     DraftRequest,
     RetrievedNote,
     RoleModels,
+    Route,
     TurnTrace,
     Verdict,
 )
@@ -92,11 +93,12 @@ async def run_turn(
     topics: TopicMap,
     components: TurnComponents,
     session_id: str,
+    user_studied: frozenset[str],
 ) -> TurnTrace:
     """One user message in, one audited reply out; nothing unaudited is returned."""
     started = time.monotonic()
     classification = await _classify(message, history, topics, components, session_id)
-    directive = route(classification, topics, now)
+    directive = route(classification, topics, now, user_studied)
     notes = (
         await components.retriever.retrieve(message, now)
         if directive.answer_topics
@@ -113,7 +115,8 @@ async def run_turn(
 
     attempts: list[DraftAttempt] = []
     final_reply: str | None = None
-    for _ in range(2):
+    # A crisis gets the fixed template straight away; no draft is worth the wait.
+    for _ in range(0 if directive.route is Route.CRISIS else 2):
         attempt = await _draft_and_audit(
             request, history, topics, now, components, session_id
         )
