@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed embed-model turn probe test check fmt llm-ping mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed embed-model turn probe test check fmt llm-ping api-types mobile mobile-tunnel
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -51,6 +51,10 @@ fmt:
 
 llm-ping:
 	uv run python -m kindred_api.llm_ping
+
+api-types:
+	uv run python -m kindred_api.openapi_export apps/mobile/openapi.json
+	cd apps/mobile && npx openapi-ts
 
 mobile:
 	cd apps/mobile && npx expo start

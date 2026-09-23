@@ -65,6 +65,7 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make check` — ruff, mypy and expo lint
 - `make fmt` — ruff format and autofix
 - `make llm-ping` — one real call to the configured LLM endpoint
+- `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
 - `make mobile` — Expo dev server; scan the QR code with Expo Go
 - `make mobile-tunnel` — same over an ngrok tunnel, for networks where the phone can't reach the PC
 
