@@ -2,17 +2,24 @@ import json
 from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
 from datetime import date, time
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
+import httpx
 import httpx2
 import pytest
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import Connection, create_engine, text
 from sqlalchemy.engine import make_url
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from kindred_api.clock import Clock
 from kindred_api.config import get_settings
-from kindred_db import Plan, User
+from kindred_api.dependencies import get_clock, get_session, get_worker
+from kindred_api.main import app
+from kindred_api.schedule import plan_moment
+from kindred_api.turn_worker import TurnWorker
+from kindred_db import Buddy, Plan, TopicNode, User
 from kindred_db import create_engine as create_async_engine
 from kindred_llm import LLMClient
 
@@ -68,18 +75,28 @@ def connection(database_url: str) -> Iterator[Connection]:
 
 
 @pytest.fixture
-async def session(database_url: str) -> AsyncIterator[AsyncSession]:
+async def sessions(
+    database_url: str,
+) -> AsyncIterator[async_sessionmaker[AsyncSession]]:
+    """Sessions that share one rolled-back transaction, for code that opens its own."""
     engine = create_async_engine(database_url)
     async with engine.connect() as connection:
         transaction = await connection.begin()
-        async with AsyncSession(
+        yield async_sessionmaker(
             bind=connection,
             join_transaction_mode="create_savepoint",
             expire_on_commit=False,
-        ) as session:
-            yield session
+        )
         await transaction.rollback()
     await engine.dispose()
+
+
+@pytest.fixture
+async def session(
+    sessions: async_sessionmaker[AsyncSession],
+) -> AsyncIterator[AsyncSession]:
+    async with sessions() as session:
+        yield session
 
 
 @pytest.fixture
@@ -151,3 +168,56 @@ def sent_prompt() -> Callable[[httpx2.Request], tuple[str, str]]:
         return messages[0]["content"], messages[1]["content"]
 
     return read
+
+
+@pytest.fixture
+def add_course(
+    session: AsyncSession, add_plan: Callable[[date, str], Awaitable[Plan]]
+) -> Callable[[int], Awaitable[Plan]]:
+    """A plan from 1 Oct 2026 in Kolkata with a buddy and topics unlocking at 19:00."""
+
+    async def add(days: int) -> Plan:
+        plan = await add_plan(date(2026, 10, 1), "Asia/Kolkata")
+        session.add(Buddy(user_id=plan.user_id, name="Juno"))
+        session.add_all(
+            TopicNode(
+                plan_id=plan.id,
+                slug=f"topic-{day}",
+                day=day,
+                title=f"Topic {day}",
+                audit_brief=f"Brief for topic {day}.",
+                unlock_at=plan_moment(
+                    plan.start_date, day, time(19), ZoneInfo("Asia/Kolkata")
+                ),
+            )
+            for day in range(1, days + 1)
+        )
+        await session.flush()
+        return plan
+
+    return add
+
+
+ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+
+
+@pytest.fixture
+async def api(session: AsyncSession) -> AsyncIterator[ApiClient]:
+    """A client for the app on the test session, with the given clock and worker."""
+    clients: list[httpx.AsyncClient] = []
+
+    def connect(clock: Clock, worker: TurnWorker | None) -> httpx.AsyncClient:
+        app.dependency_overrides[get_session] = lambda: session
+        app.dependency_overrides[get_clock] = lambda: clock
+        if worker is not None:
+            app.dependency_overrides[get_worker] = lambda: worker
+        client = httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        )
+        clients.append(client)
+        return client
+
+    yield connect
+    for client in clients:
+        await client.aclose()
+    app.dependency_overrides.clear()

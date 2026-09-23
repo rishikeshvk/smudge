@@ -1,9 +1,13 @@
 from kindred_contracts.api import (
     AdvanceClock,
+    BuddyStatus,
+    ChatMessage,
     ClockChange,
     ClockView,
     JumpToDay,
+    MessageStatus,
     ResetClock,
+    SendMessage,
 )
 from kindred_contracts.curriculum import (
     Curriculum,
@@ -42,11 +46,15 @@ from kindred_contracts.turn import (
 
 __all__ = [
     "AdvanceClock",
+    "BuddyStatus",
+    "ChatMessage",
     "ClockChange",
     "ClockView",
     "JumpToDay",
+    "MessageStatus",
     "PersonaContext",
     "ResetClock",
+    "SendMessage",
     "AuditVerdict",
     "Category",
     "ChatTurn",

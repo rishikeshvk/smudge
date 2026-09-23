@@ -11,6 +11,7 @@ from kindred_db import Plan, User
 @dataclass(frozen=True)
 class CurrentPlan:
     id: int
+    user_id: int
     start_date: date
     study_time: time
     tz: ZoneInfo
@@ -31,6 +32,7 @@ async def load_current_plan(session: AsyncSession) -> CurrentPlan | None:
     plan, timezone = row
     return CurrentPlan(
         id=plan.id,
+        user_id=plan.user_id,
         start_date=plan.start_date,
         study_time=plan.study_time,
         tz=ZoneInfo(timezone),

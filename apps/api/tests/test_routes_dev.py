@@ -1,4 +1,4 @@
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import Awaitable, Callable
 from datetime import UTC, date, datetime, timedelta
 
 import httpx
@@ -6,37 +6,20 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.clock import Clock, FixedClock, OffsetClock, SystemClock
-from kindred_api.dependencies import get_clock, get_session
 from kindred_api.dev_clock import load_offset
-from kindred_api.main import app
+from kindred_api.turn_worker import TurnWorker
 from kindred_db import Plan
 
 AddPlan = Callable[[date, str], Awaitable[Plan]]
+ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
 
 # 10:00 in Kolkata, the morning of day 1 of a plan starting 1 Oct.
 REAL_NOW = datetime(2026, 10, 1, 4, 30, tzinfo=UTC)
 
 
 @pytest.fixture
-def clock() -> OffsetClock:
-    return OffsetClock(FixedClock(REAL_NOW), timedelta())
-
-
-def client_for(session: AsyncSession, clock: Clock) -> httpx.AsyncClient:
-    app.dependency_overrides[get_session] = lambda: session
-    app.dependency_overrides[get_clock] = lambda: clock
-    return httpx.AsyncClient(
-        transport=httpx.ASGITransport(app=app), base_url="http://test"
-    )
-
-
-@pytest.fixture
-async def client(
-    session: AsyncSession, clock: OffsetClock
-) -> AsyncIterator[httpx.AsyncClient]:
-    async with client_for(session, clock) as client:
-        yield client
-    app.dependency_overrides.clear()
+def client(api: ApiClient) -> httpx.AsyncClient:
+    return api(OffsetClock(FixedClock(REAL_NOW), timedelta()), None)
 
 
 @pytest.mark.anyio
@@ -97,11 +80,7 @@ async def test_back_to_real_time(
 
 
 @pytest.mark.anyio
-async def test_time_controls_are_hidden_outside_dev_mode(
-    session: AsyncSession,
-) -> None:
-    async with client_for(session, SystemClock()) as client:
-        response = await client.get("/dev/clock")
-    app.dependency_overrides.clear()
+async def test_time_controls_are_hidden_outside_dev_mode(api: ApiClient) -> None:
+    response = await api(SystemClock(), None).get("/dev/clock")
 
     assert response.status_code == 404

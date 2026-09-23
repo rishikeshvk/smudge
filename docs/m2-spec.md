@@ -70,6 +70,28 @@ change.
   replies, which puts a model's wording between the user and real help.
 - `buddies` holds one buddy per user; `make seed` takes `--buddy-name` (default Juno).
 
+## Chat API (step 3)
+
+| Endpoint | Returns | Notes |
+| --- | --- | --- |
+| `POST /chat/messages` `{text}` | `202` `ChatMessage` | Queues the message and wakes the turn worker; `409` without a plan |
+| `GET /chat/messages/{id}` | `MessageStatus {message, reply}` | Poll this: `message.stage` is the DraftStatus, `reply` appears once answered |
+| `GET /chat/messages?before_id&limit` | `ChatMessage[]` oldest first | Only messages at or before the Clock's now |
+| `GET /turns/{id}` | `TurnTrace` | A buddy reply's `turn_id`, for the X-ray view |
+| `GET /buddy` | `BuddyStatus {name, available}` | `available` is false while the endpoint fails |
+| `POST /progress/checkins` | `TopicRef` | "I studied today": marks the user's next topic, in plan order |
+
+- `TurnStage`: `queued → classifying → writing → checking → answered`, or `failed` for a bug. A redraft goes back
+  through `writing` and `checking`. Each stage is committed as it happens, so polling sees it.
+- **Turn worker.** One asyncio task answers queued messages oldest first, so each reply sees the one before. It
+  wakes on every post and retries every 60 s. An `LLMUnavailableError` (connection, 5xx, bad key or usage limit,
+  from the chat model or the embedder) rolls the turn back, leaves the message queued and marks the buddy
+  unavailable until a turn succeeds. Anything else marks just that message `failed` and is logged. Turns cut off by
+  a restart are queued again at startup.
+- **History** for a turn is the last 12 messages up to now: every buddy reply so far plus the user's earlier
+  messages. Replies sent after this message was queued count, so the buddy remembers what it just said.
+- The chat thread belongs to the user; the OpenCode session ID is `chat-<user id>`, stable per conversation.
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.
