@@ -2,16 +2,12 @@ import asyncio
 import uuid
 
 from kindred_api.config import get_settings
-from kindred_llm import LLMClient
+from kindred_api.llm_clients import build_llm
 
 
 async def main() -> None:
     settings = get_settings()
-    client = LLMClient(
-        base_url=settings.llm_base_url,
-        api_key=settings.llm_api_key.get_secret_value(),
-        model=settings.llm_model_drafter,
-    )
+    client = build_llm(settings, settings.llm_model_drafter)
     reply = await client.complete(
         "Say hello in five words.", session_id=str(uuid.uuid4())
     )

@@ -13,7 +13,7 @@ from tzlocal import get_localzone_name
 from kindred_api.clock import SystemClock
 from kindred_api.config import get_settings
 from kindred_api.llm_clients import build_embedder
-from kindred_api.schedule import unlock_at
+from kindred_api.schedule import plan_moment
 from kindred_contracts import Curriculum
 from kindred_db import (
     LedgerNote,
@@ -75,7 +75,7 @@ async def seed_plan(
             day=topic.day,
             title=topic.title,
             audit_brief=topic.audit_brief,
-            unlock_at=unlock_at(start_date, topic.day, curriculum.study_time, tz),
+            unlock_at=plan_moment(start_date, topic.day, curriculum.study_time, tz),
         )
         for topic in curriculum.nodes
     }

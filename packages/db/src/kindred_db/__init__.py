@@ -8,6 +8,7 @@ from kindred_db.models import (
     TopicNode,
     TopicPrerequisite,
     TopicVocabulary,
+    Turn,
     User,
 )
 
@@ -20,6 +21,7 @@ __all__ = [
     "TopicNode",
     "TopicPrerequisite",
     "TopicVocabulary",
+    "Turn",
     "User",
     "create_engine",
     "session_factory",

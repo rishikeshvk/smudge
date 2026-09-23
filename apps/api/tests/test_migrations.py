@@ -12,6 +12,7 @@ TABLES = {
     "topic_vocabulary",
     "ledger_notes",
     "note_embeddings",
+    "turns",
 }
 
 

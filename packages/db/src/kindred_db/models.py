@@ -107,3 +107,19 @@ class NoteEmbedding(Base):
     )
     model: Mapped[str] = mapped_column(primary_key=True)
     embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS))
+
+
+# Every pipeline turn, for the X-ray view and eval runs.
+class Turn(Base):
+    __tablename__ = "turns"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"), index=True)
+    session_id: Mapped[str]
+    probe_run_id: Mapped[str | None] = mapped_column(index=True)
+    at: Mapped[datetime]
+    message: Mapped[str]
+    route: Mapped[str]
+    fell_back: Mapped[bool]
+    final_reply: Mapped[str]
+    trace: Mapped[dict[str, object]] = mapped_column(JSONB)
