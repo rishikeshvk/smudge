@@ -1,0 +1,15 @@
+[project]
+name = "kindred-contracts"
+version = "0.1.0"
+description = "Typed schemas exchanged between Kindred components"
+authors = [
+    { name = "Rishikesh", email = "rishikeshvk2001@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.13.5",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"

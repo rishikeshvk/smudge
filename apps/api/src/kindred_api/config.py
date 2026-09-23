@@ -9,7 +9,16 @@ class Settings(BaseSettings):
 
     llm_base_url: str = Field(min_length=1)
     llm_api_key: SecretStr = Field(min_length=1)
-    llm_model: str = Field(min_length=1)
+    llm_model_classifier: str = Field(min_length=1)
+    llm_model_drafter: str = Field(min_length=1)
+    llm_model_auditor: str = Field(min_length=1)
+    llm_model_judge: str = Field(min_length=1)
+
+    database_url: str = Field(min_length=1)
+
+    embed_base_url: str = Field(min_length=1)
+    embed_api_key: SecretStr = Field(min_length=1)
+    embed_model: str = Field(min_length=1)
 
 
 @lru_cache
