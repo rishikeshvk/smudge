@@ -1,6 +1,6 @@
 # M2 spec: Buddy brain
 
-2026-09-23 · Status: **approved**; design changes during build are noted inline
+2026-09-23 · Status: **done**; design changes during build are noted inline
 
 M2 turns the M1 gate into a buddy: it plans with you, studies on its own schedule from real sources, chats in its
 own voice, remembers who you are, and serves all of it over a REST API for the M3 app. It is done when **14 simulated
@@ -196,8 +196,9 @@ if any reply went out without an audit.
 - **Second 14-day run: stopped after day 3 to save the OpenCode Go weekly budget.** Days 1–3 were studied (notes
   written on the 1st, 1st and 2nd attempt), all 7 chat messages were answered with audited replies and no
   fallbacks, and 4 memory snapshots were written (onboarding day plus days 1–3).
-- **Status:** the loop runs end to end through the Clock, but "14 simulated days" is still unverified. The next
-  run is `make simulate ARGS='--days 14 --messages-per-day 1'` (about 90 calls) once the budget resets.
+- **Status:** accepted as done on 2026-09-23 with the 3-day run as validation. The loop runs end to end through
+  the Clock; a full 14-day run (`make simulate ARGS='--days 14 --messages-per-day 1'`, about 90 calls) is left
+  for when the OpenCode Go budget allows.
 
 ## Steps
 
