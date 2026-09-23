@@ -1,0 +1,1660 @@
+# Hand-written M1 curriculum. Research and sources: docs/research/aws-2week.md
+slug: aws-2week
+title: AWS fundamentals in two weeks
+study_time: "19:00"
+baseline_card:
+  - AWS is Amazon Web Services, Amazon's cloud business. Lots of apps and websites run on it, which is why its outages make the news.
+  - '"The cloud" means using someone else''s computers and data centres over the internet, like Google Drive, Dropbox or Netflix.'
+  - Microsoft Azure and Google Cloud are competitors.
+  - Companies pay for cloud services by usage, a bit like a utility bill.
+  - Everyday computing words in their everyday sense - server, data centre, website, app, file, folder, upload, download, backup, password, username, account, login.
+  - Consumer security basics - two-factor codes, authenticator apps, strong passwords, phishing, and never sharing your password.
+  - Encryption roughly means scrambling data so others can't read it, and the padlock in a browser means the connection is encrypted.
+nodes:
+  - slug: cloud-basics
+    day: 1
+    title: What AWS is & global infrastructure
+    prerequisites: []
+    audit_brief: >-
+      Teaches what AWS is: rented computing resources with pay-as-you-go pricing and elasticity, split into
+      separately named services charged only on use. Four ways to use AWS: the
+      AWS Management Console, the AWS CLI, SDKs (e.g. boto3) and the raw HTTP APIs; the console calls the same
+      APIs, and requests are signed with Signature Version 4 (SigV4). Deployment models: cloud, on-premises,
+      hybrid. Global infrastructure: a Region is an isolated geographic area (codes like us-east-1, eu-west-1);
+      each Region has at least three Availability Zones; an AZ is one or more discrete data centers with
+      redundant power and networking; AZ names like us-east-2a vs AZ IDs like use2-az1, with consistent name
+      mapping for accounts created from Nov 2025. Resources are zonal, regional or global. Region choice by
+      latency, cost, compliance/data residency and service availability; opt-in Regions. Scale: 39 Regions,
+      124 AZs, 750+ edge points of presence.
+    vocabulary:
+      - {term: "pay-as-you-go", kind: term, everyday: true}
+      - {term: "elasticity", kind: term, everyday: true}
+      - {term: "scalability", kind: term, everyday: true}
+      - {term: "service", kind: term, everyday: true}
+      - {term: "AWS Management Console", kind: term}
+      - {term: "Management Console", kind: synonym}
+      - {term: "console", kind: term, everyday: true}
+      - {term: "AWS CLI", kind: term}
+      - {term: "CLI", kind: abbreviation, everyday: true}
+      - {term: "command line interface", kind: synonym, everyday: true}
+      - {term: "AWS SDK", kind: term}
+      - {term: "SDK", kind: abbreviation, everyday: true}
+      - {term: "boto3", kind: api_name}
+      - {term: "API", kind: abbreviation, everyday: true}
+      - {term: "SigV4", kind: abbreviation}
+      - {term: "Signature Version 4", kind: synonym}
+      - {term: "on-premises", kind: term, everyday: true}
+      - {term: "hybrid", kind: term, everyday: true}
+      - {term: "Region", kind: term, everyday: true}
+      - {term: "AWS Region", kind: term}
+      - {term: "region code", kind: term}
+      - {term: "us-east-1", kind: api_name}
+      - {term: "eu-west-1", kind: api_name}
+      - {term: "us-east-2a", kind: api_name}
+      - {term: "Availability Zone", kind: term}
+      - {term: "AZ", kind: abbreviation, everyday: true}
+      - {term: "AZ ID", kind: term}
+      - {term: "use2-az1", kind: api_name}
+      - {term: "zonal", kind: term}
+      - {term: "regional", kind: term, everyday: true}
+      - {term: "global service", kind: term}
+      - {term: "opt-in Region", kind: term}
+      - {term: "edge location", kind: term}
+      - {term: "point of presence", kind: term}
+      - {term: "PoP", kind: abbreviation, everyday: true}
+      - {term: "Local Zone", kind: term}
+      - {term: "Wavelength Zone", kind: term}
+      - {term: "high availability", kind: term, everyday: true}
+      - {term: "latency", kind: term, everyday: true}
+      - {term: "data residency", kind: term, everyday: true}
+    notes:
+      - body: |
+          Day 1! Today I learned what AWS actually is, beyond "Amazon's cloud".
+  
+          - AWS rents out computing resources (servers, storage, databases and a lot more) and you pay for what you
+            use, pay-as-you-go, instead of buying hardware up front. The docs also keep saying "elasticity": scale up
+            when you need more, scale back down when you don't.
+          - Every capability is its own **service** with its own name. Signing up gives you access to all of them, and
+            you're only charged for what you actually use. Names on our roadmap: IAM (days 3 to 6), S3 (from day 7),
+            EC2 (from day 11). I don't know what they do yet, just that they're coming.
+          - Four ways to talk to AWS:
+            1. the **AWS Management Console** (the website)
+            2. the **AWS CLI** (command line)
+            3. **SDKs** (code libraries; boto3 is the Python one)
+            4. the raw **HTTP APIs**
+          - Big realisation: the console itself calls the same APIs. They're all different front-ends to the same
+            thing, not different products.
+          - Every request to AWS gets signed (Signature Version 4, "SigV4") so AWS can tell who sent it, unless the
+            request is anonymous. The CLI and SDKs do the signing for me. What the signing actually uses is something I
+            haven't got to yet.
+          - Deployment models: all-in cloud, on-premises (your own data centre), or hybrid (a mix of both).
+        shaky:
+          - "I half-assumed the CLI was more powerful than the console. If they all call the same APIs, is anything actually CLI-only? Not sure yet."
+          - "I know the cloud is just someone else's data centres, but I still catch myself picturing something vague and magical."
+        sources:
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html#access-ec2
+          - https://docs.aws.amazon.com/aws-certification/latest/cloud-practitioner-02/cloud-practitioner-02.html
+      - body: |
+          Global infrastructure notes.
+  
+          - A **Region** is a separate geographic area, designed to be isolated from the other Regions. They have codes
+            like us-east-1 (N. Virginia) and eu-west-1 (Ireland).
+          - Most resources are **regional**: you pick a Region and you only see that Region's stuff. AWS doesn't copy
+            things between Regions for you.
+          - Each Region has **at least three Availability Zones (AZs)**. An AZ is "one or more discrete data centers",
+            each with redundant power, networking and connectivity, in separate facilities. AZs in a Region are linked
+            by low-latency fibre and don't share single points of failure.
+          - AZ names are the Region code plus a letter, like us-east-2a. There's also an **AZ ID**, like use2-az1,
+            which is the same physical AZ in every account.
+          - Three flavours of resource: **zonal** (lives in one AZ), **regional**, and **global** (not tied to any
+            Region). For high availability you spread across several AZs. Which things are which, I'll learn as I meet
+            them.
+          - Choosing a Region: latency (be close to your users), cost, compliance and data residency, and whether the
+            service you need is offered there. Some Regions are opt-in.
+          - Scale right now: 39 Regions, 124 AZs, 750+ edge points of presence. Saudi Arabia and Chile are announced.
+          - Edge locations (points of presence) are a different kind of site, not Regions. The service that uses
+            them isn't on our plan, so I stopped there. Local Zones and Wavelength Zones also exist; I only skimmed those.
+        shaky:
+          - "An AZ is not the same as a data centre. One AZ can be several data centres, and I keep forgetting that."
+          - "us-east-1a in my account might not be the same physical AZ as us-east-1a in yours, but only for older accounts in the oldest Regions; accounts from Nov 2025 get the same mapping. So that's why AZ IDs exist?"
+          - "Apparently when stuff 'disappears' in the console, it's usually just the wrong Region selected. I bet I'll do this at least once."
+        sources:
+          - https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions-availability-zones.html
+          - https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-availability-zones.html
+          - https://aws.amazon.com/about-aws/global-infrastructure/
+  
+  - slug: account-billing
+    day: 2
+    title: Your AWS account, root user & billing
+    prerequisites: [cloud-basics]
+    audit_brief: >-
+      Teaches the AWS account and root user: a new account starts with one identity, the root user (sign-up email
+      and password) with complete access, used only for root-only tasks like changing the account email or closing
+      the account. Accounts have a 12-digit account ID. Root MFA is required, registered within
+      35 days of first console sign-in; passkeys/security keys (FIDO, recommended), virtual
+      authenticator apps (TOTP) or hardware TOTP tokens. Billing: accounts created on/after July 15, 2025 get
+      USD 100 credits plus up to USD 100 more; a Free plan (no charges, ends after 6 months or when credits run out,
+      then the account closes with 90 days to upgrade) or a Paid plan; legacy accounts keep the 12-month model. AWS
+      Budgets alerts on actual and forecasted spend, updates up to 3 times a day, not a spending cap. Cost
+      Explorer shows 13 months back and forecasts 12. Pricing Calculator.
+    vocabulary:
+      - {term: "AWS account", kind: term}
+      - {term: "account", kind: term, everyday: true}
+      - {term: "account ID", kind: term}
+      - {term: "12-digit account number", kind: synonym}
+      - {term: "root user", kind: term}
+      - {term: "root account", kind: synonym}
+      - {term: "root credentials", kind: term}
+      - {term: "root", kind: term, everyday: true}
+      - {term: "account owner", kind: term, everyday: true}
+      - {term: "close account", kind: term, everyday: true}
+      - {term: "MFA", kind: abbreviation, everyday: true}
+      - {term: "multi-factor authentication", kind: term, everyday: true}
+      - {term: "passkey", kind: term, everyday: true}
+      - {term: "security key", kind: term, everyday: true}
+      - {term: "FIDO", kind: abbreviation}
+      - {term: "YubiKey", kind: term, everyday: true}
+      - {term: "virtual MFA", kind: term}
+      - {term: "TOTP", kind: abbreviation}
+      - {term: "hardware TOTP token", kind: term}
+      - {term: "Free Tier", kind: term}
+      - {term: "AWS Free Tier", kind: term}
+      - {term: "Free plan", kind: term, everyday: true}
+      - {term: "free account plan", kind: synonym}
+      - {term: "Paid plan", kind: term, everyday: true}
+      - {term: "credits", kind: term, everyday: true}
+      - {term: "promotional credits", kind: term, everyday: true}
+      - {term: "always free", kind: term, everyday: true}
+      - {term: "short-term trial", kind: term, everyday: true}
+      - {term: "12-month free tier", kind: term}
+      - {term: "Billing and Cost Management console", kind: term}
+      - {term: "AWS Budgets", kind: term}
+      - {term: "budget", kind: term, everyday: true}
+      - {term: "cost budget", kind: term, everyday: true}
+      - {term: "usage budget", kind: term, everyday: true}
+      - {term: "zero-spend budget", kind: term}
+      - {term: "budget alert", kind: term, everyday: true}
+      - {term: "forecasted spend", kind: term, everyday: true}
+      - {term: "Cost Explorer", kind: term}
+      - {term: "AWS Pricing Calculator", kind: term}
+      - {term: "Pricing Calculator", kind: synonym}
+    notes:
+      - body: |
+          Account day. Today was about the account itself and the scary all-powerful login.
+  
+          - A new AWS account starts with exactly one identity: the **root user**. That's the email and password I
+            signed up with, and it has complete access to every service and resource in the account.
+          - The account itself is identified by a 12-digit **account ID**.
+          - Rule number one: don't use root for everyday work. Save it for the root-only tasks, like changing the
+            account's email or the root password, closing the account, and some billing and tax settings. What to use
+            *instead* for daily work, I don't know yet. I'm guessing the IAM days get into it somehow?
+          - **MFA on root is required now**, for every kind of account. You have to register it within 35 days of your
+            first console sign-in attempt.
+          - Supported MFA types:
+            - passkeys and security keys (FIDO), which AWS recommends
+            - virtual authenticator apps (the 6-digit TOTP codes)
+            - hardware TOTP tokens
+          - Lots of older tutorials still say MFA on root is "recommended". That's out of date: it's required.
+          - My plan: passkey on the root user, write down where the recovery stuff lives, and then basically never
+            touch root again.
+        shaky:
+          - "'Root user' vs 'root' on Linux or a rooted phone: same word, and I'm not sure how far the 'full control' comparison really goes."
+          - "If root can do everything, can anything restrict it at all? For a standalone account like ours it sounds like basically no, which is exactly why MFA is required."
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/enable-mfa-for-root.html
+      - body: |
+          Billing, because I really don't want a surprise bill.
+  
+          - The Free Tier changed for accounts created on or after **July 15, 2025**: USD 100 in credits at sign-up,
+            plus up to USD 100 more for completing some starter activities (setting up a budget is one of them). Over
+            30 services are always free.
+          - At sign-up you pick a plan:
+            - **Free plan**: no charges at all. It ends after 6 months or when the credits run out, whichever comes
+              first. Then the account *closes*. AWS keeps your content for 90 days, and you can upgrade to Paid in that
+              window.
+            - **Paid plan**: all services, pay-as-you-go once the credits are gone.
+          - Accounts from before July 15, 2025 keep the old model (12 months free, always-free, trials). So a lot of
+            tutorials are describing the legacy setup.
+          - **AWS Budgets**: set a cost or usage budget and get alerts (email) on actual and *forecasted* spend. Budget
+            data updates up to 3 times a day, so alerts lag behind real spend.
+          - **Cost Explorer**: look back up to 13 months and forecast 12 months ahead.
+          - **AWS Pricing Calculator**: estimate costs before building anything.
+          - Stuff I set up in a Region I'm not looking at is easy to forget about. Check all of them.
+        shaky:
+          - "A budget alert isn't a spending cap. It notifies me (and apparently can trigger actions) but doesn't stop spend by itself, and it's delayed. So what actually stops a runaway bill? Me, I guess."
+          - "On the Free plan you 'can't be charged', but the account closes after 6 months unless you upgrade. I did not expect that."
+          - "Tutorials saying '12 months free' are only right for legacy accounts, I think. I need to check which kind we're on."
+        sources:
+          - https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-plans.html
+          - https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/billing-free-tier.html
+          - https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html
+          - https://calculator.aws/
+  
+  - slug: iam-intro
+    day: 3
+    title: Shared responsibility & IAM overview
+    prerequisites: [cloud-basics, account-billing]
+    audit_brief: >-
+      Teaches the shared responsibility model: AWS is responsible for security of the cloud (hardware, facilities,
+      network, virtualization layer); the customer for security in the cloud (data, access, guest OS and apps on
+      rented machines, service configuration). The split shifts with service type (IaaS vs PaaS/SaaS and managed
+      services); control types are inherited, shared (patch management, configuration management, awareness and
+      training) and customer-specific. Also an IAM overview: AWS Identity and Access Management controls who is
+      authenticated and authorized; authentication vs authorization; a principal is an entity that can make
+      requests; IAM identities are users, groups and roles (named only). New identities have no permissions by
+      default; least privilege. IAM is global. IAM, IAM Identity Center and STS (Security Token Service) cost
+      nothing extra. IAM is eventually consistent. aws sts get-caller-identity shows the current identity.
+    vocabulary:
+      - {term: "shared responsibility model", kind: term}
+      - {term: "shared responsibility", kind: synonym, everyday: true}
+      - {term: "security of the cloud", kind: term}
+      - {term: "security in the cloud", kind: term}
+      - {term: "inherited controls", kind: term}
+      - {term: "shared controls", kind: term}
+      - {term: "customer-specific controls", kind: term}
+      - {term: "IaaS", kind: abbreviation}
+      - {term: "PaaS", kind: abbreviation}
+      - {term: "SaaS", kind: abbreviation, everyday: true}
+      - {term: "managed service", kind: term, everyday: true}
+      - {term: "guest OS", kind: term}
+      - {term: "host", kind: term, everyday: true}
+      - {term: "hypervisor", kind: term}
+      - {term: "patching", kind: term, everyday: true}
+      - {term: "compliance", kind: term, everyday: true}
+      - {term: "IAM", kind: abbreviation}
+      - {term: "AWS Identity and Access Management", kind: term}
+      - {term: "Identity and Access Management", kind: synonym}
+      - {term: "identity", kind: term, everyday: true}
+      - {term: "principal", kind: term, everyday: true}
+      - {term: "entity", kind: term, everyday: true}
+      - {term: "authentication", kind: term, everyday: true}
+      - {term: "authN", kind: abbreviation}
+      - {term: "authorization", kind: term, everyday: true}
+      - {term: "authZ", kind: abbreviation}
+      - {term: "permission", kind: term, everyday: true}
+      - {term: "least privilege", kind: term}
+      - {term: "principle of least privilege", kind: synonym}
+      - {term: "STS", kind: abbreviation}
+      - {term: "AWS STS", kind: term}
+      - {term: "Security Token Service", kind: synonym}
+      - {term: "eventual consistency", kind: term}
+      - {term: "eventually consistent", kind: synonym}
+      - {term: "IAM console", kind: term}
+      - {term: "aws sts get-caller-identity", kind: api_name}
+      - {term: "GetCallerIdentity", kind: api_name}
+      - {term: "iam.amazonaws.com", kind: api_name}
+    notes:
+      - body: |
+          Shared responsibility model: who secures what.
+  
+          - AWS does security **of** the cloud: the hardware, the buildings, the network, and the virtualization layer
+            everything runs on.
+          - I do security **in** the cloud: my data, who gets access to what, the operating system and apps on any
+            machines I rent, and how I configure the services I use.
+          - The split moves depending on the kind of service. With raw infrastructure (IaaS), where I'm basically
+            renting a machine, I'm patching its guest OS and my apps. With more managed, abstracted services AWS takes
+            on more, and I'm mostly left with my data, how it's classified, and who can reach it. PaaS and SaaS push
+            even more onto the provider.
+          - Three control types:
+            - **inherited**: AWS does it and I just inherit it (physical security of the data centres)
+            - **shared**: we each do our own layer (patch management, configuration management, awareness and
+              training)
+            - **customer-specific**: entirely mine
+          - Takeaway: AWS gives me safe building blocks, but if I set something up badly, that's on me, not them.
+        shaky:
+          - "'AWS handles security' is wrong, since my misconfigurations are on me. But where exactly is the line for a given service? Sounds like I have to check service by service."
+          - "Patching: AWS patches the host underneath, I patch the guest OS on anything I rent. Host vs guest keeps tripping me up."
+        sources:
+          - https://aws.amazon.com/compliance/shared-responsibility-model/
+      - body: |
+          IAM overview (the detailed IAM days are 4 to 6).
+  
+          - IAM = AWS Identity and Access Management. It controls who is **authenticated** (signed in) and
+            **authorized** (has permissions) to use resources.
+          - Authentication = proving who you are. Authorization = what you're allowed to do once you're in.
+          - A **principal** is anything that can make a request to AWS. The root user from yesterday is one.
+          - IAM identities come as users, groups and roles. Users and groups are day 4, roles are day 6.
+          - New identities start with **no permissions** until someone grants them. **Least privilege** means granting
+            only what a task actually needs. How permissions get written down is day 5.
+          - IAM is **global**: it isn't tied to a Region.
+          - IAM, Identity Center and STS (AWS Security Token Service) cost nothing extra. I haven't dug into what STS
+            actually does yet.
+          - IAM is **eventually consistent**: a change can take a moment to propagate, so the docs say keep IAM changes
+            out of critical, time-sensitive code paths.
+          - Handy: `aws sts get-caller-identity` tells me who AWS thinks I am right now.
+        shaky:
+          - "AuthN vs AuthZ: I swap them constantly. N for who you are, Z for what you can do? My mnemonic is weak."
+          - "Eventual consistency: if I add a permission and immediately get denied, I might just need to wait? That feels odd for a security system."
+          - "Identity Center is part of the IAM family but a separate service? The naming confuses me. That's day 6 anyway."
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html
+  
+  - slug: iam-users-groups
+    day: 4
+    title: IAM users, groups & credentials
+    prerequisites: [iam-intro]
+    audit_brief: >-
+      Teaches IAM users and groups: an IAM user is an identity for one person or application with long-term
+      credentials, a console password and/or access keys. Access keys are an access key ID (e.g.
+      AKIAIOSFODNN7EXAMPLE, AKIA prefix = long-term key) plus a secret access key shown only at creation; max 2 per
+      user; never for root; never in code; aws configure stores them in the plaintext ~/.aws/credentials file;
+      named CLI profiles. User groups: permissions attached once apply to all members; a user can be in up to 10
+      groups; no nesting; no default all-users group. Quotas: 5,000 users and 300 groups per account; up to 8 MFA
+      devices per user. Unique-ID prefixes AIDA (user) and AGPA (group). Credential report. AWS no longer recommends IAM users for human sign-in except for cases like third-party
+      clients and emergency access. CLI/API names: aws iam create-user, create-group, add-user-to-group,
+      create-access-key, CreateUser, CreateAccessKey.
+    vocabulary:
+      - {term: "IAM user", kind: term}
+      - {term: "user", kind: term, everyday: true}
+      - {term: "IAM group", kind: term}
+      - {term: "user group", kind: term, everyday: true}
+      - {term: "group", kind: term, everyday: true}
+      - {term: "member", kind: term, everyday: true}
+      - {term: "console password", kind: term}
+      - {term: "login profile", kind: term}
+      - {term: "password policy", kind: term, everyday: true}
+      - {term: "access key", kind: term}
+      - {term: "access key ID", kind: term}
+      - {term: "secret access key", kind: term}
+      - {term: "secret key", kind: synonym}
+      - {term: "long-term credentials", kind: term}
+      - {term: "programmatic access", kind: term}
+      - {term: "credentials", kind: term, everyday: true}
+      - {term: "access key rotation", kind: term}
+      - {term: "AKIA", kind: abbreviation}
+      - {term: "AIDA", kind: abbreviation}
+      - {term: "AGPA", kind: abbreviation}
+      - {term: "AKIAIOSFODNN7EXAMPLE", kind: api_name}
+      - {term: "~/.aws/credentials", kind: api_name}
+      - {term: "credentials file", kind: term}
+      - {term: "shared credentials file", kind: synonym}
+      - {term: "aws configure", kind: api_name}
+      - {term: "CLI profile", kind: term}
+      - {term: "profile", kind: term, everyday: true}
+      - {term: "MFA device", kind: term}
+      - {term: "credential report", kind: term}
+      - {term: "aws iam create-user", kind: api_name}
+      - {term: "aws iam create-group", kind: api_name}
+      - {term: "aws iam add-user-to-group", kind: api_name}
+      - {term: "aws iam create-access-key", kind: api_name}
+      - {term: "CreateUser", kind: api_name}
+      - {term: "CreateAccessKey", kind: api_name}
+    notes:
+      - body: |
+          IAM users and groups.
+  
+          - An **IAM user** is an identity inside my account for one person or one application. It has **long-term
+            credentials**: a console password, access keys, or both.
+          - Up to 5,000 users per account. Names are case-insensitive for uniqueness, so I can't have both `ADMINS`
+            and `admins`.
+          - **User groups** are collections of users. Give the group permissions once and every member gets them. (The
+            permission documents themselves are day 5.)
+            - a user can be in up to 10 groups
+            - groups **can't be nested**
+            - there's **no default "all users" group**
+            - 300 groups per account by default (adjustable)
+          - MFA can be turned on per IAM user, up to 8 MFA devices each. Same as yesterday's root advice:
+            phishing-resistant passkeys or security keys are preferred.
+          - Every user and group gets a unique ID behind the scenes with a telltale start: `AIDA` = user,
+            `AGPA` = group.
+          - **Credential report**: lists all users and the state of their credentials. Handy for catching old passwords
+            and keys nobody uses.
+          - Twist: AWS now says IAM users are *not* the recommended way for humans to sign in. They're meant for cases
+            like third-party tools and emergency access. The docs point somewhere else for humans; I haven't followed
+            that thread yet.
+        shaky:
+          - "Every tutorial says 'make an IAM admin user for daily use', but current AWS guidance says IAM users aren't the recommended way for people. For just the two of us on one personal account, is an IAM user fine? Genuinely unsure."
+          - "So a group is basically just a way to hand the same permissions to several users? No nesting feels limiting, I don't get why."
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups.html
+          - https://docs.aws.amazon.com/general/latest/gr/iam-service.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#enable-mfa-for-privileged-users
+      - body: |
+          Access keys and the CLI.
+  
+          - **Access keys** are for programmatic access (CLI, SDKs, APIs). A key is two parts:
+            - an **access key ID**, like `AKIAIOSFODNN7EXAMPLE` (`AKIA` = long-term key)
+            - a **secret access key**
+          - The secret is shown **only once**, when you create the key. Lose it and you make a new key.
+          - Max **2** access keys per user, so you can rotate: make the new one, switch over, delete the old one.
+          - Never create access keys for the root user.
+          - Never put keys in code.
+          - `aws configure` is how I hand the CLI a key. It ends up in the shared credentials file,
+            `~/.aws/credentials`, which is **plaintext**. That made me a bit nervous.
+          - Named **CLI profiles** let me keep separate sets of credentials side by side.
+          - Commands I tried reading about: `aws iam create-user`, `aws iam create-group`,
+            `aws iam add-user-to-group`, `aws iam create-access-key` (API names `CreateUser`, `CreateAccessKey`).
+        shaky:
+          - "The access key ID isn't secret, only the secret access key is? Feels strange to be relaxed about half of a credential pair."
+          - "If the credentials file is plaintext on my laptop, how is that safer than keys in code? I guess code gets shared and pushed around and the file doesn't."
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-prefixes
+  
+  - slug: iam-policies
+    day: 5
+    title: IAM policies & policy evaluation
+    prerequisites: [iam-users-groups]
+    audit_brief: >-
+      Teaches IAM policy anatomy and evaluation. A policy is a mostly-JSON document attached to an identity or
+      resource, evaluated on every request. Elements: Version (2012-10-17, the language version), Statement, Sid,
+      Effect (Allow/Deny), Action (service:Action, wildcards), Resource (an ARN,
+      arn:aws:service:region:account:resource; IAM ARNs have a blank Region), Condition (e.g.
+      aws:MultiFactorAuthPresent), Principal only in resource-based policies. Identity-based policies are AWS
+      managed, customer managed (up to 5 versions) or inline; resource-based policies must name a Principal and are
+      always inline. Size limits: managed 6,144 chars, inline 2,048 per user.
+      Evaluation: authenticate, build request context, evaluate; implicit deny by default; explicit Deny overrides
+      any Allow; allows are OR-ed and same-account identity/resource allows form a union; permissions boundaries
+      only limit. Least privilege: start with AWS managed, tighten with customer managed; IAM Access Analyzer (100+
+      validation checks, policy generation, findings), last-accessed info; access levels List, Read, Write,
+      Permissions management, Tagging. Examples use iam:ChangePassword.
+    vocabulary:
+      - {term: "IAM policy", kind: term}
+      - {term: "policy", kind: term, everyday: true}
+      - {term: "permissions policy", kind: term}
+      - {term: "JSON", kind: abbreviation, everyday: true}
+      - {term: "Version", kind: api_name, everyday: true}
+      - {term: "2012-10-17", kind: api_name}
+      - {term: "Statement", kind: api_name, everyday: true}
+      - {term: "Sid", kind: api_name, everyday: true}
+      - {term: "Effect", kind: api_name, everyday: true}
+      - {term: "Allow", kind: api_name, everyday: true}
+      - {term: "Deny", kind: api_name, everyday: true}
+      - {term: "Action", kind: api_name, everyday: true}
+      - {term: "Resource", kind: api_name, everyday: true}
+      - {term: "Condition", kind: api_name, everyday: true}
+      - {term: "condition key", kind: term}
+      - {term: "aws:MultiFactorAuthPresent", kind: api_name}
+      - {term: "iam:ChangePassword", kind: api_name}
+      - {term: "iam:ListUsers", kind: api_name}
+      - {term: "ARN", kind: abbreviation}
+      - {term: "Amazon Resource Name", kind: term}
+      - {term: "arn:aws:iam::123456789012:user/Bob", kind: api_name}
+      - {term: "wildcard", kind: term, everyday: true}
+      - {term: "identity-based policy", kind: term}
+      - {term: "resource-based policy", kind: term}
+      - {term: "managed policy", kind: term}
+      - {term: "AWS managed policy", kind: term}
+      - {term: "customer managed policy", kind: term}
+      - {term: "inline policy", kind: term}
+      - {term: "visual editor", kind: term, everyday: true}
+      - {term: "policy evaluation logic", kind: term}
+      - {term: "request context", kind: term}
+      - {term: "implicit deny", kind: term}
+      - {term: "explicit deny", kind: term}
+      - {term: "AccessDenied", kind: api_name}
+      - {term: "permissions boundary", kind: term}
+      - {term: "IAM Access Analyzer", kind: term}
+      - {term: "Access Analyzer", kind: synonym}
+      - {term: "last accessed information", kind: term}
+      - {term: "aws iam create-policy", kind: api_name}
+    notes:
+      - body: |
+          IAM policies: the anatomy. Dense day.
+  
+          - A policy is a (mostly JSON) document that defines permissions when it's attached to an identity or a
+            resource. AWS checks policies on *every* request, whether it came from the console, CLI or API.
+          - The one I wrote to learn it, letting a user change their own password:
+  
+            ```
+            {
+              "Version": "2012-10-17",
+              "Statement": [{
+                "Sid": "SelfPassword",
+                "Effect": "Allow",
+                "Action": "iam:ChangePassword",
+                "Resource": "*"
+              }]
+            }
+            ```
+          - Elements: `Version` (always `2012-10-17`), `Statement` (one or more), optional `Sid`, `Effect`
+            (`Allow` or `Deny`), `Action`, `Resource`, optional `Condition` (e.g. `aws:MultiFactorAuthPresent` to
+            require MFA).
+          - Actions look like `service:Action`, and wildcards work, e.g. `iam:*AccessKey*`.
+          - Resources are **ARNs**: `arn:aws:service:region:account:resource` (for normal accounts the first part is
+            just `aws`). IAM ARNs leave the Region blank:
+            `arn:aws:iam::123456789012:user/Bob`.
+          - `Principal` only shows up in **resource-based** policies. In identity-based ones the principal is implied:
+            it's whoever the policy is attached to.
+          - Identity-based policies attach to users and groups (roles too, day 6) and come in three kinds:
+            - **AWS managed**: written by AWS, shared by everyone
+            - **customer managed**: mine, reusable, keeps up to 5 versions
+            - **inline**: embedded in one identity, deleted along with it
+          - Resource-based policies attach to a resource instead, must name a `Principal`, and are always inline. I
+            haven't met a real one yet.
+          - Size limits: managed policy 6,144 characters; inline 2,048 per user, 5,120 per group (whitespace doesn't
+            count).
+          - The console has a visual editor, so I don't *have* to hand-write JSON.
+        shaky:
+          - "\"Version\": \"2012-10-17\" is the policy-language version, not the date I wrote it. I nearly typed today's date."
+          - "\"Resource\": \"*\" on iam:ChangePassword still only lets me change my *own* password? That's what I read, but the star looks so scary."
+          - "Inline vs customer managed: when would I actually pick inline?"
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html
+      - body: |
+          How AWS decides allow vs deny, and least privilege.
+  
+          - Order: authenticate the principal, build the request context, then evaluate every policy that applies.
+          - Default is **implicit deny**: if nothing allows it, it's denied.
+          - An **explicit Deny** in any policy beats every Allow. No exceptions.
+          - Allows from several statements or policies add up (they're OR-ed). Within one account, identity-based and
+            resource-based allows form a union: either one can allow.
+          - Some policy types, like permissions boundaries, only **limit** and never grant. The effective permission is
+            the overlap. Awareness only for now.
+          - A denied request shows up as `AccessDenied` / "not authorized to perform".
+          - **Least privilege** in practice: start with AWS managed policies, then tighten with customer managed ones.
+          - Tools for tightening:
+            - **IAM Access Analyzer**: 100+ policy validation checks, can generate a policy from actual activity, and
+              gives findings for access from the public or from
+              outside the account. External-access analysis is free; unused-access
+              analysis and custom policy checks cost extra.
+            - last-accessed information, to see what's never used
+          - Policy summaries group actions into access levels: List, Read, Write, Permissions management, Tagging.
+        shaky:
+          - "I'd have guessed 'the most specific rule wins', but IAM has no specificity rule at all. Deny just wins."
+          - "Implicit deny vs explicit deny look the same in the error. How do I tell which one bit me?"
+          - "AWS managed policies are broad and AWS can change them. 'Start managed, tighten later': when is later, honestly?"
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#grant-least-priv
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+  
+  - slug: iam-roles
+    day: 6
+    title: IAM roles & Identity Center
+    prerequisites: [iam-policies]
+    audit_brief: >-
+      Teaches IAM roles: an identity with permissions but no long-term credentials; whoever assumes it gets
+      temporary credentials for a role session via sts:AssumeRole. Assumable by IAM users (same or other account),
+      other roles, AWS services (service principals) and federated identities via SAML 2.0/OIDC. Two policies: the
+      trust policy (who may assume) and the permissions policy (what it can do). Default session 1 hour;
+      DurationSeconds 900s up to the role maximum of 1-12 hours; role chaining caps at 1 hour. Assuming a role gives
+      up your own permissions (switch role). Temporary keys start ASIA and need a session token. Service role vs
+      service-linked role (AWSServiceRoleFor). Quotas: 1,000 roles per account. IAM Identity Center (formerly AWS SSO, renamed
+      July 26, 2022): access portal, permission sets, organization vs account instance, identity sources (SAML/SCIM),
+      aws configure sso; enabling it creates an Organization, which upgrades a Free plan account and expires credits.
+    vocabulary:
+      - {term: "IAM role", kind: term}
+      - {term: "role", kind: term, everyday: true}
+      - {term: "assume role", kind: term, everyday: true}
+      - {term: "sts:AssumeRole", kind: api_name}
+      - {term: "AssumeRole", kind: api_name}
+      - {term: "role session", kind: term}
+      - {term: "session", kind: term, everyday: true}
+      - {term: "DurationSeconds", kind: api_name}
+      - {term: "maximum session duration", kind: term}
+      - {term: "temporary credentials", kind: term}
+      - {term: "session token", kind: term}
+      - {term: "ASIA", kind: abbreviation, everyday: true}
+      - {term: "trust policy", kind: term}
+      - {term: "trust relationship", kind: synonym, everyday: true}
+      - {term: "service role", kind: term}
+      - {term: "service-linked role", kind: term}
+      - {term: "AWSServiceRoleFor", kind: api_name}
+      - {term: "service principal", kind: term}
+      - {term: "role chaining", kind: term}
+      - {term: "switch role", kind: term}
+      - {term: "cross-account access", kind: term}
+      - {term: "federation", kind: term}
+      - {term: "identity provider", kind: term}
+      - {term: "IdP", kind: abbreviation}
+      - {term: "SAML", kind: abbreviation}
+      - {term: "OIDC", kind: abbreviation}
+      - {term: "OpenID Connect", kind: synonym}
+      - {term: "IAM Identity Center", kind: term}
+      - {term: "Identity Center", kind: synonym}
+      - {term: "AWS SSO", kind: synonym}
+      - {term: "AWS Single Sign-On", kind: synonym}
+      - {term: "SSO", kind: abbreviation, everyday: true}
+      - {term: "AWS access portal", kind: term}
+      - {term: "permission set", kind: term}
+      - {term: "organization instance", kind: term}
+      - {term: "account instance", kind: term}
+      - {term: "identity source", kind: term}
+      - {term: "SCIM", kind: abbreviation}
+      - {term: "aws configure sso", kind: api_name}
+      - {term: "aws sso login", kind: api_name}
+    notes:
+      - body: |
+          IAM roles. This one finally made STS click.
+  
+          - A **role** is an identity with permissions but **no long-term credentials**: no password, no access keys.
+            Whoever **assumes** it gets **temporary credentials** for a **role session**.
+          - Who can assume a role: IAM users (same account or another one), other roles, AWS services (as a "service
+            principal"), and outside identities through **federation** (SAML 2.0 or OIDC).
+          - Every role has two policies:
+            - the **trust policy**, a resource-based policy saying *who* may assume it (no `*` inside a principal ARN)
+            - the **permissions policy**, saying *what* the role can do
+          - Assuming is the `sts:AssumeRole` call, and STS is where the temporary credentials come from.
+          - Sessions: default **1 hour**. `DurationSeconds` goes from 900 seconds up to the role's maximum, which can be
+            set from 1 to 12 hours. **Role chaining** (using a role to assume another role) caps it at 1 hour.
+          - While I'm in a role I temporarily give up my own permissions. In the console that's "switch role".
+          - Temporary keys start with `ASIA` (vs `AKIA` for long-term ones) and also need a **session token**.
+          - **Service role**: a role a service assumes on my behalf; I can edit it. **Service-linked role**: owned by
+            the service (`AWSServiceRoleFor...`); I can view its permissions but not edit them.
+          - Best practice: workloads should use roles and temporary credentials instead of IAM-user access keys.
+          - Quotas: 1,000 roles per account, 20 managed policies per role, trust policy 2,048 characters (adjustable
+            to 8,192).
+        shaky:
+          - "'A role is like a group': no! Groups hold users; roles get assumed and hand out temporary credentials. I still have to say it out loud to keep them apart."
+          - "Trust policy = who, permissions policy = what. I just know I'll edit the wrong one at some point."
+          - "Cross-account: the role's trust policy has to allow me AND my own identity policy has to allow sts:AssumeRole. Two sides; I doubt I'd get that right first try."
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-prefixes
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#bp-workloads-use-roles
+      - body: |
+          IAM Identity Center: how AWS wants humans to sign in.
+  
+          - AWS's number one best practice now: human users should use federation and temporary credentials, and AWS
+            recommends **IAM Identity Center** for that.
+          - It used to be called **AWS Single Sign-On** (renamed July 26, 2022). The CLI still says `sso`:
+            `aws configure sso`, `aws sso login`.
+          - People sign in through the **AWS access portal**. **Permission sets** define what access someone gets and
+            create the matching roles in the accounts.
+          - Two kinds of instance:
+            - **organization instance**: the recommended one, and the only kind that manages AWS account access
+            - **account instance**: a single account, apps only; no permission sets, no AWS account access
+          - Identity sources: Identity Center's own directory, Active Directory, or an external identity provider
+            (Okta, Entra ID and so on) via SAML and SCIM.
+          - August 2026: new organization instances can skip account-access management and just handle apps.
+          - IAM users aren't deprecated, by the way. They're just not the recommended option for humans anymore.
+        shaky:
+          - "AWS says use Identity Center, but enabling an organization instance from our standalone account creates an Organization, and on a Free plan that auto-upgrades the account to Paid and the credits expire immediately. Not sure it's worth it for just us."
+          - "Account instance vs organization instance: I think only the organization one can give access to AWS accounts at all? Need to double-check."
+          - "SSO vs Identity Center: same thing renamed, but older tutorials say SSO everywhere and I keep wondering if they're different."
+        sources:
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#bp-users-federation-idp
+          - https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
+          - https://docs.aws.amazon.com/singlesignon/latest/userguide/enable-identity-center.html
+          - https://aws.amazon.com/about-aws/whats-new/2026/08/aws-identity-center-accounts-optional/
+  - slug: s3-basics
+    day: 7
+    title: S3 fundamentals
+    prerequisites: [cloud-basics, iam-intro]
+    audit_brief: >-
+      Teaches what Amazon S3 (Simple Storage Service) is: object storage where data lives as objects inside buckets.
+      An object is data plus metadata; its key is its unique name in the bucket. Folders are only shared key prefixes
+      in a flat namespace, and the console's "Create folder" makes a 0-byte object ending in "/". Buckets live in one
+      chosen Region and can't be renamed or moved. Naming rules: 3–63 characters, lowercase letters, digits, dots and
+      hyphens, globally unique per partition unless the March 2026 account regional namespace (suffix
+      -<account>-<region>-an) is used. Limits: objects 0 B to 50 TB (was 5 TB), single PUT 5 GB, console upload
+      160 GB, multipart upload for larger, keys up to 1,024 bytes, 10,000 buckets per account by default. Strong
+      read-after-write consistency since Dec 2020; designed for 11 nines (99.999999999%) durability. CLI: aws s3 mb,
+      cp, ls, sync, rm, rb and aws s3api.
+    vocabulary:
+      - {term: "Amazon S3", kind: term}
+      - {term: "S3", kind: abbreviation, everyday: true}
+      - {term: "Simple Storage Service", kind: synonym}
+      - {term: "object storage", kind: term}
+      - {term: "bucket", kind: term, everyday: true}
+      - {term: "general purpose bucket", kind: term}
+      - {term: "directory bucket", kind: term}
+      - {term: "table bucket", kind: term}
+      - {term: "vector bucket", kind: term}
+      - {term: "object", kind: term, everyday: true}
+      - {term: "object key", kind: term}
+      - {term: "key", kind: term, everyday: true}
+      - {term: "prefix", kind: term, everyday: true}
+      - {term: "folder", kind: term, everyday: true}
+      - {term: "metadata", kind: term, everyday: true}
+      - {term: "user-defined metadata", kind: term}
+      - {term: "x-amz-meta-", kind: api_name}
+      - {term: "Content-Type", kind: api_name}
+      - {term: "ETag", kind: api_name}
+      - {term: "object URL", kind: term}
+      - {term: "virtual-hosted-style", kind: term}
+      - {term: "global namespace", kind: term}
+      - {term: "account regional namespace", kind: term}
+      - {term: "partition", kind: term, everyday: true}
+      - {term: "bucket naming rules", kind: term}
+      - {term: "durability", kind: term, everyday: true}
+      - {term: "11 nines", kind: term}
+      - {term: "strong consistency", kind: term}
+      - {term: "read-after-write", kind: term}
+      - {term: "multipart upload", kind: term}
+      - {term: "PutObject", kind: api_name}
+      - {term: "GetObject", kind: api_name}
+      - {term: "ListObjectsV2", kind: api_name}
+      - {term: "aws s3 cp", kind: api_name}
+      - {term: "aws s3 mb", kind: api_name}
+      - {term: "aws s3 sync", kind: api_name}
+      - {term: "aws s3api", kind: api_name}
+      - {term: "LocationConstraint", kind: api_name}
+      - {term: "arn:aws:s3:::", kind: api_name}
+    notes:
+      - body: |
+          Day 7, finally S3 (Simple Storage Service). It's *object storage*: I don't get a disk with a file system,
+          I get buckets and I put objects in them.
+  
+          - Object = the data itself + metadata. Some metadata is system stuff (Content-Type, size, ETag), and I can
+            add my own as x-amz-meta-something headers.
+          - Key = the object's unique name inside its bucket, e.g. `photos/puppy.jpg`. Bucket + key identifies an object.
+          - Keys can be up to 1,024 bytes long.
+  
+          Folders are fake! The namespace is flat. `photos/` is just a prefix that a bunch of keys happen to share, and
+          the console draws it as a folder to be friendly. Clicking "Create folder" actually makes a 0-byte object whose
+          key ends in `/`. Kind of funny.
+  
+          Compared with a normal hard drive: there I can rename a file, append to it, edit the middle. In S3 an object
+          is replaced as a whole. "Rename" is really copy to a new key + delete the old one. No appending.
+  
+          Buckets:
+          - I create a bucket in a Region I pick. Its name and Region can't be changed afterwards, and the data stays in
+            that Region unless I copy it somewhere else.
+          - No buckets inside buckets. No limit on how many objects a bucket holds or how big it gets.
+          - 10,000 buckets per account by default (older tutorials say 100, that's stale).
+          - There are four bucket types now: the normal one, plus directory, table and vector buckets. The docs
+            say a beginner only needs the normal one, so I ignored the other three.
+  
+          An object's URL looks like `https://my-bucket.s3.us-west-2.amazonaws.com/photos/puppy.jpg`. ARNs (day 5 stuff)
+          look like `arn:aws:s3:::my-bucket` for the bucket and `arn:aws:s3:::my-bucket/photos/puppy.jpg` for one object.
+  
+          Who can actually read my objects? They're private unless access is granted somehow, and that's tomorrow's
+          topic (day 8, S3 access control), so I stopped there.
+        shaky:
+          - "S3 is not a file system and I keep forgetting it. No real folders, no rename, no append. My brain still pictures a hard drive."
+          - "The console shows buckets from every Region in one list, yet each bucket lives in exactly one Region. That tripped me up for a minute."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/BucketRestrictions.html
+      - body: |
+          S3 part 2: names, limits, consistency, CLI.
+  
+          Bucket naming rules:
+          - 3 to 63 characters; lowercase letters, digits, dots and hyphens; must start and end with a letter or digit.
+          - Can't look like an IP address. Some reserved prefixes/suffixes, e.g. `xn--`, `sthree-`, `-s3alias`.
+          - The docs say avoid dots in names. Something about secure-connection addressing breaking; didn't fully dig in.
+          - Names are unique across ALL accounts in a partition (there are four partitions: aws, aws-cn, aws-us-gov and
+            aws-eusc, the European Sovereign Cloud). So "my-bucket" is long gone.
+          - New since March 2026: the account regional namespace. Names end in `-<12-digit account ID>-<region>-an`
+            and only have to be unique inside my account and Region.
+          - Creepy one: if I delete a bucket in the global namespace, someone else can create the same name and receive
+            requests meant for me. AWS suggests emptying it and keeping it instead.
+  
+          Sizes:
+          - An object can be 0 B up to 50 TB (it was 5 TB until Dec 2025).
+          - One single PUT upload tops out at 5 GB; the console upload at 160 GB. Beyond that it's multipart upload
+            (the file goes up in parts, 10,000 parts max).
+  
+          Consistency: strong read-after-write for PUT, DELETE and LIST of objects in every Region, since Dec 2020.
+          Write something, read it right back, I get the new thing. Two writers at once: last writer wins, no locking.
+          Bucket *configuration* changes are still eventually consistent though.
+  
+          Durability: designed for 99.999999999% (11 nines), i.e. S3 basically doesn't lose data. Durability isn't the
+          same as availability (being reachable right now) and I need to keep those two apart.
+  
+          CLI, high-level: `aws s3 mb s3://name`, `aws s3 cp`, `aws s3 ls`, `aws s3 sync`, `aws s3 rm`, `aws s3 rb`.
+          Low-level: `aws s3api create-bucket` etc. Outside us-east-1 you have to pass a LocationConstraint.
+        shaky:
+          - "'Globally unique names' used to be the whole rule, now there's the account regional namespace too. Not sure when I'd pick one over the other."
+          - "Docs say 50 TB max, but also say the true ceiling is about 53.7 TB (10,000 parts x 5 GiB). Which number do I remember?"
+          - "Lots of older posts still say S3 is 'eventually consistent'. It isn't for objects anymore, only bucket config. Easy to mix up."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+          - https://aws.amazon.com/about-aws/whats-new/2026/03/amazon-s3-account-regional-namespaces/
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/upload-objects.html
+          - https://aws.amazon.com/about-aws/whats-new/2025/12/amazon-s3-maximum-object-size-50-tb/
+  
+  - slug: s3-access
+    day: 8
+    title: S3 access control
+    prerequisites: [s3-basics, iam-policies]
+    audit_brief: >-
+      Teaches how access to S3 is controlled. Buckets and objects are private by default; access comes from IAM
+      identity policies, bucket policies, legacy ACLs and access points. Block Public Access (BPA) has four independent
+      settings (BlockPublicAcls, IgnorePublicAcls, BlockPublicPolicy, RestrictPublicBuckets), all on by default for new
+      buckets since April 2023; they apply at account, bucket and access-point level, override but don't modify
+      policies, and aren't per-object. Object Ownership defaults to "Bucket owner enforced" (ACLs disabled); ACL-setting
+      uploads fail with AccessControlListNotSupported. A bucket policy is a resource-based JSON policy with a Principal,
+      max 20 KB, set only by the bucket owner, and can grant cross-account access; "Principal": "*" without conditions
+      is public. s3:ListBucket targets arn:aws:s3:::bucket while s3:GetObject targets arn:aws:s3:::bucket/*. Same
+      account: IAM or bucket policy allow is enough; explicit deny wins. A deny-everyone policy needs root to remove.
+      Access Analyzer for S3 flags public buckets.
+    vocabulary:
+      - {term: "private by default", kind: term}
+      - {term: "public access", kind: term, everyday: true}
+      - {term: "Block Public Access", kind: term}
+      - {term: "BPA", kind: abbreviation}
+      - {term: "BlockPublicAcls", kind: api_name}
+      - {term: "IgnorePublicAcls", kind: api_name}
+      - {term: "BlockPublicPolicy", kind: api_name}
+      - {term: "RestrictPublicBuckets", kind: api_name}
+      - {term: "PutPublicAccessBlock", kind: api_name}
+      - {term: "bucket policy", kind: term}
+      - {term: '"Principal": "*"', kind: api_name}
+      - {term: "aws:SourceIp", kind: api_name}
+      - {term: "ACL", kind: abbreviation, everyday: true}
+      - {term: "access control list", kind: term}
+      - {term: "canned ACL", kind: term}
+      - {term: "bucket-owner-full-control", kind: api_name}
+      - {term: "AllUsers", kind: api_name}
+      - {term: "AuthenticatedUsers", kind: api_name}
+      - {term: "Object Ownership", kind: term}
+      - {term: "Bucket owner enforced", kind: term}
+      - {term: "Bucket owner preferred", kind: term}
+      - {term: "Object writer", kind: term}
+      - {term: "AccessControlListNotSupported", kind: api_name}
+      - {term: "s3:GetObject", kind: api_name}
+      - {term: "s3:PutObject", kind: api_name}
+      - {term: "s3:ListBucket", kind: api_name}
+      - {term: "s3:DeleteObject", kind: api_name}
+      - {term: "s3:ListAllMyBuckets", kind: api_name}
+      - {term: "PutBucketPolicy", kind: api_name}
+      - {term: "aws s3api put-bucket-policy", kind: api_name}
+      - {term: "access point", kind: term, everyday: true}
+      - {term: "access point policy", kind: term}
+      - {term: "IAM Access Analyzer for S3", kind: term}
+      - {term: "403 Forbidden", kind: term}
+    notes:
+      - body: |
+          Day 8: S3 access control. Starting point: buckets and objects are private by default. Nobody gets in unless
+          something grants access. The "somethings" are: IAM policies on identities (day 5),
+          bucket policies, ACLs (legacy), and access points (named them, didn't study them).
+  
+          Block Public Access (BPA) is the safety net on top. Four separate switches:
+          - BlockPublicAcls: reject new ACLs that would make things public.
+          - IgnorePublicAcls: ignore any public ACLs that already exist.
+          - BlockPublicPolicy: reject a bucket policy that would make the bucket public.
+          - RestrictPublicBuckets: if a bucket's policy is public anyway, restrict who can actually use it.
+  
+          All four are ON by default for every new bucket, however it's created (rollout started April 5, 2023).
+          They can be set at account level and bucket level (and access points), and S3 applies the most restrictive
+          combination. They're not per-object.
+  
+          Key thing I almost got wrong: BPA only *blocks*. It overrides public policies and ACLs but doesn't change or
+          delete them. So if some old policy says "everyone can read" and I switch BPA off, that policy wakes back up.
+          And the reverse: switching BPA off does NOT make anything public by itself. You'd still need a policy that
+          grants it.
+  
+          What counts as "public"? An ACL granting AllUsers or AuthenticatedUsers, or a bucket policy with
+          `"Principal": "*"` and no condition narrowing it to fixed accounts, IP ranges etc.
+  
+          ACLs: the old per-bucket/per-object grant lists. Now there's a setting called Object Ownership with three
+          options: Bucket owner enforced (the default, ACLs disabled), Bucket owner preferred, Object writer. With the
+          default, the bucket-owning account owns every object in it, not the IAM user who uploaded it, and any upload
+          that tries to set an ACL (other than bucket-owner-full-control) fails with AccessControlListNotSupported.
+          So old tutorials that say "just set the object ACL to public-read" don't work anymore.
+        shaky:
+          - "I turned BPA off in my head and assumed the bucket was public. It isn't. BPA only blocks; the grant has to come from a policy. Still feels backwards."
+          - "RestrictPublicBuckets apparently also blocks named cross-account grants once the policy has any public statement. I read it three times and I'm not sure I get the edge cases."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/about-object-ownership.html
+          - https://aws.amazon.com/about-aws/whats-new/2023/04/amazon-s3-security-best-practices-buckets-default/
+      - body: |
+          Bucket policies. It's the same JSON policy language as day 5, but attached to the bucket instead of an
+          identity, so it's a resource-based policy. Differences from an identity policy:
+          - it needs a `Principal` saying WHO the statement is about (an account, a user, a role, or `*`).
+          - only the bucket owner can set one; max size 20 KB.
+          - it can grant access to other accounts (cross-account).
+          - wildcards in the Resource ARN target a prefix or file extension, e.g. `arn:aws:s3:::my-bucket/reports/*`.
+  
+          The ARN gotcha everyone hits: `s3:ListBucket` acts on the bucket (`arn:aws:s3:::my-bucket`), while
+          `s3:GetObject` / `s3:PutObject` / `s3:DeleteObject` act on objects (`arn:aws:s3:::my-bucket/*`). Put them
+          on the wrong ARN and you get AccessDenied (403 Forbidden) on listing or on reading.
+  
+          How it combines with IAM policies, same account: if EITHER the IAM policy or the bucket policy allows it (and
+          nothing denies), the request goes through. Explicit deny anywhere wins, same as day 5.
+  
+          Scary one: a bucket policy that denies everyone can lock out even admins. Then the root user has to delete it.
+  
+          IAM Access Analyzer for S3 (Access Analyzer was day 5) shows buckets that are public or shared with other
+          accounts. Useful sanity check.
+  
+          CLI: `aws s3api put-bucket-policy --bucket my-bucket --policy file://policy.json`.
+  
+          Access points: each one is a named entry point to a bucket with its own policy. Only got as far as the
+          definition.
+        shaky:
+          - "When should I use a bucket policy and when an IAM policy? Same account, either one works, so how do people decide?"
+          - "I still mix up my-bucket vs my-bucket/* in the Resource. I'll probably get AccessDenied the first time I try this for real."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
+  
+  - slug: s3-encryption-versioning
+    day: 9
+    title: S3 encryption & versioning
+    prerequisites: [s3-basics]
+    audit_brief: >-
+      Teaches S3 server-side encryption and versioning. Since Jan 5, 2023 every new upload is encrypted with SSE-S3
+      (S3 managed keys, AES-256) at no cost. Other options: SSE-KMS (AWS managed aws/s3 key or customer managed key,
+      KMS charges apply, S3 Bucket Keys cut KMS cost), DSSE-KMS (dual-layer) and SSE-C (customer-provided keys), which
+      since April 6, 2026 is disabled by default on new buckets and returns 403 unless re-enabled with
+      PutBucketEncryption. Changing default encryption doesn't re-encrypt existing objects; encryption is not access
+      control. Versioning: three bucket states (unversioned, enabled, suspended); once enabled a bucket can never
+      return to unversioned. Each write gets a version ID; pre-existing objects have version ID null. A delete without
+      a version ID adds a delete marker; overwrites make new versions; every version is billed in full. Wait about
+      15 minutes after first enabling. MFA delete is root-only. Object Lock and replication (CRR/SRR) exist.
+    vocabulary:
+      - {term: "server-side encryption", kind: term}
+      - {term: "SSE", kind: abbreviation}
+      - {term: "encryption at rest", kind: term}
+      - {term: "encryption in transit", kind: term}
+      - {term: "SSE-S3", kind: abbreviation}
+      - {term: "Amazon S3 managed keys", kind: synonym}
+      - {term: "AES256", kind: api_name}
+      - {term: "SSE-KMS", kind: abbreviation}
+      - {term: "AWS KMS", kind: term}
+      - {term: "Key Management Service", kind: synonym}
+      - {term: "KMS", kind: abbreviation, everyday: true}
+      - {term: "KMS key", kind: term}
+      - {term: "customer managed key", kind: term}
+      - {term: "AWS managed key", kind: term}
+      - {term: "aws/s3", kind: api_name}
+      - {term: "DSSE-KMS", kind: abbreviation}
+      - {term: "SSE-C", kind: abbreviation}
+      - {term: "customer-provided keys", kind: synonym}
+      - {term: "S3 Bucket Key", kind: term}
+      - {term: "default encryption", kind: term}
+      - {term: "PutBucketEncryption", kind: api_name}
+      - {term: "x-amz-server-side-encryption", kind: api_name}
+      - {term: "S3 Versioning", kind: term}
+      - {term: "versioning", kind: term}
+      - {term: "version ID", kind: term}
+      - {term: "null version", kind: term}
+      - {term: "noncurrent version", kind: term}
+      - {term: "delete marker", kind: term}
+      - {term: "versioning-enabled", kind: term}
+      - {term: "versioning-suspended", kind: term}
+      - {term: "MFA delete", kind: term}
+      - {term: "Object Lock", kind: term}
+      - {term: "WORM", kind: abbreviation, everyday: true}
+      - {term: "replication", kind: term, everyday: true}
+      - {term: "Cross-Region Replication", kind: term}
+      - {term: "CRR", kind: abbreviation}
+      - {term: "SRR", kind: abbreviation}
+      - {term: "PutBucketVersioning", kind: api_name}
+      - {term: "ListObjectVersions", kind: api_name}
+    notes:
+      - body: |
+          Day 9 part 1: S3 encryption.
+  
+          Good news first: since Jan 5, 2023 every new upload is encrypted automatically with SSE-S3 (server-side
+          encryption with Amazon S3 managed keys, AES-256), for free. I don't have to switch anything on.
+  
+          The options, which are a naming soup:
+          - SSE-S3: S3 manages the keys. The default.
+          - SSE-KMS: keys live in AWS KMS (Key Management Service). Either the AWS managed `aws/s3` key or a customer
+            managed key I create. KMS has its own charges and request quotas, and an "S3 Bucket Key" setting reduces the
+            KMS cost. How KMS itself works isn't on our plan, so I stopped at "it's where the keys live".
+          - DSSE-KMS: dual-layer, i.e. two layers of encryption with KMS keys.
+          - SSE-C: I provide the key with every request. Since April 6, 2026 it's DISABLED by default on new buckets
+            (and on existing ones in accounts that never used it). Requests using it get a 403 until someone re-enables
+            it with PutBucketEncryption. AWS's reasoning: a KMS customer managed key gives the same control. It also
+            can't be the bucket's default encryption anyway.
+  
+          Bucket default encryption: changing it only affects new uploads. It doesn't go back and re-encrypt existing
+          objects. (Mostly moot, since everything since 2023 is SSE-S3 already.)
+  
+          In transit: S3 endpoints take encrypted connections (TLS, the padlock thing), separate from the at-rest stuff.
+  
+          Big realisation: encryption at rest is NOT access control. With SSE-S3, anyone who has `s3:GetObject`
+          permission (yesterday's topic) just gets the plaintext back. S3 decrypts it for them. SSE-KMS adds a second
+          gate, because the caller also needs permission on the KMS key.
+        shaky:
+          - "I assumed 'encrypted' meant 'private'. It doesn't: with SSE-S3, anyone allowed to read the object gets it decrypted. Still wrapping my head around what at-rest encryption actually protects against then."
+          - "SSE-S3 vs SSE-KMS vs DSSE-KMS vs SSE-C. I have to look at the list every time."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-bucket-encryption.html
+          - https://aws.amazon.com/about-aws/whats-new/2026/04/s3-default-bucket-security-setting/
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/default-s3-c-encryption-setting-faq.html
+      - body: |
+          Day 9 part 2: S3 Versioning.
+  
+          A bucket is in one of three states:
+          - Unversioned (the default)
+          - Versioning-enabled
+          - Versioning-suspended
+          Once I enable it, the bucket can NEVER go back to unversioned. Only suspended. And suspending doesn't throw
+          away the versions that already exist.
+  
+          With versioning on:
+          - every write gets its own unique version ID.
+          - objects that were already there before I enabled it get version ID `null`.
+          - an overwrite (same key) just creates a new version; the old one becomes a noncurrent version.
+          - a DELETE without a version ID doesn't delete anything! It adds a delete marker, which becomes the current
+            version, so the object looks gone. To get it back I delete the marker, or bring back an older version.
+          - to really delete, you delete a specific version ID.
+  
+          Cost catch: every version is a full copy and billed as a full object. Delete in a versioned bucket doesn't
+          free any storage.
+  
+          Also: after first enabling versioning, wait about 15 minutes before writing (config is eventually consistent,
+          which connects to day 7).
+  
+          MFA delete: an extra protection on versioned buckets that only the root user can configure.
+  
+          Named but not studied: Object Lock, and replication (CRR = Cross-Region Replication, SRR = Same-Region).
+          I just know they exist.
+  
+          The console hides most of this until you flip the "Show versions" toggle, which explains why I was confused
+          about where my "deleted" test file went.
+        shaky:
+          - "So 'delete' in a versioned bucket keeps paying for the data? That feels like a trap. Not sure yet how people keep old versions from piling up."
+          - "Suspended vs disabled: there's no 'disabled' at all once you've turned it on. And the null version ID thing is weird."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Versioning.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html#ConsistencyModel
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html
+  
+  - slug: s3-classes-sharing
+    day: 10
+    title: S3 storage classes & sharing
+    prerequisites: [s3-access, s3-encryption-versioning, iam-roles]
+    audit_brief: >-
+      Teaches S3 storage classes, Lifecycle and sharing. Default class is S3 Standard (99.99% availability, 3+ AZs).
+      Standard-IA and One Zone-IA (1 AZ, 99.5%) have a 30-day minimum duration and
+      128 KB minimum billable size plus retrieval fees; Glacier Instant Retrieval (ms access, 90 days), Glacier
+      Flexible Retrieval (restore needed, minutes to hours, 90 days), Glacier Deep Archive (hours, 180 days).
+      Intelligent-Tiering moves objects after 30/90 days without access and charges a monitoring fee. All classes are
+      11-nines durable except Reduced Redundancy. Lifecycle rules do transitions and expirations; bucket policies can't
+      block them. Presigned URLs grant time-limited access to one object using the creator's permissions: console
+      1 min–12 h, CLI/SDK up to 7 days with IAM user credentials, shorter when made from temporary credentials. Static website hosting uses an HTTP-only website endpoint and
+      needs BPA off plus a public-read bucket policy; AWS recommends Amplify Hosting or CloudFront instead.
+    vocabulary:
+      - {term: "storage class", kind: term}
+      - {term: "S3 Standard", kind: term}
+      - {term: "STANDARD", kind: api_name}
+      - {term: "Standard-IA", kind: term}
+      - {term: "S3 Standard-Infrequent Access", kind: synonym}
+      - {term: "IA", kind: abbreviation, everyday: true}
+      - {term: "STANDARD_IA", kind: api_name}
+      - {term: "One Zone-IA", kind: term}
+      - {term: "ONEZONE_IA", kind: api_name}
+      - {term: "Intelligent-Tiering", kind: term}
+      - {term: "INTELLIGENT_TIERING", kind: api_name}
+      - {term: "Glacier", kind: term, everyday: true}
+      - {term: "S3 Glacier Instant Retrieval", kind: term}
+      - {term: "GLACIER_IR", kind: api_name}
+      - {term: "S3 Glacier Flexible Retrieval", kind: term}
+      - {term: "GLACIER", kind: api_name}
+      - {term: "S3 Glacier Deep Archive", kind: term}
+      - {term: "DEEP_ARCHIVE", kind: api_name}
+      - {term: "Express One Zone", kind: term}
+      - {term: "Reduced Redundancy Storage", kind: term}
+      - {term: "RRS", kind: abbreviation}
+      - {term: "restore", kind: term, everyday: true}
+      - {term: "RestoreObject", kind: api_name}
+      - {term: "retrieval fee", kind: term}
+      - {term: "minimum storage duration", kind: term}
+      - {term: "S3 Lifecycle", kind: term}
+      - {term: "lifecycle rule", kind: term}
+      - {term: "lifecycle", kind: term, everyday: true}
+      - {term: "transition", kind: term, everyday: true}
+      - {term: "expiration", kind: term, everyday: true}
+      - {term: "PutBucketLifecycleConfiguration", kind: api_name}
+      - {term: "presigned URL", kind: term}
+      - {term: "pre-signed URL", kind: synonym}
+      - {term: "aws s3 presign", kind: api_name}
+      - {term: "X-Amz-Expires", kind: api_name}
+      - {term: "SignatureDoesNotMatch", kind: api_name}
+      - {term: "ExpiredToken", kind: api_name}
+      - {term: "static website hosting", kind: term}
+      - {term: "website endpoint", kind: term}
+      - {term: "index document", kind: term}
+    notes:
+      - body: |
+          Day 10, storage classes. Every object has its own storage class; the default is S3 Standard (`STANDARD`).
+          You trade cheaper storage for access fees, minimums or slower reads.
+  
+          - Standard: 99.99% availability, copies in at least 3 AZs, no minimums, no retrieval fee.
+          - Intelligent-Tiering: moves objects to an Infrequent tier after 30 days without access, Archive Instant
+            after 90 (plus optional deeper archive tiers). No retrieval fees, but a per-object monitoring fee, and
+            objects under 128 KB aren't monitored.
+          - Standard-IA (Infrequent Access): 99.9%, 3+ AZs, 30-day minimum duration, 128 KB minimum billable size,
+            retrieval fee.
+          - One Zone-IA: same as Standard-IA but in ONE AZ, 99.5% availability. Same durability, but it doesn't
+            survive losing that AZ.
+          - Glacier Instant Retrieval: millisecond access, 90-day minimum, 128 KB minimum.
+          - Glacier Flexible Retrieval (`GLACIER`): must restore first, minutes to hours. 90-day minimum.
+          - Glacier Deep Archive: restore takes hours. 180-day minimum.
+          - Express One Zone: lives in directory buckets (day 7 name-dropped those), single-digit ms latency.
+          - Reduced Redundancy: old, not recommended.
+  
+          All classes are designed for 11 nines durability except Reduced Redundancy.
+  
+          Glacier classes are S3 classes. You don't need the separate Amazon Glacier vault service to use them.
+  
+          Lifecycle rules automate moving things around:
+          - transition actions: move objects to a cheaper class after N days.
+          - expiration actions: delete them.
+          - they apply to existing and new objects; transitions cost per request; billing changes as soon as an object
+            becomes eligible.
+          - noncurrent-version actions exist for versioned buckets, which answers my day 9 worry about old versions
+            piling up.
+          - a bucket policy can't stop lifecycle deletions or transitions.
+        shaky:
+          - "Minimum storage duration: if I delete a Standard-IA object on day 5 I still pay for 30 days? And the 128 KB minimum makes IA bad for tiny files. Easy to lose money here."
+          - "Glacier Instant vs Flexible vs Deep Archive naming is awful. Instant doesn't need a restore, the other two do. I had to write that down twice."
+          - "One Zone-IA has the same durability but lower availability. I still mix up durability and availability."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
+      - body: |
+          Day 10 part 2, sharing.
+  
+          Presigned URLs: a link that gives time-limited access to ONE object (GET, PUT, HEAD...) without touching the
+          bucket policy. The object stays private; the URL carries a signature made with the *creator's* credentials,
+          so it can only do what the creator is allowed to do. Anyone holding the link can use it until it expires,
+          like a bearer token, so don't paste it around.
+  
+          - console: 1 minute to 12 hours.
+          - CLI/SDK (`aws s3 presign`): up to 7 days, when signed with IAM user credentials.
+          - signed with temporary credentials (a role session from day 6, an Identity Center session): the URL dies when
+            those credentials expire, even if I asked for longer.
+          - expiry is checked when the request starts, so a download that began in time still finishes.
+          - errors: 403 (the creator lacked permission), SignatureDoesNotMatch (clock skew, proxies), ExpiredToken.
+          - a presigned PUT overwrites whatever already sits at that key.
+  
+          Static website hosting: turn it on for a bucket, set an index document (index.html) and an error document,
+          and S3 serves the site from a special website endpoint. Catches:
+          - the website endpoint doesn't do encrypted connections, no padlock.
+          - it needs public read, so Block Public Access off for that bucket AND a bucket policy granting public
+            `s3:GetObject` (day 8 was right that BPA off alone isn't enough).
+          - objects encrypted with SSE-KMS can't be served to anonymous visitors.
+          - bucket names with dots are fine here, it's the one case where they are.
+          AWS now points people to Amplify Hosting or CloudFront instead, so BPA can stay on. Neither is on our plan.
+        shaky:
+          - "Presigned URL isn't the same as making the object public, but anyone with the link gets in. My head keeps blurring those."
+          - "Why does a URL made from a role session expire early even if I set 7 days? I get that the credentials expire, but it still surprises me."
+          - "Website endpoint vs the normal REST endpoint: two URLs for one bucket, not sure I'd pick the right one."
+        sources:
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/WebsiteHosting.html
+          - https://docs.aws.amazon.com/AmazonS3/latest/userguide/UsingBucket.html
+  - slug: ec2-basics
+    day: 11
+    title: EC2 fundamentals
+    prerequisites: [cloud-basics, account-billing]
+    audit_brief: >-
+      Introduces Amazon EC2 (Elastic Compute Cloud): virtual servers called instances. An AMI (Amazon Machine
+      Image) is the template an instance launches from; AMIs are Region-specific, so the same image has a different
+      AMI ID per Region, and they are tied to a CPU architecture (x86_64 vs Arm/Graviton). Amazon Linux 2023 is the
+      default Linux AMI; Amazon Linux 2 reached end of support on 2026-06-30. Instance type names decode as series +
+      generation + options + size (t3.micro, t4g.small, c7i-flex.large, m7i-flex.large; T = burstable, M general
+      purpose, C compute, R memory; g = Graviton, i = Intel, a = AMD). Burstable T instances earn CPU credits and T3,
+      T3a, T4g, T8i launch in unlimited mode by default, so sustained high CPU can cost extra. Free-Tier-eligible types
+      for new accounts: t3.micro, t3.small, t4g.micro, t4g.small, c7i-flex.large, m7i-flex.large (t2.micro is legacy).
+      Launching is via the console Launch instance wizard or aws ec2 run-instances.
+    vocabulary:
+      - {term: Amazon EC2, kind: term}
+      - {term: EC2, kind: abbreviation}
+      - {term: Elastic Compute Cloud, kind: synonym}
+      - {term: EC2 instance, kind: term}
+      - {term: instance, kind: term, everyday: true}
+      - {term: virtual machine, kind: term, everyday: true}
+      - {term: VM, kind: abbreviation, everyday: true}
+      - {term: virtual server, kind: synonym}
+      - {term: AMI, kind: abbreviation, everyday: true}
+      - {term: Amazon Machine Image, kind: synonym}
+      - {term: image, kind: term, everyday: true}
+      - {term: AMI ID, kind: term}
+      - {term: Amazon Linux 2023, kind: term}
+      - {term: AL2023, kind: abbreviation}
+      - {term: Amazon Linux 2, kind: term}
+      - {term: AL2, kind: abbreviation}
+      - {term: AWS Marketplace, kind: term}
+      - {term: community AMI, kind: term}
+      - {term: instance type, kind: term}
+      - {term: instance family, kind: term}
+      - {term: size, kind: term, everyday: true}
+      - {term: micro, kind: term, everyday: true}
+      - {term: vCPU, kind: abbreviation}
+      - {term: general purpose, kind: term, everyday: true}
+      - {term: compute optimized, kind: term}
+      - {term: memory optimized, kind: term}
+      - {term: burstable, kind: term}
+      - {term: CPU credits, kind: term}
+      - {term: unlimited mode, kind: term}
+      - {term: Graviton, kind: term}
+      - {term: x86_64, kind: term}
+      - {term: t3.micro, kind: api_name}
+      - {term: t4g.micro, kind: api_name}
+      - {term: c7i-flex.large, kind: api_name}
+      - {term: m7i-flex.large, kind: api_name}
+      - {term: launch instance wizard, kind: term}
+      - {term: launch, kind: term, everyday: true}
+      - {term: launch template, kind: term, everyday: true}
+      - {term: run-instances, kind: api_name}
+      - {term: ec2:RunInstances, kind: api_name}
+    notes:
+      - body: |
+          Day 11, finally onto EC2! Amazon EC2 = Elastic Compute Cloud. It's basically renting virtual servers, and
+          AWS calls each one an "instance". So when people say "spin up an instance" they mean start a VM in AWS.
+  
+          To make an instance you need two big choices:
+  
+          1. An AMI (Amazon Machine Image). It's the template the instance starts from: the operating system plus
+             whatever software is baked in. You can't launch without one. AMIs come from AWS, the community, other
+             accounts sharing them, the AWS Marketplace (some cost money), or ones you make yourself.
+          2. An instance type, which fixes how much CPU, memory and network you get (more on that in my other note).
+  
+          AMI gotchas I wrote down:
+          - AMIs are Region-specific. The "same" Amazon Linux image has a different AMI ID in each Region, so a
+            tutorial's AMI ID won't work if I'm in a different Region. To use your own AMI elsewhere you copy it.
+          - They're tied to a CPU architecture. An x86_64 AMI won't run on a Graviton (Arm) instance type and vice
+            versa.
+  
+          Default Linux choice right now is Amazon Linux 2023. Amazon Linux 2 hit end of support on 2026-06-30,
+          so any tutorial still using AL2 is out of date. AL2023 is supported until around June 2029.
+  
+          Launching: the console has a "Launch instance" wizard (CLI equivalent is `aws ec2 run-instances`). The
+          top of the wizard is name, AMI and instance type, which I get now. Below that there are more sections
+          I'll get to over the next days (networking & connecting is tomorrow, storage is day 13, and there's an
+          "advanced details" section too). For today I'm just leaving those alone.
+        shaky:
+          - "An AMI ID being different per Region for the 'same' image still feels weird. Is it literally a copy in each Region?"
+          - "I'm not totally sure how I'd notice I picked an x86 AMI for a Graviton type. Does the wizard stop me or does the launch just fail?"
+        sources:
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html
+          - https://aws.amazon.com/amazon-linux-2/faqs/
+      - body: |
+          Instance type names look like gibberish but they decode: series + generation + options, then a dot, then
+          size.
+  
+          - `t3.micro` = T series (burstable), generation 3, size micro.
+          - `t4g.small` = burstable, gen 4, g = Graviton (AWS's Arm chips).
+          - `c7i-flex.large` = C (compute optimized), gen 7, i = Intel, Flex.
+          - `m7i-flex.large` = M (general purpose), gen 7, Intel, Flex.
+  
+          Series letters worth remembering: M general purpose, C compute, R memory, T burstable. There are also
+          storage, GPU and AI-chip series but I only skimmed those. Option letters: a = AMD, g = Graviton, i = Intel,
+          n = network-heavy.
+  
+          Sizes (nano, micro, small, medium, large, xlarge, 2xlarge...) are relative inside a family. A "large" in
+          one family isn't the same as a "large" in another.
+  
+          Burstable (T) instances: they earn CPU credits while idle and spend them when busy. The part that
+          surprised me: T3, T3a, T4g and T8i launch in "unlimited" mode by default, so if the CPU stays high for a
+          long time you can get charged extra instead of just being slowed down. Good to know before leaving
+          something running flat out.
+  
+          Free Tier (ties back to day 2): for new accounts the eligible types are t3.micro, t3.small, t4g.micro,
+          t4g.small, c7i-flex.large and m7i-flex.large. Loads of older tutorials say "use t2.micro, it's free", but
+          that's only for legacy accounts made before July 2025. You can filter for eligible types with
+          `aws ec2 describe-instance-types --filters Name=free-tier-eligible,Values=true`.
+  
+          For our practice I'd probably pick t3.micro (x86) or t4g.micro (Graviton, but then I need an Arm AMI).
+        shaky:
+          - "CPU credits confuse me. If unlimited mode is the default, when do the credits actually matter to my bill?"
+          - "I keep reading that micro/small/large are relative, but I can't tell how much bigger a large is than a micro without looking it up every time."
+        sources:
+          - https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-type-names.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-performance-instances-unlimited-mode.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-free-tier-usage.html
+  
+  - slug: ec2-network-access
+    day: 12
+    title: EC2 networking & connecting
+    prerequisites: [ec2-basics]
+    audit_brief: >-
+      Covers minimal EC2 networking and connecting. Every Region has a default VPC with
+      a public subnet per AZ and an internet gateway; an instance lives in one subnet in one AZ. Public
+      IPv4 addresses cost USD 0.005/hour; an Elastic IP is a fixed public IPv4. Security groups are virtual firewalls:
+      allow-only rules, stateful (return traffic allowed), a new group has no inbound rules and allows all outbound.
+      Rules are protocol + port + source (CIDR such as 0.0.0.0/0 or /32, or another security group). Ports: 22 SSH,
+      80 HTTP, 443 HTTPS, 3389 RDP. Network ACLs are subnet-level and stateless. Key pairs: AWS puts the public key
+      in ~/.ssh/authorized_keys on Linux and keeps no copy of the private key. Connect via SSH as ec2-user, EC2
+      Instance Connect (needs IAM permissions), or Session Manager (no inbound port or key pair). Timeout vs
+      "Permission denied (publickey)" diagnostics.
+    vocabulary:
+      - {term: VPC, kind: abbreviation}
+      - {term: Virtual Private Cloud, kind: synonym}
+      - {term: default VPC, kind: term}
+      - {term: subnet, kind: term, everyday: true}
+      - {term: public subnet, kind: term}
+      - {term: internet gateway, kind: term}
+      - {term: CIDR, kind: abbreviation}
+      - {term: public IP, kind: term, everyday: true}
+      - {term: public IPv4 address, kind: term}
+      - {term: private IP, kind: term, everyday: true}
+      - {term: Elastic IP, kind: term}
+      - {term: EIP, kind: abbreviation}
+      - {term: security group, kind: term}
+      - {term: SG, kind: abbreviation, everyday: true}
+      - {term: inbound rule, kind: term}
+      - {term: outbound rule, kind: term}
+      - {term: ingress, kind: term, everyday: true}
+      - {term: egress, kind: term, everyday: true}
+      - {term: stateful, kind: term, everyday: true}
+      - {term: network ACL, kind: term}
+      - {term: NACL, kind: abbreviation}
+      - {term: port, kind: term, everyday: true}
+      - {term: 0.0.0.0/0, kind: api_name}
+      - {term: My IP, kind: term}
+      - {term: authorize-security-group-ingress, kind: api_name}
+      - {term: AuthorizeSecurityGroupIngress, kind: api_name}
+      - {term: create-security-group, kind: api_name}
+      - {term: key pair, kind: term}
+      - {term: public key, kind: term, everyday: true}
+      - {term: private key, kind: term, everyday: true}
+      - {term: .pem, kind: api_name}
+      - {term: SSH, kind: abbreviation}
+      - {term: authorized_keys, kind: api_name}
+      - {term: ec2-user, kind: api_name}
+      - {term: EC2 Instance Connect, kind: term}
+      - {term: EC2 Instance Connect Endpoint, kind: term}
+      - {term: Session Manager, kind: term}
+      - {term: AWS Systems Manager, kind: term}
+      - {term: SSM, kind: abbreviation}
+      - {term: RDP, kind: abbreviation}
+    notes:
+      - body: |
+          Networking & connecting day. I only need the minimum here, not real network design.
+  
+          Default VPC: every Region comes with one already set up, with a public subnet in each Availability Zone,
+          an internet gateway and DNS turned on. That's why you can launch an instance straight away without
+          building any network. An instance sits in one subnet, and a subnet is in one AZ.
+  
+          Public IPs: a public IPv4 address costs USD 0.005 per hour now, whether it's in use or idle. So "public
+          IPs are free" is old info. If I want a fixed public address I can get an Elastic IP. I read that the
+          normal public IP isn't guaranteed to stick around, but when exactly it changes is lifecycle stuff for
+          day 13.
+  
+          Security groups = virtual firewall attached to the instance's network interface. Key facts:
+          - Rules are allow-only. There's no "deny" rule at all.
+          - A brand new SG has no inbound rules (so nothing can get in) and one outbound rule allowing everything.
+          - Stateful: if a request is allowed in, the reply is allowed out automatically. No outbound rule needed
+            for the response.
+          - An instance can have several SGs; their rules just add up. Changes apply immediately.
+          - If you don't pick one, the VPC's default SG gets used.
+          - A rule = protocol + port range + source. Source can be a CIDR, or another security group.
+          - SGs themselves are free.
+  
+          Ports to remember: 22 SSH, 80 HTTP, 443 HTTPS, 3389 RDP (Windows remote desktop). `0.0.0.0/0` means
+          anywhere; `/32` means exactly one IP. The console has a "My IP" option, which is way better than opening
+          SSH to 0.0.0.0/0 like lots of tutorials do.
+  
+          Network ACLs also exist: they're at the subnet level and stateless. Just awareness, not going deeper.
+        shaky:
+          - "Since SGs can't deny, I can't just block one bad IP with them. Apparently that's what a network ACL is for, but I haven't really looked into NACLs."
+          - "Using another security group as a source (meaning 'instances in that group') is still pretty abstract to me."
+          - "I'm fuzzy on exactly when the USD 0.005/hr public IPv4 charge applies. Only while the address is attached?"
+        sources:
+          - https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html
+          - https://docs.aws.amazon.com/vpc/latest/userguide/security-group-rules.html
+          - https://aws.amazon.com/vpc/pricing/
+      - body: |
+          Connecting to an instance. Key pairs first: a key pair is a public key plus a private key. On a Linux
+          instance the public key ends up in `~/.ssh/authorized_keys` at first boot, and I keep the private key.
+          AWS keeps NO copy of the private key, so if I lose it there's no recovery. On Windows the private key is
+          used to decrypt the Administrator password instead.
+  
+          Ways to connect (from the "connect" docs page):
+          - Plain SSH client: needs an inbound rule for port 22 and the key pair. On Amazon Linux the username is
+            `ec2-user`.
+          - EC2 Instance Connect: from the browser or CLI. Needs the inbound rule plus IAM permissions (day 5
+            stuff) and some software on the instance, but no key pair to manage myself.
+          - Session Manager (part of AWS Systems Manager): no inbound port and no key pair at all, which sounds
+            nicest. It needs some IAM setup too, and I haven't figured out what exactly.
+          - EC2 Instance Connect Endpoint for instances with only a private IP, and RDP for Windows.
+  
+          Troubleshooting pair I want to remember:
+          - Connection times out = network problem: security group doesn't allow my IP on port 22, or there's no
+            public IP to reach.
+          - "Permission denied (publickey)" = I reached the machine but used the wrong key or wrong username.
+  
+          Also SSH apparently refuses a private key file whose permissions are too open. I'd need to lock the file
+          down, though I haven't checked the exact setting AWS recommends.
+        shaky:
+          - "Why do Instance Connect and Session Manager need IAM at all just to open a terminal? I get it for the AWS API, less for logging in."
+          - "Not sure what file permissions my private key file should have; I just know SSH complains when they're too open."
+        sources:
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect.html
+  
+  - slug: ec2-storage-lifecycle
+    day: 13
+    title: EC2 storage & instance lifecycle
+    prerequisites: [ec2-basics, account-billing]
+    audit_brief: >-
+      Covers EC2 storage and instance states/billing. EBS (Elastic Block Store) volumes are network-attached block
+      storage that persists independently and must be in the same AZ as its instance; types gp3/gp2, io2/io1,
+      st1, sc1; billed for provisioned size even when the instance is stopped. Snapshots are point-in-time backups used
+      to restore or move data across AZs/Regions. Instance store is temporary host disk, lost on stop, hibernate or
+      terminate. DeleteOnTermination: root volume deleted on terminate by default, other volumes kept. EBS encryption by
+      default is opt-in per Region (aws/ebs key). States pending, running, stopping, stopped, shutting-down,
+      terminated; compute billed only while running, per second with a 60-second minimum. Stop/start gets a new public
+      IPv4 unless Elastic IP; hibernate saves RAM to the root volume; terminate is irreversible. Purchasing:
+      On-Demand, Savings Plans and Reserved Instances (1 or 3 years), Spot (2-minute
+      interruption notice); Free plan excludes Savings Plans and RIs.
+    vocabulary:
+      - {term: Amazon EBS, kind: term}
+      - {term: EBS, kind: abbreviation}
+      - {term: Elastic Block Store, kind: synonym}
+      - {term: EBS volume, kind: term}
+      - {term: volume, kind: term, everyday: true}
+      - {term: root volume, kind: term}
+      - {term: block storage, kind: term}
+      - {term: block device mapping, kind: term}
+      - {term: gp3, kind: api_name}
+      - {term: gp2, kind: api_name}
+      - {term: io2, kind: api_name}
+      - {term: io1, kind: api_name}
+      - {term: st1, kind: api_name}
+      - {term: sc1, kind: api_name}
+      - {term: IOPS, kind: abbreviation}
+      - {term: snapshot, kind: term, everyday: true}
+      - {term: EBS snapshot, kind: term}
+      - {term: instance store, kind: term}
+      - {term: ephemeral storage, kind: synonym}
+      - {term: DeleteOnTermination, kind: api_name}
+      - {term: aws/ebs, kind: api_name}
+      - {term: instance state, kind: term}
+      - {term: stop, kind: term, everyday: true}
+      - {term: start, kind: term, everyday: true}
+      - {term: reboot, kind: term, everyday: true}
+      - {term: hibernate, kind: term, everyday: true}
+      - {term: terminate, kind: term, everyday: true}
+      - {term: termination protection, kind: term}
+      - {term: per-second billing, kind: term}
+      - {term: On-Demand, kind: term, everyday: true}
+      - {term: On-Demand Instance, kind: term}
+      - {term: Savings Plans, kind: term}
+      - {term: Reserved Instance, kind: term}
+      - {term: RI, kind: abbreviation, everyday: true}
+      - {term: Spot, kind: term, everyday: true}
+      - {term: Spot Instance, kind: term}
+      - {term: Dedicated Host, kind: term}
+      - {term: Dedicated Instance, kind: term}
+      - {term: Capacity Reservation, kind: term}
+      - {term: stop-instances, kind: api_name}
+    notes:
+      - body: |
+          Storage & instance lifecycle day. Storage first.
+  
+          EBS (Elastic Block Store): network-attached block storage that you use like a hard drive. The big thing:
+          an EBS volume lives on independently of the instance, and it has to be in the same AZ as the instance
+          it's attached to. You can attach several volumes to one instance. Contrast with S3 (days 7-10): S3 is
+          object storage you reach over the API, EBS is a disk the instance's OS sees.
+  
+          Volume types: gp3/gp2 (General Purpose SSD, the normal choice), io2/io1 (Provisioned IOPS SSD), st1
+          (throughput HDD), sc1 (cold HDD). Data is replicated within the AZ.
+  
+          Snapshots: point-in-time backups of a volume that persist independently. You use them to restore a volume
+          or to move data to another AZ, Region or account.
+  
+          Instance store: temporary disks physically on the host machine. Data is gone on stop, hibernate or
+          terminate. Fine for scratch data, never for anything I care about.
+  
+          DeleteOnTermination: by default the root volume is deleted when the instance is terminated, but extra
+          volumes are kept. So extra volumes can hang around after the instance is gone.
+  
+          Billing: EBS bills for the provisioned size, even when the instance is stopped. So "I stopped it, it's
+          free now" is wrong.
+  
+          Encryption contrast with day 9: S3 encrypts every new upload automatically (SSE-S3), but EBS encryption
+          by default is an opt-in setting per Region (uses the `aws/ebs` key). Opposite defaults, easy to mix up.
+        shaky:
+          - "Block vs object storage: I get the definitions, but I'm not confident picking between EBS and S3 for a real app."
+          - "Orphaned extra volumes still billing after terminate worries me. How would I even notice them?"
+        sources:
+          - https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html
+          - https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes.html
+          - https://docs.aws.amazon.com/ebs/latest/userguide/encryption-by-default.html
+      - body: |
+          Lifecycle. States: pending, running, stopping, stopped (then start takes it back to pending), and
+          shutting-down, terminated. Compute is billed only while running (and while stopping if you're
+          hibernating). Billing is per second with a 60-second minimum each time it starts. A reboot doesn't start a
+          new billing period.
+  
+          My cheat table:
+          - Reboot: same host, keeps public IPv4, keeps instance store, RAM erased, root volume kept.
+          - Stop/start: may move host, gets a NEW public IPv4 (unless it's an Elastic IP), instance store lost,
+            RAM erased, root volume kept.
+          - Hibernate: like stop, but RAM is saved to the EBS root volume.
+          - Terminate: public IP released, instance store lost, root volume deleted by default. Irreversible!
+  
+          Private IPv4, Elastic IPs and IPv6 are kept across reboot, stop and hibernate. Termination protection
+          blocks terminating from the console/API. If you run `shutdown` inside the OS on an EBS-backed instance,
+          the default behaviour is stop, not terminate.
+  
+          Purchasing options:
+          - On-Demand: per second, no commitment.
+          - Savings Plans: commit to a USD/hour spend for 1 or 3 years.
+          - Reserved Instances: commit to an instance config + Region for 1 or 3 years.
+          - Spot: spare capacity, big discount, can be interrupted with a 2-minute notice. Not an auction anymore;
+            setting a max price is optional and apparently causes more interruptions.
+          - Dedicated Hosts/Instances and Capacity Reservations exist, skimmed only.
+  
+          The Free plan doesn't include Savings Plans or RIs anyway, so if we're on it those two are off the table.
+        shaky:
+          - "Savings Plans vs Reserved Instances: both are 1 or 3 year commitments and I keep blurring which one is spend-based and which is config-based."
+          - "A stop/start hands out a new public IPv4, so any SSH command or bookmark with the old address breaks. An Elastic IP fixes that, but it still bills while it sits there, so it's not a free fix."
+        sources:
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-purchasing-options.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html
+          - https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-plans.html
+  
+  - slug: ec2-roles-metadata
+    day: 14
+    title: User data, instance metadata & roles for EC2
+    prerequisites: [iam-roles, s3-access, ec2-network-access]
+    audit_brief: >-
+      Capstone. User data is a script or cloud-init config passed at launch; on Linux it runs as root, once at first
+      boot by default, is base64-encoded with a 16 KB raw limit, logs to /var/log/cloud-init-output.log, can only be
+      changed while stopped and isn't copied into AMIs. The Instance Metadata Service (IMDS) at 169.254.169.254 serves
+      instance ID, AMI ID, network info, user data and temporary role credentials; IMDSv2 is session-based (PUT
+      /latest/api/token, then the X-aws-ec2-metadata-token header) to defend against SSRF; it is the default for
+      Quick Start launches since Nov 2023, account-level default since Mar 2024, and AL2023. IAM roles for EC2 replace
+      stored access keys: the role is delivered via an instance profile holding exactly one role (console auto-creates
+      it; CLI uses create-instance-profile and add-role-to-instance-profile), one role per instance, attachable to a
+      running instance, trust policy trusts ec2.amazonaws.com. SDKs fetch auto-rotated credentials. Session Manager
+      needs an instance profile role.
+    vocabulary:
+      - {term: user data, kind: term}
+      - {term: user data script, kind: term}
+      - {term: cloud-init, kind: term}
+      - {term: "#cloud-config", kind: api_name}
+      - {term: /var/log/cloud-init-output.log, kind: api_name}
+      - {term: instance metadata, kind: term}
+      - {term: IMDS, kind: abbreviation}
+      - {term: Instance Metadata Service, kind: synonym}
+      - {term: IMDSv1, kind: abbreviation}
+      - {term: IMDSv2, kind: abbreviation}
+      - {term: 169.254.169.254, kind: api_name}
+      - {term: /latest/meta-data/, kind: api_name}
+      - {term: /latest/api/token, kind: api_name}
+      - {term: X-aws-ec2-metadata-token, kind: api_name}
+      - {term: HttpTokens, kind: api_name}
+      - {term: hop limit, kind: term}
+      - {term: HttpPutResponseHopLimit, kind: api_name}
+      - {term: SSRF, kind: abbreviation}
+      - {term: server-side request forgery, kind: synonym}
+      - {term: modify-instance-metadata-options, kind: api_name}
+      - {term: modify-instance-metadata-defaults, kind: api_name}
+      - {term: instance profile, kind: term}
+      - {term: IAM role for EC2, kind: term}
+      - {term: instance role, kind: synonym}
+      - {term: ec2.amazonaws.com, kind: api_name}
+      - {term: iam:PassRole, kind: api_name}
+      - {term: PassRole, kind: api_name}
+      - {term: create-instance-profile, kind: api_name}
+      - {term: add-role-to-instance-profile, kind: api_name}
+      - {term: associate-iam-instance-profile, kind: api_name}
+      - {term: security-credentials, kind: api_name}
+      - {term: instance identity role, kind: term}
+      - {term: credentials provider chain, kind: term}
+      - {term: Modify IAM role, kind: term}
+    notes:
+      - body: |
+          Last day! User data and instance metadata first.
+  
+          User data: a script (or a cloud-init config) you hand the instance at launch. On Linux it runs as root,
+          and only once, at first boot, by default. It's base64-encoded and limited to 16 KB before encoding. If it
+          goes wrong, the output is in `/var/log/cloud-init-output.log`. You can only change it while the instance
+          is stopped, and it isn't copied into AMIs you create from the instance. If the script calls AWS APIs, it
+          needs a role on the instance (see my roles note).
+  
+          Instance metadata: the Instance Metadata Service (IMDS) lives at `169.254.169.254`
+          and the instance queries it for info about itself. It serves things like the instance ID, the AMI ID, network info, the user data, and
+          temporary credentials for the instance's role. User data is actually served through IMDS, so if you
+          disable IMDS you also break user data and the key pair setup from day 12.
+  
+          IMDSv1 vs IMDSv2: v1 is a plain GET. v2 is session-based: first a PUT to `/latest/api/token` to get a
+          token, then send that token in the `X-aws-ec2-metadata-token` header on every request. The point is
+          protection against SSRF-type attacks, where some app on the server gets tricked into fetching a URL for an
+          attacker.
+  
+          Defaults are now v2: console Quick Start launches have been IMDSv2-only since Nov 2023, there's been an
+          account-level default setting since Mar 2024, instance types released from mid-2024 are v2-only by
+          default, and AL2023 uses v2. There's also a hop limit setting; 2 is recommended if containers need it.
+        shaky:
+          - "I'd definitely have edited user data, rebooted, and wondered why nothing happened. Runs-once-at-first-boot is going to bite me."
+          - "SSRF is still pretty abstract to me. I get that the token PUT blocks it, not fully why a simple GET is so much easier to abuse."
+          - "User data vs metadata vs tags: I keep mixing up which is which."
+        sources:
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/user-data.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-IMDS-new-instances.html
+          - https://aws.amazon.com/blogs/aws/amazon-ec2-instance-metadata-service-imdsv2-by-default/
+          - https://aws.amazon.com/about-aws/whats-new/2024/03/set-imdsv2-default-new-instance-launches/
+      - body: |
+          Roles for EC2, the capstone that ties IAM, S3 and EC2 together.
+  
+          Problem: an app on my instance needs to read from S3. Wrong answer: put access keys (day 4) on the
+          server. Right answer: attach an IAM role to the instance. Apps using an AWS SDK (or the CLI) then pick up
+          temporary, automatically rotated credentials from instance metadata. No `aws configure` on the box.
+  
+          How the role gets there: through an instance profile, a container that holds exactly one role. The IAM
+          console quietly creates a same-named instance profile when you make a role for EC2, which is why you
+          barely notice it. With the CLI you do it yourself: `aws iam create-instance-profile` then
+          `add-role-to-instance-profile`.
+  
+          Rules:
+          - One role per instance; the same role can be on many instances.
+          - You can attach or swap the role on a running instance (`associate-iam-instance-profile`). Swap the
+            profile rather than editing the role inside it, because that change can take up to an hour to show up.
+          - The role's trust policy (day 6) must trust `ec2.amazonaws.com`.
+          - EC2 role credentials rotate, so they're not limited by the role's max session duration.
+  
+          My capstone scenario: role with a least-privilege policy allowing `s3:ListBucket` and `s3:GetObject` on
+          our practice bucket (day 8 actions), attached to a t3.micro. Then `aws s3 ls` works from the instance with
+          no keys anywhere.
+  
+          This also answers my day 12 question: Session Manager needs an instance profile role on the instance
+          (plus the SSM agent), which is the IAM setup I hadn't figured out.
+  
+          Every instance also has an automatic "instance identity role", but that's not for your own apps.
+        shaky:
+          - "Role vs instance profile: why two separate things if the console hides the difference?"
+          - "I keep seeing iam:PassRole come up around launching with a role, but I haven't read that page properly yet."
+          - "Presigned URLs made on an instance apparently expire early because the role credentials rotate (around 6 hours?). Not sure of the exact number."
+        sources:
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html
+          - https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html
+          - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect.html
