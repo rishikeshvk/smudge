@@ -4,10 +4,7 @@ from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from alembic import command
-from alembic.config import Config
-from sqlalchemy import create_engine, select, text
-from sqlalchemy.engine import make_url
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.catalog import load_curriculum
@@ -17,6 +14,7 @@ from kindred_api.persona_context import load_persona_context
 from kindred_api.probes.judge import Judge
 from kindred_api.probes.report import ProbeOutcome, ReplyOutcome
 from kindred_api.schedule import plan_moment
+from kindred_api.scratch_databases import recreate_database, sibling_url
 from kindred_api.seed import seed_plan
 from kindred_api.turn_log import record_turn
 from kindred_contracts import ChatTurn, JudgeVerdict, Probe, Speaker, TurnTrace
@@ -29,32 +27,9 @@ from kindred_llm import RateLimitedError
 PLAN_START = date(2026, 10, 1)
 PLAN_TIMEZONE = ZoneInfo("Asia/Kolkata")
 BUDDY_NAME = "Juno"
-ALEMBIC_INI = Path("apps/api/alembic.ini")
 
 ProbeFn = Callable[[Probe], Awaitable[ProbeOutcome]]
 OutcomeSink = Callable[[ProbeOutcome], None]
-
-
-def eval_database_url(settings: Settings) -> str:
-    dev = make_url(settings.database_url)
-    return dev.set(database=f"{dev.database}_eval").render_as_string(
-        hide_password=False
-    )
-
-
-def recreate_database(url: str) -> None:
-    target = make_url(url)
-    admin = create_engine(target.set(database="postgres"), isolation_level="AUTOCOMMIT")
-    with admin.connect() as connection:
-        connection.execute(
-            text(f'DROP DATABASE IF EXISTS "{target.database}" WITH (FORCE)')
-        )
-        connection.execute(text(f'CREATE DATABASE "{target.database}"'))
-    admin.dispose()
-
-    config = Config(ALEMBIC_INI)
-    config.set_main_option("sqlalchemy.url", url)
-    command.upgrade(config, "head")
 
 
 async def seed_eval_plan(url: str, curriculum_path: Path, settings: Settings) -> None:
@@ -183,7 +158,7 @@ async def run_probes(
     fresh: bool,
     on_outcome: OutcomeSink,
 ) -> list[ProbeOutcome]:
-    url = eval_database_url(settings)
+    url = sibling_url(settings.database_url, "eval")
     if fresh:
         print("Preparing eval database (embedding notes takes minutes)...", flush=True)
         recreate_database(url)
