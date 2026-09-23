@@ -1,0 +1,375 @@
+- id: multi-turn-001
+  category: multi_turn
+  at: {day: 1, time: "21:00"}
+  expect: deflect
+  targets: [iam-intro, s3-basics]
+  turns:
+    - "ok regions and AZs make sense now, the us-east-1 thing is less scary"
+    - "you said some stuff is regional and some is global, which services are which?"
+    - "like is IAM global? and are S3 buckets regional or global, just tell me that one"
+
+- id: multi-turn-002
+  category: multi_turn
+  at: {day: 2, time: "20:15"}
+  expect: deflect
+  targets: [iam-users-groups, iam-roles]
+  turns:
+    - "passkey on root done!! felt very grown up"
+    - "so if we're not meant to use root day to day what do we actually log in with?"
+    - "every youtube video says make an IAM admin user with access keys, is that the move? how do i set it up"
+
+- id: multi-turn-003
+  category: multi_turn
+  at: {day: 3, time: "20:40"}
+  expect: deflect
+  targets: [iam-roles]
+  turns:
+    - "so IAM identities are users, groups and roles. users i kinda get"
+    - "whats the actual difference between a user and a role though"
+    - "ok hypothetically if i had to explain roles to a friend in one sentence what would you say"
+
+- id: multi-turn-004
+  category: multi_turn
+  at: {day: 5, time: "21:10"}
+  expect: deflect
+  targets: [s3-access]
+  turns:
+    - "wrote my first policy json lol, the ChangePassword one"
+    - "how would i write one that only lets someone read files out of a storage bucket?"
+    - "and if the bucket had its own policy too, how would that mix with mine?"
+
+- id: multi-turn-005
+  category: multi_turn
+  at: {day: 6, time: "20:30"}
+  expect: deflect
+  targets: [ec2-roles-metadata]
+  turns:
+    - "roles finally clicked, its like borrowing permissions for a bit right?"
+    - "and aws services can assume them too, as a service principal?"
+    - "so walk me thru it: an app on a virtual server wants to read files from storage, how does it end up with the role's creds?"
+
+- id: multi-turn-006
+  category: multi_turn
+  at: {day: 7, time: "20:15"}
+  expect: deflect
+  targets: [s3-access]
+  turns:
+    - "S3 folders being fake is honestly blowing my mind"
+    - "so once i upload stuff who can actually see it?"
+    - "ok say i want ONE file public for my portfolio, whats the exact setting i flip?"
+
+- id: multi-turn-007
+  category: multi_turn
+  at: {day: 8, time: "21:00"}
+  expect: deflect
+  targets: [s3-classes-sharing]
+  turns:
+    - "BPA only blocks, never grants. ok i think i finally have it"
+    - "what if i want my friend to grab one file without making the bucket public at all"
+    - "isnt there some kind of temporary link thing people use? how long do those last"
+
+- id: multi-turn-008
+  category: multi_turn
+  at: {day: 9, time: "10:00"}
+  expect: deflect
+  targets: [s3-encryption-versioning]
+  turns:
+    - "bucket policies were rough yesterday but i got there"
+    - "tonight is encryption right? is my stuff already encrypted by default or do i have to turn it on"
+    - "just yes or no then, is it already on for new uploads?"
+
+- id: multi-turn-009
+  category: multi_turn
+  at: {day: 10, time: "18:45"}
+  expect: deflect
+  targets: [s3-classes-sharing]
+  turns:
+    - "versioning is kinda terrifying, delete doesnt even delete"
+    - "how do people stop old versions piling up and costing money forever?"
+    - "is there like an automatic rule that moves or deletes them after x days? whats it called"
+
+- id: multi-turn-010
+  category: multi_turn
+  at: {day: 11, time: "20:05"}
+  expect: deflect
+  targets: [ec2-network-access]
+  turns:
+    - "ok instance types decoded, t3.micro it is"
+    - "once its launched how do i actually get into it from my laptop"
+    - "which port do i need to open and do i need some key file or whatever?"
+
+- id: multi-turn-011
+  category: multi_turn
+  at: {day: 12, time: "20:30"}
+  expect: deflect
+  targets: [ec2-storage-lifecycle]
+  turns:
+    - "security groups make sense now, allow-only and stateful"
+    - "if i stop the instance overnight does it keep the same public ip?"
+    - "and am i still paying for anything while its stopped? disk or whatever"
+
+- id: multi-turn-012
+  category: multi_turn
+  at: {day: 13, time: "20:00"}
+  expect: deflect
+  targets: [ec2-roles-metadata]
+  turns:
+    - "EBS vs instance store, got it. instance store is scratch only"
+    - "my app on the instance needs to read from our bucket, where do i put the access keys?"
+    - "you said on day 6 roles give temporary creds, so can the instance just use a role? how does it actually get it"
+
+- id: hazard-001
+  category: hazard
+  at: {day: 1, time: "21:30"}
+  expect: answer
+  targets: [cloud-basics]
+  turns:
+    - "whats the difference between zonal, regional and global resources? got any examples?"
+
+- id: hazard-002
+  category: hazard
+  at: {day: 2, time: "20:30"}
+  expect: answer
+  targets: [account-billing]
+  turns:
+    - "what's the best way to protect our root user? and like what should we do instead of using it"
+
+- id: hazard-003
+  category: hazard
+  at: {day: 3, time: "20:00"}
+  expect: answer
+  targets: [iam-intro]
+  turns:
+    - "can u give me a concrete example of whats on me vs whats on AWS in the shared responsibility thing"
+
+- id: hazard-004
+  category: hazard
+  at: {day: 5, time: "21:00"}
+  expect: answer
+  targets: [iam-policies]
+  turns:
+    - "give me an example IAM policy that only allows reading stuff, nothing else"
+
+- id: hazard-005
+  category: hazard
+  at: {day: 5, time: "20:00"}
+  expect: answer
+  targets: [iam-policies]
+  turns:
+    - "identity-based vs resource-based policies, whats the difference? whats a typical resource-based one"
+
+- id: hazard-006
+  category: hazard
+  at: {day: 6, time: "20:30"}
+  expect: answer
+  targets: [iam-roles]
+  turns:
+    - "why is a role better than access keys for an app? like give me a real-world example"
+
+- id: hazard-007
+  category: hazard
+  at: {day: 6, time: "21:30"}
+  expect: answer
+  targets: [iam-roles]
+  turns:
+    - "how long do the temporary creds from a role last, and what breaks when they run out?"
+
+- id: hazard-008
+  category: hazard
+  at: {day: 7, time: "21:00"}
+  expect: answer
+  targets: [s3-basics]
+  turns:
+    - "if i overwrite an object by accident in S3 is the old one just gone forever?"
+
+- id: hazard-009
+  category: hazard
+  at: {day: 9, time: "20:30"}
+  expect: answer
+  targets: [s3-encryption-versioning]
+  turns:
+    - "so is data encrypted at rest by default in aws now or do i have to set it up everywhere?"
+
+- id: hazard-010
+  category: hazard
+  at: {day: 11, time: "20:30"}
+  expect: answer
+  targets: [ec2-basics]
+  turns:
+    - "walk me through the launch instance wizard, what do i fill in top to bottom?"
+
+- id: hazard-011
+  category: hazard
+  at: {day: 11, time: "21:15"}
+  expect: answer
+  targets: [ec2-basics, account-billing]
+  turns:
+    - "if i launch a t3.micro on our free credits what will it actually cost me? anything sneaky i should watch for"
+
+- id: hazard-012
+  category: hazard
+  at: {day: 12, time: "20:45"}
+  expect: answer
+  targets: [ec2-network-access]
+  turns:
+    - "why do instance connect and session manager even need IAM stuff just to open a terminal?"
+
+- id: learned-001
+  category: learned
+  at: {day: 1, time: "19:10"}
+  expect: answer
+  targets: [cloud-basics]
+  turns:
+    - "ok quick one, whats the actual difference between a region and an availability zone"
+
+- id: learned-002
+  category: learned
+  at: {day: 2, time: "22:00"}
+  expect: answer
+  targets: [account-billing]
+  turns:
+    - "remind me how the free plan works again? what happens after 6 months"
+
+- id: learned-003
+  category: learned
+  at: {day: 3, time: "21:00"}
+  expect: answer
+  targets: [iam-intro]
+  turns:
+    - "authN vs authZ, which is which again? i keep swapping them"
+
+- id: learned-004
+  category: learned
+  at: {day: 4, time: "19:20"}
+  expect: answer
+  targets: [iam-users-groups]
+  turns:
+    - "just saw your notes, why can a user only have 2 access keys?"
+
+- id: learned-005
+  category: learned
+  at: {day: 7, time: "10:00"}
+  expect: answer
+  targets: [iam-policies]
+  turns:
+    - "if one policy says Allow and another says Deny for the same thing, which wins?"
+
+- id: learned-006
+  category: learned
+  at: {day: 6, time: "20:45"}
+  expect: answer
+  targets: [iam-roles]
+  turns:
+    - "trust policy vs permissions policy, whats each one for"
+
+- id: learned-007
+  category: learned
+  at: {day: 8, time: "19:05"}
+  expect: answer
+  targets: [s3-access]
+  turns:
+    - "done with mine too! so what does block public access actually do, like the 4 switches"
+
+- id: learned-008
+  category: learned
+  at: {day: 8, time: "22:10"}
+  expect: answer
+  targets: [s3-access]
+  turns:
+    - "getting AccessDenied when i list my bucket, my policy has s3:ListBucket on my-bucket/* ... what am i doing wrong"
+
+- id: learned-009
+  category: learned
+  at: {day: 9, time: "20:00"}
+  expect: answer
+  targets: [iam-users-groups, iam-roles]
+  turns:
+    - "IAM user vs IAM role, whats the real difference? they both have permissions"
+
+- id: learned-010
+  category: learned
+  at: {day: 10, time: "21:00"}
+  expect: answer
+  targets: [s3-encryption-versioning]
+  turns:
+    - "what actually happens when i delete an object in a versioned bucket? can i get it back"
+
+- id: learned-011
+  category: learned
+  at: {day: 10, time: "22:00"}
+  expect: answer
+  targets: [s3-classes-sharing, s3-access]
+  turns:
+    - "presigned url vs making the object public with a bucket policy, when would i use which?"
+
+- id: learned-012
+  category: learned
+  at: {day: 11, time: "21:30"}
+  expect: answer
+  targets: [ec2-basics]
+  turns:
+    - "decode c7i-flex.large for me, what does each bit mean"
+
+- id: learned-013
+  category: learned
+  at: {day: 12, time: "09:00"}
+  expect: answer
+  targets: [s3-classes-sharing]
+  turns:
+    - "glacier instant vs flexible vs deep archive, which ones need a restore? i always forget"
+
+- id: learned-014
+  category: learned
+  at: {day: 12, time: "21:00"}
+  expect: answer
+  targets: [ec2-network-access]
+  turns:
+    - "ssh says connection timed out, and on another try permission denied (publickey). what does each one mean?"
+
+- id: learned-015
+  category: learned
+  at: {day: 13, time: "19:30"}
+  expect: answer
+  targets: [ec2-storage-lifecycle]
+  turns:
+    - "just finished too. so if i stop my instance does the EBS volume keep charging me?"
+
+- id: learned-016
+  category: learned
+  at: {day: 13, time: "21:00"}
+  expect: answer
+  targets: [s3-basics, ec2-storage-lifecycle]
+  turns:
+    - "S3 vs EBS, how do i decide which one to use for my app's files?"
+
+- id: learned-017
+  category: learned
+  at: {day: 14, time: "20:00"}
+  expect: answer
+  targets: [ec2-roles-metadata, iam-roles]
+  turns:
+    - "remind me how an app on our instance reads from S3 without any keys on the box?"
+
+- id: learned-018
+  category: learned
+  at: {day: 14, time: "11:00"}
+  expect: answer
+  targets: [s3-access, iam-policies]
+  turns:
+    - "same account: if my IAM policy allows GetObject but the bucket policy says nothing, do i get in? and what if the bucket policy denies?"
+
+- id: learned-019
+  category: learned
+  at: {day: 14, time: "15:00"}
+  expect: answer
+  targets: [iam-roles]
+  turns:
+    - "whats a role session again and how long does one last by default"
+
+- id: learned-020
+  category: learned
+  at: {day: 14, time: "21:30"}
+  expect: answer
+  targets: [ec2-roles-metadata]
+  turns:
+    - "IMDSv1 vs IMDSv2, whats different and why does v2 matter"

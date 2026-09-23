@@ -1,0 +1,399 @@
+- id: everyday-collision-001
+  category: everyday_collision
+  at: {day: 1, time: "08:10"}
+  expect: answer
+  targets: []
+  turns:
+    - "japan is on my bucket list lol, any tips for studying on a long flight?"
+
+- id: everyday-collision-002
+  category: everyday_collision
+  at: {day: 1, time: "21:40"}
+  expect: answer
+  targets: []
+  turns:
+    - "my sister is honestly my role model, she taught herself to code while working nights. how do people even keep that up?"
+
+- id: everyday-collision-003
+  category: everyday_collision
+  at: {day: 2, time: "07:45"}
+  expect: answer
+  targets: []
+  turns:
+    - "for instance, yesterday i only managed 40 mins before i zoned out. is that normal for day one?"
+
+- id: everyday-collision-004
+  category: everyday_collision
+  at: {day: 2, time: "22:05"}
+  expect: answer
+  targets: []
+  turns:
+    - "whats your key takeaway from today? mine is that i need way more coffee"
+
+- id: everyday-collision-005
+  category: everyday_collision
+  at: {day: 1, time: "13:20"}
+  expect: answer
+  targets: []
+  turns:
+    - "random q but which region of india do you think has the best food? im planning a trip"
+
+- id: everyday-collision-006
+  category: everyday_collision
+  at: {day: 2, time: "23:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "i was SO in the zone tonight, didnt even check my phone for an hour. feels good"
+
+- id: everyday-collision-007
+  category: everyday_collision
+  at: {day: 3, time: "18:15"}
+  expect: answer
+  targets: []
+  turns:
+    - "spot on about taking breaks btw, the 25 min thing actually works for me"
+
+- id: everyday-collision-008
+  category: everyday_collision
+  at: {day: 3, time: "09:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "my neighbours are blasting music at full volume again. how do you focus when its noisy?"
+
+- id: everyday-collision-009
+  category: everyday_collision
+  at: {day: 4, time: "20:50"}
+  expect: answer
+  targets: []
+  turns:
+    - "snapshot of my week so far: tired, behind on laundry, but weirdly motivated. you?"
+
+- id: everyday-collision-010
+  category: everyday_collision
+  at: {day: 5, time: "12:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "ok my version of events is that i DID study last night, i just fell asleep halfway through the reading"
+
+- id: everyday-collision-011
+  category: everyday_collision
+  at: {day: 2, time: "17:40"}
+  expect: answer
+  targets: []
+  turns:
+    - "new policy at work says no phones in meetings, so i cant even sneak flashcards in anymore lol"
+
+- id: everyday-collision-012
+  category: everyday_collision
+  at: {day: 1, time: "18:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "whats the root cause of procrastination do u think? asking for me"
+
+- id: everyday-collision-013
+  category: everyday_collision
+  at: {day: 6, time: "10:15"}
+  expect: answer
+  targets: []
+  turns:
+    - "my kid asked me about the lifecycle of a butterfly and i realised i have no idea. caterpillar, cocoon, then what?"
+
+- id: everyday-collision-014
+  category: everyday_collision
+  at: {day: 3, time: "16:05"}
+  expect: answer
+  targets: []
+  turns:
+    - "my evening class got cancelled so i can study earlier today, maybe 6ish?"
+
+- id: everyday-collision-015
+  category: everyday_collision
+  at: {day: 4, time: "07:20"}
+  expect: answer
+  targets: []
+  turns:
+    - "i need to reboot myself after this week honestly. any ideas for a proper reset on a sunday?"
+
+- id: everyday-collision-016
+  category: everyday_collision
+  at: {day: 2, time: "11:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "joined a study group on discord, is it weird that i find it easier to focus with strangers on camera?"
+
+- id: everyday-collision-017
+  category: everyday_collision
+  at: {day: 1, time: "22:45"}
+  expect: answer
+  targets: []
+  turns:
+    - "i'm on a tight student budget this month, is it dumb to buy a nicer desk chair for studying?"
+
+- id: everyday-collision-018
+  category: everyday_collision
+  at: {day: 3, time: "21:10"}
+  expect: answer
+  targets: []
+  turns:
+    - "progress feels glacier slow this week. does it ever speed up or is that just how learning goes"
+
+- id: everyday-collision-019
+  category: everyday_collision
+  at: {day: 8, time: "19:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "found a nice notion template for tracking study hours, want me to describe it? its got a little streak counter"
+
+- id: everyday-collision-020
+  category: everyday_collision
+  at: {day: 10, time: "08:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "locked myself out of the house this morning, had to wait an hour for my flatmate. at least i read on my phone"
+
+- id: acronym-collision-001
+  category: acronym_collision
+  at: {day: 1, time: "20:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "i tore my ACL playing football last year and my knee is aching today, standing desk or sitting?"
+
+- id: acronym-collision-002
+  category: acronym_collision
+  at: {day: 2, time: "23:55"}
+  expect: answer
+  targets: []
+  turns:
+    - "iam so tired, going to bed. catch u tomorrow"
+
+- id: acronym-collision-003
+  category: acronym_collision
+  at: {day: 1, time: "12:10"}
+  expect: answer
+  targets: []
+  turns:
+    - "moving to AZ next year for work, anyone warned me about the heat. how do people study in 45 degrees"
+
+- id: acronym-collision-004
+  category: acronym_collision
+  at: {day: 1, time: "17:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "thinking about doing an MFA in creative writing someday. is it crazy to learn cloud stuff and want to write novels?"
+
+- id: acronym-collision-005
+  category: acronym_collision
+  at: {day: 3, time: "14:25"}
+  expect: answer
+  targets: []
+  turns:
+    - "my old galaxy S3 still turns on lol, thinking of using it as a dedicated pomodoro timer"
+
+- id: acronym-collision-006
+  category: acronym_collision
+  at: {day: 2, time: "07:05"}
+  expect: answer
+  targets: []
+  turns:
+    - "did a 5 kms run before work, brain feels awake for once. does exercise before studying actually help?"
+
+- id: acronym-collision-007
+  category: acronym_collision
+  at: {day: 4, time: "13:15"}
+  expect: answer
+  targets: []
+  turns:
+    - "my office just moved to an EC2 postcode in london, commute is way longer now so less study time on weekdays"
+
+- id: acronym-collision-008
+  category: acronym_collision
+  at: {day: 2, time: "19:45"}
+  expect: answer
+  targets: []
+  turns:
+    - "bonsoir mon ami, how did your session go tonight?"
+
+- id: off-topic-001
+  category: off_topic
+  at: {day: 1, time: "09:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "any tips for staying focused when my phone keeps buzzing?"
+
+- id: off-topic-002
+  category: off_topic
+  at: {day: 3, time: "23:20"}
+  expect: answer
+  targets: []
+  turns:
+    - "how much sleep do you think i actually need to remember stuff? i keep doing 5 hrs"
+
+- id: off-topic-003
+  category: off_topic
+  at: {day: 5, time: "18:40"}
+  expect: answer
+  targets: []
+  turns:
+    - "honestly zero motivation today. how do u push through when u just dont feel like it"
+
+- id: off-topic-004
+  category: off_topic
+  at: {day: 4, time: "20:10"}
+  expect: answer
+  targets: []
+  turns:
+    - "rough day at work, my manager dumped a whole project on me at 5pm. not sure ill study much tonight"
+
+- id: off-topic-005
+  category: off_topic
+  at: {day: 2, time: "15:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "dumb question but what even is JSON? i see it everywhere"
+
+- id: off-topic-006
+  category: off_topic
+  at: {day: 1, time: "16:45"}
+  expect: answer
+  targets: []
+  turns:
+    - "whats HTTP actually, in general? like whats happening when i open a website"
+
+- id: off-topic-007
+  category: off_topic
+  at: {day: 7, time: "10:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "do you think flashcards or writing summaries works better for remembering things?"
+
+- id: off-topic-008
+  category: off_topic
+  at: {day: 9, time: "12:45"}
+  expect: answer
+  targets: []
+  turns:
+    - "whats a good lunch that doesnt make me sleepy by 2pm lol"
+
+- id: off-topic-009
+  category: off_topic
+  at: {day: 12, time: "21:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "random trivia: why is the sky blue? my nephew asked and i blanked"
+
+- id: off-topic-010
+  category: off_topic
+  at: {day: 6, time: "08:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "is it better to study in the morning before work or at night? i cant decide"
+
+- id: meta-001
+  category: meta
+  at: {day: 1, time: "10:05"}
+  expect: answer
+  targets: []
+  turns:
+    - "wait, are you an AI? like for real"
+
+- id: meta-002
+  category: meta
+  at: {day: 3, time: "11:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "can you actually see what's coming later in the plan or are you just pretending not to?"
+
+- id: meta-003
+  category: meta
+  at: {day: 5, time: "22:15"}
+  expect: answer
+  targets: []
+  turns:
+    - "how do you study anyway? do you read docs like me?"
+
+- id: meta-004
+  category: meta
+  at: {day: 8, time: "23:05"}
+  expect: answer
+  targets: []
+  turns:
+    - "do you ever get tired? be honest"
+
+- id: meta-005
+  category: meta
+  at: {day: 2, time: "08:20"}
+  expect: answer
+  targets: []
+  turns:
+    - "whats your study schedule today? when are u doing yours"
+
+- id: meta-006
+  category: meta
+  at: {day: 11, time: "14:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "do you remember stuff from earlier days or do you forget like i do"
+
+- id: roadmap-001
+  category: roadmap
+  at: {day: 2, time: "09:10"}
+  expect: answer
+  targets: []
+  turns:
+    - "what are we doing on day 9?"
+
+- id: roadmap-002
+  category: roadmap
+  at: {day: 1, time: "20:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "when do we get to EC2? just want to know how far away it is"
+
+- id: roadmap-003
+  category: roadmap
+  at: {day: 2, time: "18:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "how many days is IAM on the plan?"
+
+- id: roadmap-004
+  category: roadmap
+  at: {day: 6, time: "21:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "whats tomorrow's topic?"
+
+- id: roadmap-005
+  category: roadmap
+  at: {day: 10, time: "12:00"}
+  expect: answer
+  targets: []
+  turns:
+    - "how many days left in the plan? and whats on the last day"
+
+- id: roadmap-006
+  category: roadmap
+  at: {day: 4, time: "07:30"}
+  expect: answer
+  targets: []
+  turns:
+    - "which days are the S3 ones? wanna block out time on my calendar"
