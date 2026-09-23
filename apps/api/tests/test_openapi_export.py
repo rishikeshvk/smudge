@@ -1,23 +1,29 @@
-from kindred_api.openapi_export import openapi_with_contracts
+import json
+from pathlib import Path
+
+import pytest
+
+from kindred_api import openapi_export
 
 
-def test_contracts_the_app_reads_are_in_the_schema() -> None:
-    schemas = openapi_with_contracts()["components"]["schemas"]
+def test_export_writes_the_schemas_the_app_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    out = tmp_path / "openapi.json"
+    monkeypatch.setattr("sys.argv", ["openapi_export", str(out)])
 
+    openapi_export.main()
+
+    schemas = json.loads(out.read_text())["components"]["schemas"]
     for name in [
-        "ChatTurn",
-        "RetrievedNote",
-        "RoadmapEntry",
-        "StudyNote",
-        "TopicRef",
+        "BuddyStatus",
+        "ChatMessage",
+        "ClockView",
+        "LLMSettingsView",
+        "MessageStatus",
+        "NotebookView",
+        "OnboardingReply",
+        "RoadmapView",
         "TurnTrace",
     ]:
         assert name in schemas
-
-
-def test_contracts_merge_alongside_endpoint_schemas() -> None:
-    schemas = openapi_with_contracts()["components"]["schemas"]
-
-    retrieved = schemas["TurnTrace"]["properties"]["retrieved"]
-    assert retrieved["items"] == {"$ref": "#/components/schemas/RetrievedNote"}
-    assert "HealthResponse" in schemas
