@@ -6,11 +6,3 @@ export function ambientForHour(hour: number): Ambient {
   if (hour >= 17 && hour < 21) return "dusk";
   return "night";
 }
-
-// Full class names, so Tailwind's scanner can see them.
-export const ambientBackground: Record<Ambient, string> = {
-  dawn: "bg-ambient-dawn",
-  day: "bg-ambient-day",
-  dusk: "bg-ambient-dusk",
-  night: "bg-ambient-night",
-};

@@ -1,4 +1,4 @@
-import { clockTime, localDate, planDate, wallTime } from "./time";
+import { clockTime, localDate, localHour, planDate, wallTime } from "./time";
 
 describe("clockTime", () => {
   it("shows a UTC instant as 24-hour local time", () => {
@@ -9,6 +9,14 @@ describe("clockTime", () => {
 describe("planDate", () => {
   it("formats the date as written, whatever the device timezone", () => {
     expect(planDate("2026-10-02")).toBe("Fri 2 Oct");
+  });
+});
+
+describe("localHour", () => {
+  it("gives the hour on the local clock", () => {
+    const instant = new Date("2026-10-05T03:41:00Z");
+    expect(localHour(instant, "Asia/Kolkata")).toBe(9);
+    expect(localHour(instant, "UTC")).toBe(3);
   });
 });
 

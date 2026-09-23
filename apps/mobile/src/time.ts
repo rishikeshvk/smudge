@@ -24,6 +24,13 @@ export function planDate(isoDate: string): string {
   return `${part("weekday")} ${part("day")} ${part("month")}`;
 }
 
+export function localHour(instant: Date, timeZone?: string): number {
+  const hour = new Intl.DateTimeFormat("en-GB", { hour: "numeric", hourCycle: "h23", timeZone })
+    .formatToParts(instant)
+    .find((part) => part.type === "hour")?.value;
+  return Number(hour);
+}
+
 export function localDate(instant: Date, timeZone?: string): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone }).format(instant);
 }
