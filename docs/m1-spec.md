@@ -1,6 +1,6 @@
 # M1 spec: Gate + evals
 
-2026-09-23 · Status: **draft, awaiting review**
+2026-09-23 · Status: **approved**; design changes during build are noted inline
 
 M1 answers one question: **can we measure that the buddy doesn't reveal what it hasn't studied yet?** It is done
 when one CLI command prints a leak rate and an over-block rate for a 2-week AWS curriculum, and both meet target.
@@ -105,7 +105,8 @@ OpenAI-compatible `/v1/embeddings` endpoint and configured like the LLM, with it
 
 New settings replace the single `LLM_MODEL`:
 - `LLM_MODEL_CLASSIFIER`, `LLM_MODEL_DRAFTER`, `LLM_MODEL_AUDITOR`, `LLM_MODEL_JUDGE`
-- `EMBED_BASE_URL`, `EMBED_API_KEY`, `EMBED_MODEL`, `EMBED_DIMENSIONS`
+- `EMBED_BASE_URL`, `EMBED_API_KEY`, `EMBED_MODEL`. There's no dimensions setting: the schema fixes
+  `vector(1024)`, so a setting could only disagree with it.
 
 Every LLM call passes an `x-opencode-session` ID per conversation: per probe for evals, per chat thread later.
 
@@ -134,7 +135,8 @@ Table-level intent. Columns and types are settled in M1a plan mode.
 | `topic_nodes` | Slug, day, title, audit brief, `unlock_at` | Curriculum metadata, not buddy knowledge |
 | `topic_prerequisites` | Node → prerequisite node | |
 | `topic_vocabulary` | Node → term, kind (term, synonym, abbreviation, API name) | |
-| `ledger_notes` | Node, body, shaky points, source URLs, `embedding vector(1024)`, created_at | **Append-only**: a trigger rejects UPDATE and DELETE |
+| `ledger_notes` | Node, body, shaky points, source URLs, written_at | **Append-only**: a trigger rejects UPDATE and DELETE |
+| `note_embeddings` | Note, embedding model, `vector(1024)` | Separate table so embedding or re-embedding never updates the ledger |
 | `turns` | Every pipeline turn: message, simulated time, classification, retrieved note IDs, each draft and audit verdict, final reply, fallback flag, models, latencies, probe run ID | Feeds the M3 X-ray view |
 
 **Two kinds of topic data, kept apart**
@@ -147,7 +149,7 @@ Table-level intent. Columns and types are settled in M1a plan mode.
 
 One function, in `packages/gate`, is the only code that reads `ledger_notes`:
 - **Inputs:** a query embedding, `now` from the Clock, and a limit.
-- **Returns:** notes whose node's `unlock_at <= now`, ordered by cosine distance.
+- **Returns:** notes whose node's `unlock_at <= now` and whose `written_at <= now`, ordered by cosine distance.
 - **Where the filtering happens:** both the filter and the ordering are one SQL query.
 - **Index:** exact scan, no HNSW. The corpus is small, and approximate search with a filter can miss results.
 - **Chunking:** notes are short (≤ ~400 words), so each note is embedded whole.
@@ -155,6 +157,9 @@ One function, in `packages/gate`, is the only code that reads `ledger_notes`:
 An architecture test fails if any other module references the `ledger_notes` table.
 
 ## Turn pipeline
+
+The orchestration lives in `packages/gate`, because it enforces the audit-before-send and fail-closed invariants. The
+drafter is injected behind a Protocol, so the M2 Persona replaces the stub without touching the gate.
 
 ```mermaid
 flowchart LR
