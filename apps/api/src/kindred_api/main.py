@@ -8,12 +8,8 @@ from kindred_api.chat import requeue_interrupted
 from kindred_api.config import get_settings
 from kindred_api.dependencies import Services
 from kindred_api.dev_clock import build_clock
-from kindred_api.llm_clients import (
-    build_memory_writer,
-    build_planning,
-    build_study_components,
-    build_turn_components,
-)
+from kindred_api.llm_runtime import LLMRuntime
+from kindred_api.llm_settings import effective, load_saved
 from kindred_api.routes import (
     buddy,
     chat,
@@ -23,6 +19,7 @@ from kindred_api.routes import (
     onboarding,
     progress,
     roadmap,
+    settings,
     turns,
 )
 from kindred_api.ticker import Ticker
@@ -32,31 +29,17 @@ from kindred_db import create_engine, session_factory
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    settings = get_settings()
-    engine = create_engine(settings.database_url)
+    base = get_settings()
+    engine = create_engine(base.database_url)
     sessions = session_factory(engine)
     async with sessions() as session, session.begin():
-        clock = await build_clock(settings.dev_mode, session)
+        clock = await build_clock(base.dev_mode, session)
         await requeue_interrupted(session)
-    worker = TurnWorker(
-        sessions,
-        clock,
-        lambda session, plan_id, persona: build_turn_components(
-            settings, session, plan_id, persona
-        ),
-    )
-    ticker = Ticker(
-        sessions,
-        clock,
-        build_study_components(settings),
-        build_memory_writer(settings),
-    )
+        llm = LLMRuntime(base, effective(base, await load_saved(session)))
+    worker = TurnWorker(sessions, clock, llm.turn_components)
+    ticker = Ticker(sessions, clock, llm.study, llm.memory)
     app.state.services = Services(
-        sessions=sessions,
-        clock=clock,
-        worker=worker,
-        ticker=ticker,
-        planning=build_planning(settings),
+        sessions=sessions, clock=clock, worker=worker, ticker=ticker, llm=llm
     )
     tasks = [asyncio.create_task(worker.run()), asyncio.create_task(ticker.run())]
     yield
@@ -76,5 +59,6 @@ for router in (
     progress,
     roadmap,
     notebook,
+    settings,
 ):
     app.include_router(router.router)

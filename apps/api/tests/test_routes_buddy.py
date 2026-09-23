@@ -62,8 +62,8 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
     idle = Ticker(
         sessions,
         FixedClock(NOW),
-        StudyComponents(curator=none, auditor=none, embedder=none),
-        none,
+        lambda: StudyComponents(curator=none, auditor=none, embedder=none),
+        lambda: none,
     )
     app.dependency_overrides[get_ticker] = lambda: idle
     return idle

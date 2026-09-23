@@ -84,8 +84,8 @@ def ticker_for(
     ticker = Ticker(
         sessions,
         clock,
-        StudyComponents(curator=buddy, auditor=buddy, embedder=buddy),
-        buddy,
+        lambda: StudyComponents(curator=buddy, auditor=buddy, embedder=buddy),
+        lambda: buddy,
     )
     buddy.ticker = ticker
     return ticker

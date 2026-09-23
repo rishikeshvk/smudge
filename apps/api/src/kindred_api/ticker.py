@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from collections.abc import Callable
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -22,8 +23,8 @@ class Ticker:
         self,
         sessions: async_sessionmaker[AsyncSession],
         clock: Clock,
-        study: StudyComponents,
-        memory: Rememberer,
+        study: Callable[[], StudyComponents],
+        memory: Callable[[], Rememberer],
     ) -> None:
         self._sessions = sessions
         self._clock = clock
@@ -60,7 +61,7 @@ class Ticker:
         try:
             for node in due:
                 outcome = await study_topic(
-                    session, node, self._clock.now(), self._study
+                    session, node, self._clock.now(), self._study()
                 )
                 await session.commit()
                 logger.info("studied day %s: %s", node.day, outcome.status.value)
@@ -70,6 +71,6 @@ class Ticker:
     async def _remember_due(self, session: AsyncSession, plan: CurrentPlan) -> None:
         now = self._clock.now()
         for day in await unremembered_days(session, plan.user_id, plan.tz, now):
-            await remember_day(session, plan.user_id, day, plan.tz, now, self._memory)
+            await remember_day(session, plan.user_id, day, plan.tz, now, self._memory())
             await session.commit()
             logger.info("remembered %s", day)

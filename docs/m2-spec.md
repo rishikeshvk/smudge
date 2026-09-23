@@ -164,6 +164,21 @@ change.
 | `POST /onboarding/messages` `{text, timezone}` | `OnboardingReply {message, quick_replies, proposal}` | Blocks for the audited reply; creates the single user; `409` once a plan exists; `422` for an unknown timezone |
 | `POST /onboarding/accept` `{proposal_message_id, buddy_name}` | `201` `RoadmapView` | Creates the plan from the card (its start date and study time) and names the buddy |
 
+## Bring-your-own-key settings (step 8)
+
+- `llm_settings` is one row of overrides saved from the app: base URL, API key and a model per role (classifier,
+  persona, auditor, planner, curator). Each saved field wins over `.env`; the rest keep their `.env` value.
+- The key is stored in plaintext in the local database, the same exposure as `.env`. Rejected: encrypting it with a
+  server secret, which is speculative for one local user.
+- `LLMRuntime` holds the settings in effect. The worker, ticker and onboarding build their components from it on
+  each use, so a save applies to the next call without a restart.
+
+| Endpoint | Returns | Notes |
+| --- | --- | --- |
+| `GET /settings` | `LLMSettingsView {base_url, api_key_set, models}` | Never the key, not even its last four characters (invariant 7) |
+| `PUT /settings` | `LLMSettingsView` | Fields left out keep their value; `api_key` is write-only |
+| `POST /settings/test` | `ConnectionCheck {ok, models, detail}` | Lists the endpoint's models, which costs nothing; errors come back generic |
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.
