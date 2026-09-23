@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     embed_api_key: SecretStr = Field(min_length=1)
     embed_model: str = Field(min_length=1)
 
+    # Swaps real time for the persisted dev clock and enables /dev time controls.
+    dev_mode: bool = False
+
 
 @lru_cache
 def get_settings() -> Settings:

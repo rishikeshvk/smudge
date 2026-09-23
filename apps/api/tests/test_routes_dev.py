@@ -1,0 +1,107 @@
+from collections.abc import AsyncIterator, Awaitable, Callable
+from datetime import UTC, date, datetime, timedelta
+
+import httpx
+import pytest
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from kindred_api.clock import Clock, FixedClock, OffsetClock, SystemClock
+from kindred_api.dependencies import get_clock, get_session
+from kindred_api.dev_clock import load_offset
+from kindred_api.main import app
+from kindred_db import Plan
+
+AddPlan = Callable[[date, str], Awaitable[Plan]]
+
+# 10:00 in Kolkata, the morning of day 1 of a plan starting 1 Oct.
+REAL_NOW = datetime(2026, 10, 1, 4, 30, tzinfo=UTC)
+
+
+@pytest.fixture
+def clock() -> OffsetClock:
+    return OffsetClock(FixedClock(REAL_NOW), timedelta())
+
+
+def client_for(session: AsyncSession, clock: Clock) -> httpx.AsyncClient:
+    app.dependency_overrides[get_session] = lambda: session
+    app.dependency_overrides[get_clock] = lambda: clock
+    return httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    )
+
+
+@pytest.fixture
+async def client(
+    session: AsyncSession, clock: OffsetClock
+) -> AsyncIterator[httpx.AsyncClient]:
+    async with client_for(session, clock) as client:
+        yield client
+    app.dependency_overrides.clear()
+
+
+@pytest.mark.anyio
+async def test_clock_starts_at_real_time_with_no_plan(
+    client: httpx.AsyncClient,
+) -> None:
+    response = await client.get("/dev/clock")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "now": "2026-10-01T04:30:00Z",
+        "real_time": True,
+        "day": None,
+    }
+
+
+@pytest.mark.anyio
+async def test_advancing_moves_the_clock_and_persists_the_offset(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    response = await client.post("/dev/clock", json={"kind": "advance", "hours": 24})
+
+    assert response.json()["now"] == "2026-10-02T04:30:00Z"
+    assert response.json()["real_time"] is False
+    assert await load_offset(session) == timedelta(hours=24)
+
+
+@pytest.mark.anyio
+async def test_jumping_to_a_day_keeps_the_local_time_of_day(
+    client: httpx.AsyncClient, add_plan: AddPlan
+) -> None:
+    await add_plan(date(2026, 10, 1), "Asia/Kolkata")
+
+    response = await client.post("/dev/clock", json={"kind": "jump_to_day", "day": 9})
+
+    assert response.json()["now"] == "2026-10-09T04:30:00Z"
+    assert response.json()["day"] == 9
+
+
+@pytest.mark.anyio
+async def test_jumping_needs_a_plan(client: httpx.AsyncClient) -> None:
+    response = await client.post("/dev/clock", json={"kind": "jump_to_day", "day": 9})
+
+    assert response.status_code == 409
+
+
+@pytest.mark.anyio
+async def test_back_to_real_time(
+    client: httpx.AsyncClient, session: AsyncSession
+) -> None:
+    await client.post("/dev/clock", json={"kind": "advance", "hours": 5})
+
+    response = await client.post("/dev/clock", json={"kind": "real_time"})
+
+    assert response.json()["now"] == "2026-10-01T04:30:00Z"
+    assert response.json()["real_time"] is True
+    assert await load_offset(session) == timedelta()
+
+
+@pytest.mark.anyio
+async def test_time_controls_are_hidden_outside_dev_mode(
+    session: AsyncSession,
+) -> None:
+    async with client_for(session, SystemClock()) as client:
+        response = await client.get("/dev/clock")
+    app.dependency_overrides.clear()
+
+    assert response.status_code == 404
