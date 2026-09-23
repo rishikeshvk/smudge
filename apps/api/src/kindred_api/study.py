@@ -21,7 +21,8 @@ from kindred_gate import TopicMap, list_notes, load_topic_map, read_sources
 from kindred_gate.jargon import jargon_in
 from kindred_llm import StructuredOutputError
 
-STUDY_ATTEMPTS = 2
+# Sources often mention later services; a jargon-only redraft costs no audit call.
+STUDY_ATTEMPTS = 3
 
 
 class NoteWriter(Protocol):

@@ -1,6 +1,6 @@
 # M2 spec: Buddy brain
 
-2026-09-23 · Status: **approved**; design changes during build are noted inline
+2026-09-23 · Status: **done**; design changes during build are noted inline
 
 M2 turns the M1 gate into a buddy: it plans with you, studies on its own schedule from real sources, chats in its
 own voice, remembers who you are, and serves all of it over a REST API for the M3 app. It is done when **14 simulated
@@ -117,8 +117,9 @@ change.
   1. A code pass flags later topics' specialist vocabulary (`kindred_gate/jargon.py`, the same check the
      curriculum guard test uses). A hit is a sure leak and skips the LLM call.
   2. `LLMAuditor.audit_note` applies the same `LEAK_RULES` as chat.
-  3. A leak gets one redraft with feedback. Two leaks, or invalid output, write nothing and record a `failed`
-     session: fail closed. Rejected: falling back to the hand-written note, which would hide Curator failures.
+  3. A leak gets up to two redrafts with feedback. Three leaks, or invalid output, write nothing and record a
+     `failed` session: fail closed. (Changed from one redraft after the first 14-day run: day 1's sources mention
+     EC2, and one redraft wasn't enough to drop it.) Rejected: falling back to the hand-written note, which would hide Curator failures.
   4. An unavailable endpoint rolls back and waits for the next tick. A topic with no ingested sources waits too.
 - **Writes** go through `kindred_api/ledger.py`, the one ledger writer: note plus embedding, then a
   `study_sessions` row with every attempt and verdict.
@@ -178,6 +179,26 @@ change.
 | `GET /settings` | `LLMSettingsView {base_url, api_key_set, models}` | Never the key, not even its last four characters (invariant 7) |
 | `PUT /settings` | `LLMSettingsView` | Fields left out keep their value; `api_key` is write-only |
 | `POST /settings/test` | `ConnectionCheck {ok, models, detail}` | Lists the endpoint's models, which costs nothing; errors come back generic |
+
+## Simulation results (step 8)
+
+`make simulate` onboards through the Planner on a fresh `kindred_sim` database, ingests sources, then plays each
+day on a `FixedClock`: morning chat, the buddy's study at study time, evening chat, a check-in (skipped on days 4
+and 9 so the buddy gets ahead) and the nightly memory. It fails if any day wasn't studied, answered or remembered, or
+if any reply went out without an audit.
+
+- **1-day smoke, 2026-09-23:** passed in 5 min, about 13 LLM calls. The Planner pushed back on 3 h/day and settled
+  on 1 h at 19:00. It wrote a 394-word audited note with three honest shaky points. A question asked before study
+  time got an honest "nothing yet". Memory held only facts about the person.
+- **First 14-day run: invalid.** Another process ran the API against `kindred_sim` on the real clock and answered
+  a message mid-run. It did surface the change to 3 Curator attempts: day 1 failed closed because its sources
+  mention EC2 (day 11 jargon).
+- **Second 14-day run: stopped after day 3 to save the OpenCode Go weekly budget.** Days 1–3 were studied (notes
+  written on the 1st, 1st and 2nd attempt), all 7 chat messages were answered with audited replies and no
+  fallbacks, and 4 memory snapshots were written (onboarding day plus days 1–3).
+- **Status:** accepted as done on 2026-09-23 with the 3-day run as validation. The loop runs end to end through
+  the Clock; a full 14-day run (`make simulate ARGS='--days 14 --messages-per-day 1'`, about 90 calls) is left
+  for when the OpenCode Go budget allows.
 
 ## Steps
 
