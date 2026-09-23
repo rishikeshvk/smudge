@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed test check fmt llm-ping mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed embed-model test check fmt llm-ping mobile mobile-tunnel
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -9,7 +9,7 @@ down:
 	docker compose down
 
 migrate:
-	docker compose up -d --wait db
+	docker compose up -d --wait db ollama
 	$(ALEMBIC) upgrade head
 
 # The ledger rejects DELETE, so wiping dev data means rebuilding the schema.
@@ -17,6 +17,10 @@ db-reset:
 	docker compose up -d --wait db
 	$(ALEMBIC) downgrade base
 	$(ALEMBIC) upgrade head
+
+embed-model:
+	docker compose up -d --wait ollama
+	docker compose exec ollama ollama pull qwen3-embedding:0.6b
 
 seed: migrate
 	uv run python -m kindred_api.seed curricula/aws-2week.yaml
@@ -28,7 +32,7 @@ test:
 check:
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy apps/api packages
+	uv run mypy apps/api packages conftest.py
 	npm --prefix apps/mobile run lint
 
 fmt:

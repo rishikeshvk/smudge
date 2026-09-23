@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from kindred_api.config import get_settings
 from kindred_db import create_engine as create_async_engine
 
-ALEMBIC_INI = Path(__file__).parents[1] / "alembic.ini"
+ALEMBIC_INI = Path(__file__).parent / "apps" / "api" / "alembic.ini"
 
 
 @pytest.fixture

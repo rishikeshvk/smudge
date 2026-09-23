@@ -16,6 +16,10 @@ class Settings(BaseSettings):
 
     database_url: str = Field(min_length=1)
 
+    embed_base_url: str = Field(min_length=1)
+    embed_api_key: SecretStr = Field(min_length=1)
+    embed_model: str = Field(min_length=1)
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -6,11 +6,6 @@ import pytest
 from kindred_llm import LLMClient
 
 
-@pytest.fixture
-def anyio_backend() -> str:
-    return "asyncio"
-
-
 @pytest.mark.anyio
 async def test_complete_sends_model_and_key_and_returns_reply() -> None:
     seen: list[httpx2.Request] = []
