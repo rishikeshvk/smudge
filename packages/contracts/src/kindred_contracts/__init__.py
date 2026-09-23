@@ -6,6 +6,13 @@ from kindred_contracts.curriculum import (
     VocabularyTerm,
 )
 from kindred_contracts.knowledge import RetrievedNote
+from kindred_contracts.probes import (
+    Expectation,
+    JudgeVerdict,
+    Probe,
+    ProbeCategory,
+    ProbeTime,
+)
 from kindred_contracts.turn import (
     AuditVerdict,
     Category,
@@ -34,6 +41,11 @@ __all__ = [
     "Draft",
     "DraftAttempt",
     "DraftRequest",
+    "Expectation",
+    "JudgeVerdict",
+    "Probe",
+    "ProbeCategory",
+    "ProbeTime",
     "RetrievedNote",
     "RoadmapEntry",
     "RoleModels",
