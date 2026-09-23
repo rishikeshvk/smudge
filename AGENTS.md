@@ -59,6 +59,7 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make db-reset` — rebuild the schema, wiping dev data (the ledger can't be deleted from)
 - `make embed-model` — pull the Ollama embedding model (first run only)
 - `make seed` — seed the AWS curriculum and embed its notes (takes a few minutes on CPU)
+- `make ingest` — fetch each topic's source pages (from the curriculum's note citations) into the database
 - `make turn ARGS='"message" --day 3 --time 10:00'` — run one message through the gate and print the trace;
   add `--user-through 1` to play a user who is behind the buddy
 - `make probe ARGS='--per-category 4'` — measure leak and over-block rates; spends OpenCode Go budget, so keep runs small

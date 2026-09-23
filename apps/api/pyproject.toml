@@ -9,6 +9,7 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.0",
     "fastapi[standard]>=0.141.1",
+    "httpx2>=2.13.0",
     "kindred-buddy",
     "kindred-contracts",
     "kindred-db",
@@ -16,6 +17,7 @@ dependencies = [
     "kindred-llm",
     "pydantic-settings>=2.15.0",
     "pyyaml>=6.0.3",
+    "trafilatura>=2.2.0",
     "tzlocal>=5.4.4",
 ]
 

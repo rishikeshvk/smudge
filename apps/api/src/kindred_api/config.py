@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,6 +20,8 @@ class Settings(BaseSettings):
     embed_base_url: str = Field(min_length=1)
     embed_api_key: SecretStr = Field(min_length=1)
     embed_model: str = Field(min_length=1)
+
+    curricula_dir: Path = Path("curricula")
 
     # Swaps real time for the persisted dev clock and enables /dev time controls.
     dev_mode: bool = False

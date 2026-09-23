@@ -92,6 +92,16 @@ change.
   messages. Replies sent after this message was queued count, so the buddy remembers what it just said.
 - The chat thread belongs to the user; the OpenCode session ID is `chat-<user id>`, stable per conversation.
 
+## Sources (step 4)
+
+- `source_documents` holds each topic's pages: URL, title, main text (trafilatura) and fetch time.
+- A topic's reading list is every page its reference notes cite in the curriculum YAML, anchors dropped. A page
+  shared by topics is fetched once and stored for each. `make ingest` skips stored pages and prints failures.
+- The Curator reads sources only through `read_sources` in `retrieval.py`, on the same `_unlocked` predicate as the
+  notes, so material for a locked topic can't reach it. The architecture test now covers `source_documents` too.
+- First run, 2026-09-23: 82 pages stored for 14 topics in 14 s. `calculator.aws` (needs JavaScript) and the
+  free-tier billing page failed. Pages average 5–13k characters, up to 34k, so the Curator trims them to a budget.
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.
