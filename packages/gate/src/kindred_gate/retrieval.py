@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_contracts import RetrievedNote, SourceExcerpt
+from kindred_contracts import NotebookNote, RetrievedNote, SourceExcerpt, TopicRef
 from kindred_db import LedgerNote, NoteEmbedding, SourceDocument, TopicNode
 
 
@@ -65,4 +65,27 @@ async def read_sources(
     )
     return [
         SourceExcerpt(url=doc.url, title=doc.title, text=doc.text) for doc in documents
+    ]
+
+
+async def list_notes(
+    session: AsyncSession, *, plan_id: int, now: datetime
+) -> list[NotebookNote]:
+    """Every unlocked, written note in plan order, for the Notebook and the Curator."""
+    rows = await session.execute(
+        select(LedgerNote, TopicNode)
+        .join(TopicNode, LedgerNote.node_id == TopicNode.id)
+        .where(*_written(plan_id, now))
+        .order_by(TopicNode.day, LedgerNote.id)
+    )
+    return [
+        NotebookNote(
+            note_id=note.id,
+            topic=TopicRef(slug=node.slug, title=node.title, day=node.day),
+            body=note.body,
+            shaky=note.shaky,
+            sources=note.sources,
+            written_at=note.written_at,
+        )
+        for note, node in rows.tuples()
     ]

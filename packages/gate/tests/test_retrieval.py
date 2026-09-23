@@ -12,7 +12,7 @@ from kindred_db import (
     TopicNode,
     User,
 )
-from kindred_gate import read_sources, retrieve_notes
+from kindred_gate import list_notes, read_sources, retrieve_notes
 
 MODEL = "test-embed"
 DAY_1 = datetime(2026, 10, 1, 13, 30, tzinfo=UTC)
@@ -185,3 +185,21 @@ async def test_sources_stay_hidden_until_their_topic_unlocks(
 async def test_sources_refuse_a_naive_now(session: AsyncSession) -> None:
     with pytest.raises(ValueError, match="timezone-aware"):
         await read_sources(session, plan_id=1, node_id=1, now=datetime(2026, 10, 1))
+
+
+@pytest.mark.anyio
+async def test_the_notebook_lists_only_visible_notes_in_plan_order(
+    session: AsyncSession,
+) -> None:
+    plan = await add_plan(session)
+    await add_note(session, plan, 2, DAY_2, axis(1))
+    await add_note(session, plan, 1, DAY_1, axis(0))
+
+    async def days(now: datetime) -> list[int]:
+        return [
+            n.topic.day for n in await list_notes(session, plan_id=plan.id, now=now)
+        ]
+
+    assert await days(DAY_1 - timedelta(seconds=1)) == []
+    assert await days(DAY_1) == [1]
+    assert await days(DAY_2) == [1, 2]

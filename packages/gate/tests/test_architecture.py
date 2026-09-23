@@ -14,6 +14,7 @@ ALLOWED = {
     "packages/gate/src/kindred_gate/retrieval.py",
     "apps/api/src/kindred_api/seed.py",
     "apps/api/src/kindred_api/ingest.py",
+    "apps/api/src/kindred_api/ledger.py",
 }
 
 
