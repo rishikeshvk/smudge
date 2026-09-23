@@ -11,6 +11,7 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "kindred-contracts",
     "kindred-db",
+    "kindred-gate",
     "kindred-llm",
     "pydantic-settings>=2.15.0",
     "pyyaml>=6.0.3",
@@ -25,3 +26,4 @@ build-backend = "uv_build"
 kindred-llm = { workspace = true }
 kindred-db = { workspace = true }
 kindred-contracts = { workspace = true }
+kindred-gate = { workspace = true }
