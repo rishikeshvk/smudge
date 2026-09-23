@@ -1,4 +1,5 @@
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator
+from datetime import date, time
 from pathlib import Path
 
 import pytest
@@ -9,6 +10,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.config import get_settings
+from kindred_db import Plan, User
 from kindred_db import create_engine as create_async_engine
 
 ALEMBIC_INI = Path(__file__).parent / "apps" / "api" / "alembic.ini"
@@ -75,3 +77,24 @@ async def session(database_url: str) -> AsyncIterator[AsyncSession]:
             yield session
         await transaction.rollback()
     await engine.dispose()
+
+
+@pytest.fixture
+def add_plan(session: AsyncSession) -> Callable[[date, str], Awaitable[Plan]]:
+    async def add(start_date: date, timezone: str) -> Plan:
+        user = User(timezone=timezone)
+        session.add(user)
+        await session.flush()
+        plan = Plan(
+            user_id=user.id,
+            curriculum_slug="t",
+            title="T",
+            start_date=start_date,
+            study_time=time(19),
+            baseline_card=[],
+        )
+        session.add(plan)
+        await session.flush()
+        return plan
+
+    return add

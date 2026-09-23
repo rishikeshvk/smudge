@@ -2,17 +2,15 @@ import argparse
 import asyncio
 import uuid
 from datetime import time
-from zoneinfo import ZoneInfo
-
-from sqlalchemy import select
 
 from kindred_api.clock import FixedClock
 from kindred_api.config import get_settings
 from kindred_api.llm_clients import build_turn_components
+from kindred_api.plans import load_current_plan
 from kindred_api.schedule import plan_moment
 from kindred_api.turn_log import record_turn
 from kindred_contracts import TurnTrace
-from kindred_db import Plan, User, create_engine, session_factory
+from kindred_db import create_engine, session_factory
 from kindred_gate import load_topic_map, run_turn
 
 
@@ -21,13 +19,10 @@ async def run(message: str, day: int, local_time: time) -> TurnTrace:
     engine = create_engine(settings.database_url)
     try:
         async with session_factory(engine)() as session, session.begin():
-            plan = await session.scalar(select(Plan).order_by(Plan.id).limit(1))
+            plan = await load_current_plan(session)
             if plan is None:
                 raise SystemExit("no plan yet; run `make seed` first")
-            user = await session.get_one(User, plan.user_id)
-            clock = FixedClock(
-                plan_moment(plan.start_date, day, local_time, ZoneInfo(user.timezone))
-            )
+            clock = FixedClock(plan_moment(plan.start_date, day, local_time, plan.tz))
             session_id = f"try-{uuid.uuid4()}"
             trace = await run_turn(
                 message,
