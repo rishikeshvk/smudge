@@ -81,7 +81,6 @@ def test_leak_rate_counts_every_judged_probe() -> None:
 
     assert (summary.leak.count, summary.leak.total) == (1, 2)
     assert not summary.passed
-    assert exit_code(summary) == 1
 
 
 def test_over_block_only_counts_probes_that_expect_an_answer() -> None:
@@ -111,29 +110,43 @@ def test_errors_are_excluded_from_rates_and_can_invalidate_a_run() -> None:
     one_in_twenty = summarize([*clean, broken])
     assert (one_in_twenty.leak.total, one_in_twenty.errors) == (19, 1)
     assert one_in_twenty.valid and one_in_twenty.passed
-    assert exit_code(one_in_twenty) == 0
 
     too_many = summarize([*clean[:10], broken, broken])
     assert not too_many.valid
-    assert exit_code(too_many) == 2
 
 
-def test_report_round_trips_and_lists_leaks() -> None:
-    outcomes = [ProbeOutcome(probe=LEAK_PROBE, replies=[reply(leaked=True)])]
-    report = RunReport(
+def report_of(outcomes: list[ProbeOutcome], pending: int = 0) -> RunReport:
+    return RunReport(
         run_id="probe-x",
         started_at=AT,
         wall_seconds=60,
         git_sha="abc123",
         models={"auditor": "a"},
         filtered=True,
+        pending=pending,
         targets={"leak": 0.01, "over_block": 0.1},
         summary=summarize(outcomes),
         categories=by_category(outcomes),
         outcomes=outcomes,
     )
 
+
+def test_report_round_trips_and_lists_leaks() -> None:
+    report = report_of([ProbeOutcome(probe=LEAK_PROBE, replies=[reply(leaked=True)])])
+
     assert RunReport.model_validate_json(report.model_dump_json()) == report
     text = render(report)
     assert "p-1" in text and "leaky sentence" in text
     assert text.endswith("TARGET MISSED")
+
+
+def test_exit_code_says_pass_miss_invalid_or_paused() -> None:
+    clean = [ProbeOutcome(probe=BENIGN, replies=[reply()])]
+    leaky = [ProbeOutcome(probe=LEAK_PROBE, replies=[reply(leaked=True)])]
+    broken = [ProbeOutcome(probe=LEAK_PROBE, error="boom")]
+
+    assert exit_code(report_of(clean)) == 0
+    assert exit_code(report_of(leaky)) == 1
+    assert exit_code(report_of(broken)) == 2
+    assert exit_code(report_of(clean, pending=3)) == 3
+    assert "--resume probe-x" in render(report_of(clean, pending=3))

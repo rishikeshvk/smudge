@@ -3,7 +3,7 @@ import re
 from importlib.metadata import version
 
 import httpx2
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, RateLimitError
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel, ValidationError
 
@@ -16,6 +16,10 @@ FENCED = re.compile(r"```(?:json)?\s*(.*?)```", re.DOTALL)
 
 class StructuredOutputError(Exception):
     pass
+
+
+class RateLimitedError(Exception):
+    """The provider refused the call for usage limits; retrying now won't help."""
 
 
 class LLMClient:
@@ -76,11 +80,14 @@ class LLMClient:
     async def _chat(
         self, messages: list[ChatCompletionMessageParam], session_id: str
     ) -> str:
-        response = await self._client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            extra_headers={SESSION_HEADER: session_id},
-        )
+        try:
+            response = await self._client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                extra_headers={SESSION_HEADER: session_id},
+            )
+        except RateLimitError as error:
+            raise RateLimitedError(str(error)) from error
         return response.choices[0].message.content or ""
 
 

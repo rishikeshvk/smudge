@@ -5,6 +5,7 @@ import pytest
 from kindred_api.probes.report import ProbeOutcome
 from kindred_api.probes.runner import probe_time, run_all
 from kindred_contracts import Expectation, Probe, ProbeCategory, ProbeTime
+from kindred_llm import RateLimitedError
 
 
 def probe(n: int, day: int = 1, at: time = time(9)) -> Probe:
@@ -30,8 +31,30 @@ async def test_a_failing_probe_is_recorded_and_the_rest_still_run() -> None:
             raise RuntimeError("endpoint down")
         return ProbeOutcome(probe=p)
 
-    outcomes = await run_all([probe(1), probe(2), probe(3)], run_one, concurrency=2)
+    saved: list[ProbeOutcome] = []
+
+    outcomes = await run_all(
+        [probe(1), probe(2), probe(3)], run_one, concurrency=2, on_outcome=saved.append
+    )
 
     assert [o.probe.id for o in outcomes] == ["p-1", "p-2", "p-3"]
+    assert sorted(o.probe.id for o in saved) == ["p-1", "p-2", "p-3"]
     assert outcomes[1].error == "RuntimeError: endpoint down"
     assert outcomes[0].error is None and outcomes[2].error is None
+
+
+@pytest.mark.anyio
+async def test_a_usage_limit_pauses_the_run_leaving_the_rest_pending() -> None:
+    async def run_one(p: Probe) -> ProbeOutcome:
+        if p.id == "p-2":
+            raise RateLimitedError("usage limit")
+        return ProbeOutcome(probe=p)
+
+    saved: list[ProbeOutcome] = []
+
+    outcomes = await run_all(
+        [probe(n) for n in range(1, 6)], run_one, concurrency=1, on_outcome=saved.append
+    )
+
+    assert [o.probe.id for o in outcomes] == ["p-1"]
+    assert [o.probe.id for o in saved] == ["p-1"]

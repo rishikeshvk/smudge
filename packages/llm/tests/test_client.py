@@ -4,7 +4,7 @@ import httpx2
 import pytest
 from pydantic import BaseModel
 
-from kindred_llm import LLMClient, StructuredOutputError
+from kindred_llm import LLMClient, RateLimitedError, StructuredOutputError
 
 
 @pytest.mark.anyio
@@ -140,3 +140,24 @@ async def test_gives_up_after_three_invalid_replies() -> None:
             Verdict, "judge this", session_id="s", system="You judge."
         )
     assert len(seen) == 3
+
+
+@pytest.mark.anyio
+async def test_usage_limit_is_reported_as_rate_limited() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        # retry-after-ms keeps the SDK's own retries instant.
+        return httpx2.Response(
+            429,
+            headers={"retry-after-ms": "0"},
+            json={"error": {"message": "usage limit reached"}},
+        )
+
+    client = LLMClient(
+        base_url="https://llm.test/v1",
+        api_key="sk-test",
+        model="test-model",
+        http_client=httpx2.AsyncClient(transport=httpx2.MockTransport(handler)),
+    )
+
+    with pytest.raises(RateLimitedError, match="usage limit"):
+        await client.complete("hello", session_id="s")

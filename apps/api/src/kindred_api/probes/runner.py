@@ -17,10 +17,11 @@ from kindred_api.probes.report import ProbeOutcome, ReplyOutcome
 from kindred_api.schedule import plan_moment
 from kindred_api.seed import load_curriculum, seed_plan
 from kindred_api.turn_log import record_turn
-from kindred_contracts import ChatTurn, Probe, Speaker
+from kindred_contracts import ChatTurn, JudgeVerdict, Probe, Speaker, TurnTrace
 from kindred_db import Plan, session_factory
 from kindred_db import create_engine as create_async_engine
 from kindred_gate import TopicMap, load_topic_map, run_turn
+from kindred_llm import RateLimitedError
 
 # Fixed so every run sees the same calendar, whenever it happens.
 PLAN_START = date(2026, 10, 1)
@@ -28,6 +29,7 @@ PLAN_TIMEZONE = ZoneInfo("Asia/Kolkata")
 ALEMBIC_INI = Path("apps/api/alembic.ini")
 
 ProbeFn = Callable[[Probe], Awaitable[ProbeOutcome]]
+OutcomeSink = Callable[[ProbeOutcome], None]
 
 
 def eval_database_url(settings: Settings) -> str:
@@ -98,9 +100,7 @@ async def run_probe(
         await record_turn(
             session, trace, plan_id=plan_id, session_id=session_id, probe_run_id=run_id
         )
-        verdict = await judge.judge(
-            trace.final_reply, message, history, topics, now, f"{session_id}:judge"
-        )
+        verdict = await _grade(trace, message, history, topics, now, judge, session_id)
         replies.append(ReplyOutcome(trace=trace, verdict=verdict))
         history += [
             ChatTurn(speaker=Speaker.USER, text=message),
@@ -109,25 +109,53 @@ async def run_probe(
     return ProbeOutcome(probe=probe, replies=replies)
 
 
-async def run_all(
-    probes: list[Probe], run_one: ProbeFn, concurrency: int
-) -> list[ProbeOutcome]:
-    limit = asyncio.Semaphore(concurrency)
+async def _grade(
+    trace: TurnTrace,
+    message: str,
+    history: list[ChatTurn],
+    topics: TopicMap,
+    now: datetime,
+    judge: Judge,
+    session_id: str,
+) -> JudgeVerdict:
+    # A templated fallback only renders public titles, so it can't leak and never
+    # answers; grading it would spend a judge call to learn nothing.
+    if trace.fell_back:
+        return JudgeVerdict(leaked=False, answered=False, rationale="fallback template")
+    return await judge.judge(
+        trace.final_reply, message, history, topics, now, f"{session_id}:judge"
+    )
 
-    async def guarded(probe: Probe) -> ProbeOutcome:
+
+async def run_all(
+    probes: list[Probe], run_one: ProbeFn, concurrency: int, on_outcome: OutcomeSink
+) -> list[ProbeOutcome]:
+    """Run probes until done or the provider refuses; unstarted ones stay pending."""
+    limit = asyncio.Semaphore(concurrency)
+    stopped = asyncio.Event()
+
+    async def guarded(probe: Probe) -> ProbeOutcome | None:
         async with limit:
+            if stopped.is_set():
+                return None
             try:
                 outcome = await run_one(probe)
-            # One failing probe (endpoint down, judge unparseable) must not sink the
+            except RateLimitedError:
+                stopped.set()
+                print(f"  {probe.id}: rate limited, pausing the run", flush=True)
+                return None
+            # One failing probe (endpoint error, judge unparseable) must not sink the
             # run; it is counted as an error and excluded from the rates.
             except Exception as error:  # noqa: BLE001
                 outcome = ProbeOutcome(
                     probe=probe, error=f"{type(error).__name__}: {error}"
                 )
+            on_outcome(outcome)
             print(f"  {probe.id}: {_status(outcome)}", flush=True)
             return outcome
 
-    return list(await asyncio.gather(*(guarded(p) for p in probes)))
+    results = await asyncio.gather(*(guarded(p) for p in probes))
+    return [outcome for outcome in results if outcome is not None]
 
 
 def _status(outcome: ProbeOutcome) -> str:
@@ -143,13 +171,14 @@ async def run_probes(
     curriculum_path: Path,
     run_id: str,
     concurrency: int,
+    fresh: bool,
+    on_outcome: OutcomeSink,
 ) -> list[ProbeOutcome]:
     url = eval_database_url(settings)
-    print(
-        "Preparing eval database (embedding notes takes a few minutes)...", flush=True
-    )
-    recreate_database(url)
-    await seed_eval_plan(url, curriculum_path, settings)
+    if fresh:
+        print("Preparing eval database (embedding notes takes minutes)...", flush=True)
+        recreate_database(url)
+        await seed_eval_plan(url, curriculum_path, settings)
 
     engine = create_async_engine(url)
     sessions = session_factory(engine)
@@ -173,6 +202,6 @@ async def run_probes(
                 )
 
         print(f"Running {len(probes)} probes, {concurrency} at a time...", flush=True)
-        return await run_all(probes, run_one, concurrency)
+        return await run_all(probes, run_one, concurrency, on_outcome)
     finally:
         await engine.dispose()

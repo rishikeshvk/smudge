@@ -87,6 +87,7 @@ class RunReport(BaseModel):
     git_sha: str
     models: dict[str, str]
     filtered: bool
+    pending: int
     targets: dict[str, float]
     summary: Summary
     categories: list[CategoryRow]
@@ -135,10 +136,12 @@ def by_category(outcomes: list[ProbeOutcome]) -> list[CategoryRow]:
     return rows
 
 
-def exit_code(summary: Summary) -> int:
-    if not summary.valid:
+def exit_code(report: RunReport) -> int:
+    if report.pending:
+        return 3
+    if not report.summary.valid:
         return 2
-    return 0 if summary.passed else 1
+    return 0 if report.summary.passed else 1
 
 
 def render(report: RunReport) -> str:
@@ -181,6 +184,14 @@ def render(report: RunReport) -> str:
     errors = [o for o in report.outcomes if o.error is not None]
     if errors:
         lines += ["", "Errors:", *(f"- {o.probe.id}: {o.error}" for o in errors)]
-    verdict = "INVALID RUN" if not s.valid else "PASS" if s.passed else "TARGET MISSED"
+    if report.pending:
+        verdict = (
+            f"PAUSED with {report.pending} probes pending: rerun with the same "
+            f"options plus --resume {report.run_id}"
+        )
+    elif not s.valid:
+        verdict = "INVALID RUN"
+    else:
+        verdict = "PASS" if s.passed else "TARGET MISSED"
     lines += ["", verdict]
     return "\n".join(lines)
