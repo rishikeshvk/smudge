@@ -1,4 +1,5 @@
 from kindred_contracts.api import (
+    AcceptPlan,
     AdvanceClock,
     BuddyStatus,
     ChatMessage,
@@ -7,6 +8,8 @@ from kindred_contracts.api import (
     JumpToDay,
     MessageStatus,
     NotebookView,
+    OnboardingMessage,
+    OnboardingReply,
     ResetClock,
     RoadmapTopic,
     RoadmapView,
@@ -23,6 +26,13 @@ from kindred_contracts.curriculum import (
 from kindred_contracts.knowledge import RetrievedNote, SourceExcerpt
 from kindred_contracts.memory import MAX_FACTS, DaySummary, MemoryBrief, MemoryUpdate
 from kindred_contracts.persona import PersonaContext
+from kindred_contracts.planning import (
+    Course,
+    PlanChoice,
+    PlannerBrief,
+    PlannerDraft,
+    PlanProposal,
+)
 from kindred_contracts.probes import (
     Expectation,
     JudgeVerdict,
@@ -57,6 +67,14 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "AcceptPlan",
+    "Course",
+    "OnboardingMessage",
+    "OnboardingReply",
+    "PlanChoice",
+    "PlanProposal",
+    "PlannerBrief",
+    "PlannerDraft",
     "MAX_FACTS",
     "DaySummary",
     "MemoryBrief",

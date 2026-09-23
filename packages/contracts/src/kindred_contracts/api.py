@@ -3,6 +3,7 @@ from typing import Annotated, Literal
 from pydantic import AwareDatetime, Field
 
 from kindred_contracts.curriculum import Contract
+from kindred_contracts.planning import PlanProposal
 from kindred_contracts.study import NotebookNote
 from kindred_contracts.turn import Speaker, TopicRef, TurnStage
 
@@ -88,3 +89,20 @@ class SealedDay(Contract):
 class NotebookView(Contract):
     notes: list[NotebookNote]
     sealed: list[SealedDay]
+
+
+class OnboardingMessage(Contract):
+    text: str = Field(min_length=1, max_length=4000)
+    # The device's IANA timezone, so the plan's days follow the user's clock.
+    timezone: str
+
+
+class OnboardingReply(Contract):
+    message: ChatMessage
+    quick_replies: list[str]
+    proposal: PlanProposal | None
+
+
+class AcceptPlan(Contract):
+    proposal_message_id: int
+    buddy_name: str = Field(min_length=1, max_length=40)
