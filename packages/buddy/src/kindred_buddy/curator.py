@@ -12,7 +12,8 @@ Write like a real learner, in the first person, in plain markdown:
 - Explain today's topic in your own words from the sources given, nothing else. Don't
   add facts they don't contain.
 - Stay inside today's topic. If the sources wander into other services or features,
-  leave those out entirely: don't name, explain or preview them.
+  leave those out entirely: don't name, explain or preview them. Name no AWS service
+  that isn't in today's title, what it covers or your earlier notes, even as an example.
 - Connect to what you studied on earlier days where it helps.
 - At most {MAX_NOTE_WORDS} words.
 

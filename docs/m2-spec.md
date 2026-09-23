@@ -117,8 +117,9 @@ change.
   1. A code pass flags later topics' specialist vocabulary (`kindred_gate/jargon.py`, the same check the
      curriculum guard test uses). A hit is a sure leak and skips the LLM call.
   2. `LLMAuditor.audit_note` applies the same `LEAK_RULES` as chat.
-  3. A leak gets one redraft with feedback. Two leaks, or invalid output, write nothing and record a `failed`
-     session: fail closed. Rejected: falling back to the hand-written note, which would hide Curator failures.
+  3. A leak gets up to two redrafts with feedback. Three leaks, or invalid output, write nothing and record a
+     `failed` session: fail closed. (Changed from one redraft after the first 14-day run: day 1's sources mention
+     EC2, and one redraft wasn't enough to drop it.) Rejected: falling back to the hand-written note, which would hide Curator failures.
   4. An unavailable endpoint rolls back and waits for the next tick. A topic with no ingested sources waits too.
 - **Writes** go through `kindred_api/ledger.py`, the one ledger writer: note plus embedding, then a
   `study_sessions` row with every attempt and verdict.

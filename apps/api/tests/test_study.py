@@ -195,18 +195,16 @@ async def test_a_note_that_keeps_leaking_is_never_written(
         evidence=["Cold storage is cheap."],
         rationale="previews day 2",
     )
-    curator = FakeCurator(
-        note("Regions. Cold storage is cheap."), note("Regions. Cold storage is cheap.")
-    )
+    curator = FakeCurator(*[note("Regions. Cold storage is cheap.")] * 3)
 
     outcome = await study_topic(
-        session, day_1, NOW, components(curator, FakeAuditor(leak, leak))
+        session, day_1, NOW, components(curator, FakeAuditor(leak, leak, leak))
     )
 
     assert outcome.status is StudyStatus.FAILED
     assert await list_notes(session, plan_id=day_1.plan_id, now=NOW) == []
     row = await session_row(session, day_1)
-    assert row is not None and row.status == "failed" and len(row.attempts) == 2
+    assert row is not None and row.status == "failed" and len(row.attempts) == 3
     feedback = curator.briefs[1].feedback
     assert feedback is not None and "- Cold storage is cheap." in feedback
 
