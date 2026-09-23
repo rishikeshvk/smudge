@@ -22,11 +22,11 @@ export type AuditVerdict = {
     /**
      * Leaked Topic Slugs
      */
-    leaked_topic_slugs?: Array<string>;
+    leaked_topic_slugs: Array<string>;
     /**
      * Evidence
      */
-    evidence?: Array<string>;
+    evidence: Array<string>;
     /**
      * Rationale
      */
@@ -57,7 +57,7 @@ export type Classification = {
     /**
      * Topic Slugs
      */
-    topic_slugs?: Array<string>;
+    topic_slugs: Array<string>;
     /**
      * Rationale
      */
@@ -72,11 +72,11 @@ export type Directive = {
     /**
      * Answer Topics
      */
-    answer_topics?: Array<TopicRef>;
+    answer_topics: Array<TopicRef>;
     /**
      * Deflect Topics
      */
-    deflect_topics?: Array<TopicRef>;
+    deflect_topics: Array<TopicRef>;
 };
 
 /**

@@ -6,7 +6,12 @@ from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
 
 class Contract(BaseModel):
-    model_config = ConfigDict(frozen=True, extra="forbid")
+    model_config = ConfigDict(
+        frozen=True,
+        extra="forbid",
+        # Serialized output always carries defaulted fields; say so in the schema.
+        json_schema_serialization_defaults_required=True,
+    )
 
 
 class VocabularyKind(StrEnum):
