@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed embed-model turn test check fmt llm-ping mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed embed-model turn probe test check fmt llm-ping mobile mobile-tunnel
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -28,6 +28,11 @@ seed: migrate
 # make turn ARGS='"What is a bucket policy?" --day 3 --time 10:00'
 turn:
 	uv run python -m kindred_api.try_turn $(ARGS)
+
+# make probe ARGS='--limit 10'
+probe:
+	docker compose up -d --wait db ollama
+	uv run python -m kindred_api.probes $(ARGS)
 
 test:
 	docker compose up -d --wait db
