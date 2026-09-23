@@ -132,6 +132,18 @@ change.
 | `GET /notebook/{id}` | One `NotebookNote`; `404` until it's visible |
 | `POST /dev/study-now` | Moves the clock to today's study time if it's earlier, runs a tick, returns `ClockView` |
 
+## Relationship memory (step 6)
+
+- `relationship_memory` holds one snapshot per finished local day: a two-to-three sentence summary in the buddy's
+  voice and the full revised list of up to 20 facts. The latest snapshot is the current memory; older ones stay.
+- The ticker remembers every finished local day (by the user's timezone) that had chat and has no snapshot, oldest
+  first: one LLM call a day, on the Curator's model as part of the nightly batch. Rejected: a separate memory
+  model setting, one more knob with no need yet.
+- The memory writer is told to keep only facts about the person and the relationship, never subject content.
+- The Persona gets the current facts and the last 3 day summaries through `PersonaContext`, as of the Clock's now.
+- **Risk.** Memory could still carry subject content the user typed. It never enters the ledger, and the auditor
+  checks every reply, so it can shape tone but not get past the gate unaudited.
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.

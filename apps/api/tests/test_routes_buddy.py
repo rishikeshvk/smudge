@@ -11,7 +11,14 @@ from kindred_api.main import app
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
-from kindred_contracts import AuditVerdict, NoteDraft, PersonaContext, StudyBrief
+from kindred_contracts import (
+    AuditVerdict,
+    MemoryBrief,
+    MemoryUpdate,
+    NoteDraft,
+    PersonaContext,
+    StudyBrief,
+)
 from kindred_db import Plan
 from kindred_gate import TopicMap, TurnComponents
 
@@ -34,6 +41,9 @@ class NoStudy:
     async def embed_documents(self, texts: list[str]) -> list[list[float]]:
         raise AssertionError("nothing should be embedded")
 
+    async def remember(self, brief: MemoryBrief, session_id: str) -> MemoryUpdate:
+        raise AssertionError("nothing should be remembered")
+
 
 def unused(
     session: AsyncSession, plan_id: int, persona: PersonaContext
@@ -53,6 +63,7 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
         sessions,
         FixedClock(NOW),
         StudyComponents(curator=none, auditor=none, embedder=none),
+        none,
     )
     app.dependency_overrides[get_ticker] = lambda: idle
     return idle

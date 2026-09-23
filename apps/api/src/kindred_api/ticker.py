@@ -4,7 +4,8 @@ import logging
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.clock import Clock
-from kindred_api.plans import load_current_plan
+from kindred_api.plans import CurrentPlan, load_current_plan
+from kindred_api.relationship import Rememberer, remember_day, unremembered_days
 from kindred_api.study import StudyComponents, due_topics, study_topic
 from kindred_llm import LLMUnavailableError
 
@@ -22,10 +23,12 @@ class Ticker:
         sessions: async_sessionmaker[AsyncSession],
         clock: Clock,
         study: StudyComponents,
+        memory: Rememberer,
     ) -> None:
         self._sessions = sessions
         self._clock = clock
         self._study = study
+        self._memory = memory
         self._lock = asyncio.Lock()
         self.studying = False
 
@@ -42,7 +45,12 @@ class Ticker:
             plan = await load_current_plan(session)
             if plan is None:
                 return
-            await self._study_due(session, plan.id)
+            try:
+                await self._study_due(session, plan.id)
+                await self._remember_due(session, plan)
+            except LLMUnavailableError:
+                await session.rollback()
+                logger.warning("model endpoint unavailable; trying again next tick")
 
     async def _study_due(self, session: AsyncSession, plan_id: int) -> None:
         due = await due_topics(session, plan_id, self._clock.now())
@@ -56,8 +64,12 @@ class Ticker:
                 )
                 await session.commit()
                 logger.info("studied day %s: %s", node.day, outcome.status.value)
-        except LLMUnavailableError:
-            await session.rollback()
-            logger.warning("model endpoint unavailable; studying again next tick")
         finally:
             self.studying = False
+
+    async def _remember_due(self, session: AsyncSession, plan: CurrentPlan) -> None:
+        now = self._clock.now()
+        for day in await unremembered_days(session, plan.user_id, plan.tz, now):
+            await remember_day(session, plan.user_id, day, plan.tz, now, self._memory)
+            await session.commit()
+            logger.info("remembered %s", day)

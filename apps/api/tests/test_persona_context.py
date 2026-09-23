@@ -30,6 +30,8 @@ async def test_context_puts_the_buddy_in_the_users_day(
         plan_title="T",
         day=5,
         local_now=datetime(2026, 10, 5, 1, 30, tzinfo=ZoneInfo("Asia/Kolkata")),
+        facts=[],
+        recent_days=[],
     )
     assert context.local_now.utcoffset() == ZoneInfo("Asia/Kolkata").utcoffset(
         context.local_now

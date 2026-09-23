@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from kindred_api.config import Settings
 from kindred_api.study import StudyComponents
 from kindred_buddy.curator import Curator
+from kindred_buddy.memory import MemoryWriter
 from kindred_buddy.persona import Persona
 from kindred_contracts import PersonaContext
 from kindred_db import EMBEDDING_DIMENSIONS
@@ -47,3 +48,8 @@ def build_study_components(settings: Settings) -> StudyComponents:
         auditor=LLMAuditor(build_llm(settings, settings.llm_model_auditor)),
         embedder=build_embedder(settings),
     )
+
+
+def build_memory_writer(settings: Settings) -> MemoryWriter:
+    # Part of the nightly batch, so it runs on the Curator's model.
+    return MemoryWriter(build_llm(settings, settings.llm_model_curator))
