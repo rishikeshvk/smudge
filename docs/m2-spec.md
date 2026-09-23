@@ -180,6 +180,25 @@ change.
 | `PUT /settings` | `LLMSettingsView` | Fields left out keep their value; `api_key` is write-only |
 | `POST /settings/test` | `ConnectionCheck {ok, models, detail}` | Lists the endpoint's models, which costs nothing; errors come back generic |
 
+## Simulation results (step 8)
+
+`make simulate` onboards through the Planner on a fresh `kindred_sim` database, ingests sources, then plays each
+day on a `FixedClock`: morning chat, the buddy's study at study time, evening chat, a check-in (skipped on days 4
+and 9 so the buddy gets ahead) and the nightly memory. It fails if any day wasn't studied, answered or remembered, or
+if any reply went out without an audit.
+
+- **1-day smoke, 2026-09-23:** passed in 5 min, about 13 LLM calls. The Planner pushed back on 3 h/day and settled
+  on 1 h at 19:00. It wrote a 394-word audited note with three honest shaky points. A question asked before study
+  time got an honest "nothing yet". Memory held only facts about the person.
+- **First 14-day run: invalid.** Another process ran the API against `kindred_sim` on the real clock and answered
+  a message mid-run. It did surface the change to 3 Curator attempts: day 1 failed closed because its sources
+  mention EC2 (day 11 jargon).
+- **Second 14-day run: stopped after day 3 to save the OpenCode Go weekly budget.** Days 1–3 were studied (notes
+  written on the 1st, 1st and 2nd attempt), all 7 chat messages were answered with audited replies and no
+  fallbacks, and 4 memory snapshots were written (onboarding day plus days 1–3).
+- **Status:** the loop runs end to end through the Clock, but "14 simulated days" is still unverified. The next
+  run is `make simulate ARGS='--days 14 --messages-per-day 1'` (about 90 calls) once the budget resets.
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.
