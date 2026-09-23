@@ -21,7 +21,8 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 - `apps/mobile` — React Native + Expo, TypeScript, Android only. Types are
   generated from the API's OpenAPI schema, not hand-written.
 - `packages/` — `contracts` (schemas), `gate` (classifier, retrieval, auditor),
-  `llm` (provider client).
+  `llm` (provider client), `db` (SQLAlchemy models and engine; migrations live in
+  `apps/api/migrations`).
 - Postgres + pgvector via Docker. Migrations with alembic; never edit an applied
   migration.
 - LLM access is bring-your-own-key: an OpenAI-compatible base URL, API key and a
@@ -52,8 +53,10 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 
 ## Commands
 First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-packages`.
-- `make up` — Postgres (Docker) and the API with hot reload on :8000
+- `make up` — Postgres (Docker), migrations, and the API with hot reload on :8000
 - `make down` — stop Postgres
+- `make migrate` — apply alembic migrations
+- `make db-reset` — rebuild the schema, wiping dev data (the ledger can't be deleted from)
 - `make test` — pytest
 - `make check` — ruff, mypy and expo lint
 - `make fmt` — ruff format and autofix
