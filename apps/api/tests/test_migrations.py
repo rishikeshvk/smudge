@@ -19,6 +19,7 @@ TABLES = {
     "study_checkins",
     "source_documents",
     "study_sessions",
+    "relationship_memory",
 }
 
 

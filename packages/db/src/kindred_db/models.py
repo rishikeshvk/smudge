@@ -193,3 +193,17 @@ class StudySession(Base):
     note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
     # Every draft and its audit, for debugging what the Curator tried.
     attempts: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
+
+
+# Who the user is to the buddy: one snapshot per finished day, kept apart from the
+# ledger of what it knows. The latest snapshot is the current memory.
+class RelationshipMemory(Base):
+    __tablename__ = "relationship_memory"
+    __table_args__ = (UniqueConstraint("user_id", "for_date"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    for_date: Mapped[date]
+    summary: Mapped[str]
+    facts: Mapped[list[str]] = mapped_column(JSONB)
+    written_at: Mapped[datetime]
