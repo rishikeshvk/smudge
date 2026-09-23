@@ -11,7 +11,7 @@ export default function Notebook() {
 
   return (
     <Screen>
-      <ScreenHeader quiet="The " loud="notebook" />
+      <ScreenHeader title="Notebook" />
       <LoadState isPending={notebook.isPending} error={notebook.error} />
       <ScrollView contentContainerClassName="gap-6 pb-6">
         {notebook.data?.notes.map((note) => (
