@@ -1,10 +1,10 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-export type CoachId = "onboarding-name";
+export type CoachId = "onboarding-name" | "xray-badge";
 
 // Per-phone conveniences only; anything that must survive a reinstall belongs on the backend.
-type Prefs = Record<`coach.${CoachId}`, boolean>;
+type Prefs = Record<`coach.${CoachId}`, boolean> & { xray: boolean };
 
 const queryKey = (key: keyof Prefs) => ["pref", key] as const;
 

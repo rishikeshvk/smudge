@@ -16,9 +16,12 @@ import { DayChip } from "@/components/DayChip";
 import { DraftStatus } from "@/components/DraftStatus";
 import { LampGlow } from "@/components/LampGlow";
 import { LoadState } from "@/components/LoadState";
+import { TraceSheet } from "@/components/TraceSheet";
 import { UnavailableBanner } from "@/components/UnavailableBanner";
+import { XrayToggle } from "@/components/XrayToggle";
 import { draftSteps, isInFlight } from "@/draftStage";
 import { useKindredNow } from "@/kindredNow";
+import { usePref } from "@/prefs";
 import { ambientForHour } from "@/theme/ambient";
 import { chronological, threadRows } from "@/thread";
 import { localHour } from "@/time";
@@ -33,6 +36,8 @@ export default function Chat() {
   const now = useKindredNow();
   const [draft, setDraft] = useState("");
   const send = useSendMessage({ onFailed: setDraft });
+  const xray = usePref("xray");
+  const [openTurn, setOpenTurn] = useState<number | null>(null);
 
   const available = buddy.data?.available ?? true;
   const messages = chronological(pages.data?.pages ?? []);
@@ -46,6 +51,7 @@ export default function Chat() {
   const steps = available && working ? draftSteps(stage) : null;
   // Newest first, because the list is inverted to open at the latest message.
   const rows = threadRows(messages).reverse();
+  const newestReplyId = rows.find((row) => row.message.turn_id !== null)?.message.id;
 
   const submit = (text: string) => {
     const message = text.trim();
@@ -67,6 +73,7 @@ export default function Chat() {
       {studying && <LampGlow />}
       <BuddyHeader name={name} status={status.text} avatar={status.avatar} lampStatus={status.lamp}>
         {roadmap.data && roadmap.data.day >= 1 && <DayChip day={roadmap.data.day} />}
+        <XrayToggle on={xray.value === true} onToggle={() => xray.set(!xray.value)} />
       </BuddyHeader>
       {!available && <UnavailableBanner name={name} />}
       <KeyboardAvoidingView behavior="padding" className="flex-1">
@@ -85,7 +92,15 @@ export default function Chat() {
             data={rows}
             keyExtractor={(row) => String(row.message.id)}
             renderItem={({ item }) => (
-              <ChatRow row={item} buddyName={name} buddyAvailable={available} onResend={submit} />
+              <ChatRow
+                row={item}
+                buddyName={name}
+                buddyAvailable={available}
+                onResend={submit}
+                xray={xray.value === true}
+                xrayHint={item.message.id === newestReplyId}
+                onOpenTrace={setOpenTurn}
+              />
             )}
             ListHeaderComponent={latest}
             onEndReached={() => pages.hasNextPage && pages.fetchNextPage()}
@@ -105,6 +120,7 @@ export default function Chat() {
           placeholder={available ? `Message ${name}` : `Messages wait until ${name}'s back`}
         />
       </KeyboardAvoidingView>
+      <TraceSheet turnId={openTurn} buddyName={name} onClose={() => setOpenTurn(null)} />
     </AmbientGround>
   );
 }

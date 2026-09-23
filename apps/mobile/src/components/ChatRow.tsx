@@ -6,21 +6,36 @@ import { clockTime } from "@/time";
 
 import { Bubble } from "./Bubble";
 import { Button } from "./Button";
+import { CoachMark } from "./CoachMark";
+import { TurnBadge } from "./TurnBadge";
 
 type Props = {
   row: ThreadRow;
   buddyName: string;
   buddyAvailable: boolean;
   onResend: (text: string) => void;
+  xray: boolean;
+  // Only the newest reply carries the one-time hint, so it's never shown twice on screen.
+  xrayHint: boolean;
+  onOpenTrace: (turnId: number) => void;
 };
 
-export function ChatRow({ row, buddyName, buddyAvailable, onResend }: Props) {
+export function ChatRow({
+  row,
+  buddyName,
+  buddyAvailable,
+  onResend,
+  xray,
+  xrayHint,
+  onOpenTrace,
+}: Props) {
   const { message, startsRun, endsRun } = row;
   const mine = message.speaker === "user";
   // While the buddy is away nothing moves, so anything unanswered is waiting, whatever
   // stage the list last saw.
   const queued = !buddyAvailable && isInFlight(message);
   const failed = mine && message.stage === "failed";
+  const turnId = message.turn_id;
 
   return (
     <View className={`gap-1 ${startsRun ? "pt-5" : "pt-2"}`}>
@@ -29,6 +44,18 @@ export function ChatRow({ row, buddyName, buddyAvailable, onResend }: Props) {
         <View className="flex-row items-center gap-1 self-end">
           <Text className="font-meta text-meta text-leak">{`${buddyName} couldn't answer that one`}</Text>
           <Button label="Resend" variant="text" small onPress={() => onResend(message.text)} />
+        </View>
+      )}
+      {xray && turnId !== null && (
+        <View className="gap-3 pt-1">
+          <TurnBadge turnId={turnId} onOpen={() => onOpenTrace(turnId)} />
+          {xrayHint && (
+            <CoachMark
+              id="xray-badge"
+              text={`Tap a badge to see why ${buddyName} said that`}
+              pointing="up"
+            />
+          )}
         </View>
       )}
       {endsRun && (

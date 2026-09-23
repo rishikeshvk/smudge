@@ -29,6 +29,12 @@ export const themeColors: Record<ThemeName, Record<string, string>> = {
   dark: colorVars("dark"),
 };
 
+const sheetShadow = tokens.shadow.tokens.find((token) => token.name === "shadow-sheet");
+if (!sheetShadow) throw new Error("tokens.json has no shadow-sheet");
+
+// The only real elevation in the system: anything that floats over chat.
+export const shadowSheet: Record<ThemeName, string> = sheetShadow.value;
+
 export const themeVars = {
   light: vars(themeColors.light),
   dark: vars(themeColors.dark),
