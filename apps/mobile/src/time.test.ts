@@ -1,4 +1,13 @@
-import { clockTime, localDate, localHour, planDate, wallTime } from "./time";
+import {
+  clockTime,
+  instantDay,
+  localDate,
+  localHour,
+  planDate,
+  relativeDay,
+  upcomingDay,
+  wallTime,
+} from "./time";
 
 describe("clockTime", () => {
   it("shows a UTC instant as 24-hour local time", () => {
@@ -9,6 +18,35 @@ describe("clockTime", () => {
 describe("planDate", () => {
   it("formats the date as written, whatever the device timezone", () => {
     expect(planDate("2026-10-02")).toBe("Fri 2 Oct");
+  });
+});
+
+describe("instantDay", () => {
+  it("names the local calendar day of an instant", () => {
+    expect(instantDay("2026-10-01T20:00:00Z", "Asia/Kolkata")).toBe("Fri 2 Oct");
+  });
+});
+
+describe("relativeDay", () => {
+  const now = new Date("2026-10-05T05:00:00Z");
+  it.each([
+    ["2026-10-05T03:00:00Z", "today"],
+    ["2026-10-04T14:30:00Z", "yesterday"],
+    ["2026-10-02T14:30:00Z", "Fri"],
+    ["2026-09-24T14:30:00Z", "24 Sep"],
+  ])("calls %s %s", (instant, expected) => {
+    expect(relativeDay(instant, now, "Asia/Kolkata")).toBe(expected);
+  });
+});
+
+describe("upcomingDay", () => {
+  const now = new Date("2026-10-05T05:00:00Z");
+  it.each([
+    ["2026-10-05T13:30:00Z", "tonight, around 19:00"],
+    ["2026-10-06T13:30:00Z", "tomorrow"],
+    ["2026-10-08T13:30:00Z", "on Thu 8 Oct"],
+  ])("calls %s %s", (instant, expected) => {
+    expect(upcomingDay(instant, now, "Asia/Kolkata")).toBe(expected);
   });
 });
 

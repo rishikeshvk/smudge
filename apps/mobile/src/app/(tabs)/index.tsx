@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useIsFocused } from "expo-router";
-import { useState } from "react";
+import { router, useIsFocused, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Text, View } from "react-native";
 
 import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
@@ -36,6 +36,18 @@ export default function Chat() {
   const now = useKindredNow();
   const [draft, setDraft] = useState("");
   const send = useSendMessage({ onFailed: setDraft });
+  const { draft: prefill } = useLocalSearchParams<{ draft?: string }>();
+  const [appliedPrefill, setAppliedPrefill] = useState<string | undefined>();
+
+  // "Talk about this note" opens chat with a started message: taken once, then cleared.
+  if (prefill !== appliedPrefill) {
+    setAppliedPrefill(prefill);
+    if (prefill) setDraft(prefill);
+  }
+  useEffect(() => {
+    if (prefill) router.setParams({ draft: undefined });
+  }, [prefill]);
+
   const xray = usePref("xray");
   const [openTurn, setOpenTurn] = useState<number | null>(null);
 

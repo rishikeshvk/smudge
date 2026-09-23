@@ -33,6 +33,7 @@ function AppStack() {
       <Stack.Protected guard={gate === "ready"}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="settings" options={{ headerShown: true, title: "Settings" }} />
+        <Stack.Screen name="notebook/[noteId]" />
       </Stack.Protected>
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />
