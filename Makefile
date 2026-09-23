@@ -44,6 +44,7 @@ check:
 	uv run mypy apps/api packages
 	uv run mypy conftest.py
 	npm --prefix apps/mobile run lint
+	cd apps/mobile && npx tsc --noEmit
 
 fmt:
 	uv run ruff format .
