@@ -10,7 +10,7 @@ async def main() -> None:
     client = LLMClient(
         base_url=settings.llm_base_url,
         api_key=settings.llm_api_key.get_secret_value(),
-        model=settings.llm_model,
+        model=settings.llm_model_drafter,
     )
     reply = await client.complete(
         "Say hello in five words.", session_id=str(uuid.uuid4())
