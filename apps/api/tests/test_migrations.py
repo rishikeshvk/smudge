@@ -18,6 +18,7 @@ TABLES = {
     "messages",
     "study_checkins",
     "source_documents",
+    "study_sessions",
 }
 
 

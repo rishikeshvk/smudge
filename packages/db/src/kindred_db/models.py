@@ -180,3 +180,16 @@ class StudyCheckin(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
     at: Mapped[datetime]
+
+
+# One night's study per topic: the note it wrote, or why it wrote nothing.
+class StudySession(Base):
+    __tablename__ = "study_sessions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
+    status: Mapped[str]
+    at: Mapped[datetime]
+    note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
+    # Every draft and its audit, for debugging what the Curator tried.
+    attempts: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
