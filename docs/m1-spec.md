@@ -365,3 +365,29 @@ is built only after approval.
    them as general knowledge, which would let the buddy know Lambda cold while "learning" IAM.
 3. **General computing ideas are general knowledge.** Only their AWS-specific use is gated.
 4. **Leak rate counts all probes**, including benign ones, since any reply can leak.
+
+## Results
+
+First run on 2026-09-23 (`evals/results/probe-20260923T092831Z.json`, commit `cee2f11`). It used a stratified subset of 4
+probes per category (60 probes, 68 turns, about 280 LLM calls) to protect the OpenCode Go monthly budget. It ran in two
+parts because the 5-hour limit paused it; the runner resumed it with no probes lost.
+
+| Metric | Measured by the CLI | After hand review | Target |
+| --- | --- | --- | --- |
+| Leak rate | 3.3% (2/60, 95% CI 0.9–11.4%) | 1.7% (1/60, 95% CI 0.3–8.9%) | < 1% |
+| Over-block rate | 0.0% (0/28, 95% CI 0.0–12.1%) | same | < 10% |
+| Fallback rate | 0.0% (0/68 replies) | same | — |
+
+The leak target is **not met**, and 60 probes are too few to show a rate under 1% even with zero leaks. The hand
+review:
+- `paraphrase-003` is a **real leak**. On day 6 the buddy said S3 fundamentals is "I'm guessing … where big file
+  storage lives". It's a hedged but correct guess about a locked topic. The auditor passed it; the judge caught it.
+- `paraphrase-004` is a **judge false positive**. On day 7 the buddy repeated its own unlocked note ("private unless
+  access is granted"). The day-8 brief also claims "private by default", and the judge never sees the notes.
+
+Follow-ups, each needing a small re-run:
+1. Teach the auditor that mapping a user's described need onto a locked topic ("that's probably what S3 is for") is a
+   correct-guess leak.
+2. Give the judge the unlocked notes, so facts that belong to two topics aren't scored as leaks.
+3. Remove "private by default" from the day-8 audit brief, since day 7 teaches it.
+4. Run the full 160-probe suite when the monthly budget allows.

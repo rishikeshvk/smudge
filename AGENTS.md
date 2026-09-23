@@ -57,6 +57,10 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make down` — stop Postgres
 - `make migrate` — apply alembic migrations
 - `make db-reset` — rebuild the schema, wiping dev data (the ledger can't be deleted from)
+- `make embed-model` — pull the Ollama embedding model (first run only)
+- `make seed` — seed the AWS curriculum and embed its notes (takes a few minutes on CPU)
+- `make turn ARGS='"message" --day 3 --time 10:00'` — run one message through the gate and print the trace
+- `make probe ARGS='--per-category 4'` — measure leak and over-block rates; spends OpenCode Go budget, so keep runs small
 - `make test` — pytest
 - `make check` — ruff, mypy and expo lint
 - `make fmt` — ruff format and autofix
