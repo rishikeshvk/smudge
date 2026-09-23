@@ -8,8 +8,18 @@ from kindred_api.chat import requeue_interrupted
 from kindred_api.config import get_settings
 from kindred_api.dependencies import Services
 from kindred_api.dev_clock import build_clock
-from kindred_api.llm_clients import build_turn_components
-from kindred_api.routes import buddy, chat, dev, health, progress, turns
+from kindred_api.llm_clients import build_study_components, build_turn_components
+from kindred_api.routes import (
+    buddy,
+    chat,
+    dev,
+    health,
+    notebook,
+    progress,
+    roadmap,
+    turns,
+)
+from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
 from kindred_db import create_engine, session_factory
 
@@ -29,13 +39,17 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
             settings, session, plan_id, persona
         ),
     )
-    app.state.services = Services(sessions=sessions, clock=clock, worker=worker)
-    worker_task = asyncio.create_task(worker.run())
+    ticker = Ticker(sessions, clock, build_study_components(settings))
+    app.state.services = Services(
+        sessions=sessions, clock=clock, worker=worker, ticker=ticker
+    )
+    tasks = [asyncio.create_task(worker.run()), asyncio.create_task(ticker.run())]
     yield
-    worker_task.cancel()
+    for task in tasks:
+        task.cancel()
     await engine.dispose()
 
 
 app = FastAPI(title="Kindred", lifespan=lifespan)
-for router in (health, dev, chat, turns, buddy, progress):
+for router in (health, dev, chat, turns, buddy, progress, roadmap, notebook):
     app.include_router(router.router)

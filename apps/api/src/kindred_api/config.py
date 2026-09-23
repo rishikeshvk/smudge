@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     llm_model_classifier: str = Field(min_length=1)
     llm_model_persona: str = Field(min_length=1)
     llm_model_auditor: str = Field(min_length=1)
+    llm_model_curator: str = Field(min_length=1)
     llm_model_judge: str = Field(min_length=1)
 
     database_url: str = Field(min_length=1)

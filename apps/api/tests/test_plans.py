@@ -26,6 +26,7 @@ async def test_current_plan_carries_the_users_timezone(
         id=plan.id,
         user_id=plan.user_id,
         curriculum_slug="t",
+        title="T",
         start_date=date(2026, 10, 1),
         study_time=time(19),
         tz=ZoneInfo("Asia/Kolkata"),

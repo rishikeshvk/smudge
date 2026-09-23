@@ -6,7 +6,10 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.clock import Clock, FixedClock, OffsetClock, SystemClock
+from kindred_api.dependencies import get_ticker
 from kindred_api.dev_clock import load_offset
+from kindred_api.main import app
+from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
 from kindred_db import Plan
 
@@ -84,3 +87,43 @@ async def test_time_controls_are_hidden_outside_dev_mode(api: ApiClient) -> None
     response = await api(SystemClock(), None).get("/dev/clock")
 
     assert response.status_code == 404
+
+
+class CountingTicker(Ticker):
+    def __init__(self) -> None:
+        self.ticks = 0
+
+    async def tick(self) -> None:
+        self.ticks += 1
+
+
+@pytest.mark.anyio
+async def test_study_now_moves_to_tonight_and_ticks(
+    client: httpx.AsyncClient, add_plan: AddPlan
+) -> None:
+    await add_plan(date(2026, 10, 1), "Asia/Kolkata")
+    ticker = CountingTicker()
+    app.dependency_overrides[get_ticker] = lambda: ticker
+
+    response = await client.post("/dev/study-now")
+
+    # 19:00 in Kolkata on day 1.
+    assert response.json()["now"] == "2026-10-01T13:30:00Z"
+    assert ticker.ticks == 1
+
+
+@pytest.mark.anyio
+async def test_study_now_after_study_time_just_ticks(
+    api: ApiClient, add_plan: AddPlan
+) -> None:
+    await add_plan(date(2026, 10, 1), "Asia/Kolkata")
+    late = datetime(2026, 10, 1, 16, 0, tzinfo=UTC)
+    ticker = CountingTicker()
+    app.dependency_overrides[get_ticker] = lambda: ticker
+
+    response = await api(OffsetClock(FixedClock(late), timedelta()), None).post(
+        "/dev/study-now"
+    )
+
+    assert response.json()["now"] == "2026-10-01T16:00:00Z"
+    assert ticker.ticks == 1

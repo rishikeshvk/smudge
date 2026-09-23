@@ -67,6 +67,7 @@ async def seed_eval_plan(url: str, curriculum_path: Path, settings: Settings) ->
                 PLAN_TIMEZONE,
                 build_embedder(settings),
                 BUDDY_NAME,
+                reference_notes=True,
             )
     finally:
         await engine.dispose()

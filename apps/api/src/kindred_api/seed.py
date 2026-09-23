@@ -2,7 +2,6 @@ import argparse
 import asyncio
 from datetime import date
 from pathlib import Path
-from typing import Protocol
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -12,6 +11,7 @@ from tzlocal import get_localzone_name
 
 from kindred_api.clock import SystemClock
 from kindred_api.config import get_settings
+from kindred_api.embedding import DocumentEmbedder
 from kindred_api.llm_clients import build_embedder
 from kindred_api.schedule import plan_moment
 from kindred_contracts import Curriculum
@@ -33,12 +33,6 @@ class AlreadySeededError(Exception):
     pass
 
 
-class DocumentEmbedder(Protocol):
-    model: str
-
-    async def embed_documents(self, texts: list[str]) -> list[list[float]]: ...
-
-
 def load_curriculum(path: Path) -> Curriculum:
     return Curriculum.model_validate(yaml.safe_load(path.read_text()))
 
@@ -50,7 +44,11 @@ async def seed_plan(
     tz: ZoneInfo,
     embedder: DocumentEmbedder,
     buddy_name: str,
+    *,
+    reference_notes: bool,
 ) -> None:
+    """Seed the plan; reference notes are the hand-written ones, kept for evals. In
+    the app the Curator writes the ledger instead."""
     # Seeded notes can't be removed from the ledger, so never seed on top of a plan.
     if await session.scalar(select(Plan.id).limit(1)) is not None:
         raise AlreadySeededError("a plan already exists; run `make db-reset` first")
@@ -114,9 +112,12 @@ async def seed_plan(
                 ),
             )
             for note in topic.notes
+            if reference_notes
         ]
     session.add_all(note for _, note in notes)
     await session.flush()
+    if not notes:
+        return
 
     vectors = await embedder.embed_documents(
         [f"{node.title}\n\n{note.body}" for node, note in notes]
@@ -129,7 +130,11 @@ async def seed_plan(
 
 
 async def run(
-    path: Path, start_date: date | None, tz: ZoneInfo, buddy_name: str
+    path: Path,
+    start_date: date | None,
+    tz: ZoneInfo,
+    buddy_name: str,
+    reference_notes: bool,
 ) -> None:
     curriculum = load_curriculum(path)
     start = start_date or SystemClock().now().astimezone(tz).date()
@@ -139,7 +144,13 @@ async def run(
     try:
         async with session_factory(engine)() as session, session.begin():
             await seed_plan(
-                session, curriculum, start, tz, build_embedder(settings), buddy_name
+                session,
+                curriculum,
+                start,
+                tz,
+                build_embedder(settings),
+                buddy_name,
+                reference_notes=reference_notes,
             )
     finally:
         await engine.dispose()
@@ -154,6 +165,12 @@ def main() -> None:
     parser.add_argument("--start-date", type=date.fromisoformat)
     parser.add_argument("--timezone", default=get_localzone_name())
     parser.add_argument("--buddy-name", default="Juno")
+    parser.add_argument(
+        "--reference-notes",
+        action="store_true",
+        help="store the curriculum's hand-written notes instead of letting the Curator"
+        " study",
+    )
     args = parser.parse_args()
 
     try:
@@ -163,6 +180,7 @@ def main() -> None:
                 args.start_date,
                 ZoneInfo(args.timezone),
                 args.buddy_name,
+                args.reference_notes,
             )
         )
     except AlreadySeededError as error:

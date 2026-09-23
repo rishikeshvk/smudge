@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.config import Settings
+from kindred_api.study import StudyComponents
+from kindred_buddy.curator import Curator
 from kindred_buddy.persona import Persona
 from kindred_contracts import PersonaContext
 from kindred_db import EMBEDDING_DIMENSIONS
@@ -36,4 +38,12 @@ def build_turn_components(
         retriever=GatedRetriever(session, build_embedder(settings), plan_id),
         drafter=Persona(build_llm(settings, settings.llm_model_persona), persona),
         auditor=LLMAuditor(build_llm(settings, settings.llm_model_auditor)),
+    )
+
+
+def build_study_components(settings: Settings) -> StudyComponents:
+    return StudyComponents(
+        curator=Curator(build_llm(settings, settings.llm_model_curator)),
+        auditor=LLMAuditor(build_llm(settings, settings.llm_model_auditor)),
+        embedder=build_embedder(settings),
     )

@@ -13,6 +13,7 @@ class CurrentPlan:
     id: int
     user_id: int
     curriculum_slug: str
+    title: str
     start_date: date
     study_time: time
     tz: ZoneInfo
@@ -35,6 +36,7 @@ async def load_current_plan(session: AsyncSession) -> CurrentPlan | None:
         id=plan.id,
         user_id=plan.user_id,
         curriculum_slug=plan.curriculum_slug,
+        title=plan.title,
         start_date=plan.start_date,
         study_time=plan.study_time,
         tz=ZoneInfo(timezone),

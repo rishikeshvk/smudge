@@ -102,6 +102,36 @@ change.
 - First run, 2026-09-23: 82 pages stored for 14 topics in 14 s. `calculator.aws` (needs JavaScript) and the
   free-tier billing page failed. Pages average 5–13k characters, up to 34k, so the Curator trims them to a budget.
 
+## Curator and nightly study (step 5)
+
+- **When.** The ticker runs every 60 real seconds. Any topic that has unlocked and has no study session yet gets
+  studied, oldest first, with the note `written_at` the Clock's now. A dev jump over three days studies three topics
+  in one tick. The buddy shows `studying: true` on `GET /buddy` meanwhile.
+- **What the Curator sees** (`StudyBrief`): today's topic and its curriculum brief, the baseline card, earlier notes'
+  titles and shaky points, and today's sources through `read_sources`, trimmed to 24,000 characters split evenly
+  across pages. It never sees another topic's material.
+- **What it writes** (`NoteDraft`): a first-person note of at most 400 words, 1–3 honest shaky points (the seeded
+  gaps; never deliberate mistakes) and the pages it used. Citations outside the given pages are dropped.
+- **Audit, because the Notebook shows notes to the user.** Judged at the topic's own unlock time, so a late study
+  can't cover later days:
+  1. A code pass flags later topics' specialist vocabulary (`kindred_gate/jargon.py`, the same check the
+     curriculum guard test uses). A hit is a sure leak and skips the LLM call.
+  2. `LLMAuditor.audit_note` applies the same `LEAK_RULES` as chat.
+  3. A leak gets one redraft with feedback. Two leaks, or invalid output, write nothing and record a `failed`
+     session: fail closed. Rejected: falling back to the hand-written note, which would hide Curator failures.
+  4. An unavailable endpoint rolls back and waits for the next tick. A topic with no ingested sources waits too.
+- **Writes** go through `kindred_api/ledger.py`, the one ledger writer: note plus embedding, then a
+  `study_sessions` row with every attempt and verdict.
+- **Seeding.** `make seed` no longer stores the hand-written notes; the Curator writes the ledger.
+  `--reference-notes` keeps them, and the probe runner uses it so eval results stay comparable with M1.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /roadmap` | `RoadmapView`: plan title, day, and per topic its title, `unlocks_at`, `unlocked`, `buddy_studied`, `user_studied` |
+| `GET /notebook` | `NotebookView`: visible notes in plan order, plus `sealed` days (day and unlock time only) |
+| `GET /notebook/{id}` | One `NotebookNote`; `404` until it's visible |
+| `POST /dev/study-now` | Moves the clock to today's study time if it's earlier, runs a tick, returns `ClockView` |
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.

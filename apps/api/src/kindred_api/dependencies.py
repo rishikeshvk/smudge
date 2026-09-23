@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.clock import Clock, OffsetClock
+from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
 
 
@@ -14,6 +15,7 @@ class Services:
     sessions: async_sessionmaker[AsyncSession]
     clock: Clock
     worker: TurnWorker
+    ticker: Ticker
 
 
 def get_services(request: Request) -> Services:
@@ -36,6 +38,10 @@ def get_worker(services: Annotated[Services, Depends(get_services)]) -> TurnWork
     return services.worker
 
 
+def get_ticker(services: Annotated[Services, Depends(get_services)]) -> Ticker:
+    return services.ticker
+
+
 def get_dev_clock(clock: Annotated[Clock, Depends(get_clock)]) -> OffsetClock:
     # Outside dev mode the API runs on real time and has no time controls at all.
     if not isinstance(clock, OffsetClock):
@@ -47,3 +53,4 @@ SessionDep = Annotated[AsyncSession, Depends(get_session)]
 ClockDep = Annotated[Clock, Depends(get_clock)]
 DevClockDep = Annotated[OffsetClock, Depends(get_dev_clock)]
 WorkerDep = Annotated[TurnWorker, Depends(get_worker)]
+TickerDep = Annotated[Ticker, Depends(get_ticker)]
