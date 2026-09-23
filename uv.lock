@@ -11,6 +11,7 @@ resolution-markers = [
 [manifest]
 members = [
     "kindred-api",
+    "kindred-buddy",
     "kindred-contracts",
     "kindred-db",
     "kindred-gate",
@@ -674,6 +675,7 @@ source = { editable = "apps/api" }
 dependencies = [
     { name = "alembic" },
     { name = "fastapi", extra = ["standard"] },
+    { name = "kindred-buddy" },
     { name = "kindred-contracts" },
     { name = "kindred-db" },
     { name = "kindred-gate" },
@@ -687,6 +689,7 @@ dependencies = [
 requires-dist = [
     { name = "alembic", specifier = ">=1.20.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.141.1" },
+    { name = "kindred-buddy", editable = "packages/buddy" },
     { name = "kindred-contracts", editable = "packages/contracts" },
     { name = "kindred-db", editable = "packages/db" },
     { name = "kindred-gate", editable = "packages/gate" },
@@ -694,6 +697,21 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2.15.0" },
     { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "tzlocal", specifier = ">=5.4.4" },
+]
+
+[[package]]
+name = "kindred-buddy"
+version = "0.1.0"
+source = { editable = "packages/buddy" }
+dependencies = [
+    { name = "kindred-contracts" },
+    { name = "kindred-llm" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "kindred-contracts", editable = "packages/contracts" },
+    { name = "kindred-llm", editable = "packages/llm" },
 ]
 
 [[package]]

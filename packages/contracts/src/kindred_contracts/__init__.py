@@ -13,6 +13,7 @@ from kindred_contracts.curriculum import (
     VocabularyTerm,
 )
 from kindred_contracts.knowledge import RetrievedNote
+from kindred_contracts.persona import PersonaContext
 from kindred_contracts.probes import (
     Expectation,
     JudgeVerdict,
@@ -43,6 +44,7 @@ __all__ = [
     "ClockChange",
     "ClockView",
     "JumpToDay",
+    "PersonaContext",
     "ResetClock",
     "AuditVerdict",
     "Category",
