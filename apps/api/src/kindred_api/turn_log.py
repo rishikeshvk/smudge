@@ -11,18 +11,18 @@ async def record_turn(
     plan_id: int,
     session_id: str,
     probe_run_id: str | None = None,
-) -> None:
-    session.add(
-        Turn(
-            plan_id=plan_id,
-            session_id=session_id,
-            probe_run_id=probe_run_id,
-            at=trace.at,
-            message=trace.message,
-            route=trace.directive.route.value,
-            fell_back=trace.fell_back,
-            final_reply=trace.final_reply,
-            trace=trace.model_dump(mode="json"),
-        )
+) -> Turn:
+    turn = Turn(
+        plan_id=plan_id,
+        session_id=session_id,
+        probe_run_id=probe_run_id,
+        at=trace.at,
+        message=trace.message,
+        route=trace.directive.route.value,
+        fell_back=trace.fell_back,
+        final_reply=trace.final_reply,
+        trace=trace.model_dump(mode="json"),
     )
+    session.add(turn)
     await session.flush()
+    return turn

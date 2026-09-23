@@ -4,7 +4,12 @@ import httpx2
 import pytest
 from pydantic import BaseModel
 
-from kindred_llm import LLMClient, RateLimitedError, StructuredOutputError
+from kindred_llm import (
+    LLMClient,
+    LLMUnavailableError,
+    RateLimitedError,
+    StructuredOutputError,
+)
 
 
 @pytest.mark.anyio
@@ -161,3 +166,76 @@ async def test_usage_limit_is_reported_as_rate_limited() -> None:
 
     with pytest.raises(RateLimitedError, match="usage limit"):
         await client.complete("hello", session_id="s")
+
+
+def failing_client(handler: httpx2.MockTransport) -> LLMClient:
+    return LLMClient(
+        base_url="https://llm.test/v1",
+        api_key="sk-test",
+        model="test-model",
+        http_client=httpx2.AsyncClient(transport=handler),
+    )
+
+
+@pytest.mark.anyio
+async def test_rate_limits_count_as_unavailable() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(429, headers={"retry-after-ms": "0"}, json={})
+
+    with pytest.raises(LLMUnavailableError):
+        await failing_client(httpx2.MockTransport(handler)).complete(
+            "hello", session_id="s"
+        )
+
+
+@pytest.mark.anyio
+async def test_server_errors_and_bad_keys_are_unavailable() -> None:
+    for status in (401, 403, 503):
+
+        def handler(request: httpx2.Request, status: int = status) -> httpx2.Response:
+            return httpx2.Response(status, headers={"retry-after-ms": "0"}, json={})
+
+        with pytest.raises(LLMUnavailableError):
+            await failing_client(httpx2.MockTransport(handler)).complete(
+                "hello", session_id="s"
+            )
+
+
+@pytest.mark.anyio
+async def test_an_unreachable_endpoint_is_unavailable() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        raise httpx2.ConnectError("connection refused")
+
+    with pytest.raises(LLMUnavailableError):
+        await failing_client(httpx2.MockTransport(handler)).complete(
+            "hello", session_id="s"
+        )
+
+
+@pytest.mark.anyio
+async def test_models_are_listed_for_a_connection_check() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        assert request.url.path == "/v1/models"
+        return httpx2.Response(
+            200,
+            json={
+                "object": "list",
+                "data": [
+                    {"id": "glm-5.3", "object": "model", "created": 0, "owned_by": "x"},
+                    {"id": "kimi-k3", "object": "model", "created": 0, "owned_by": "x"},
+                ],
+            },
+        )
+
+    client = failing_client(httpx2.MockTransport(handler))
+
+    assert await client.list_models() == ["glm-5.3", "kimi-k3"]
+
+
+@pytest.mark.anyio
+async def test_a_refused_key_fails_the_connection_check() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(401, json={"error": {"message": "bad key"}})
+
+    with pytest.raises(LLMUnavailableError):
+        await failing_client(httpx2.MockTransport(handler)).list_models()

@@ -14,8 +14,19 @@ UNSURE = (
     "Could you ask me in a different way?"
 )
 
+# The persona steps aside here: plain words and real help, never study talk.
+CRISIS = (
+    "I'm going to step out of study-buddy mode, because this matters more than any "
+    "plan. I'm an AI, so I can't be the help you deserve right now, but a real person "
+    "can. If you might hurt yourself or you're in danger, please call your local "
+    "emergency number. You can also reach a free, confidential crisis line: "
+    "findahelpline.com lists the ones in your country."
+)
+
 
 def fallback_reply(directive: Directive) -> str:
+    if directive.route is Route.CRISIS:
+        return CRISIS
     if directive.route is Route.DEFLECT_OUT_OF_PLAN:
         return OUT_OF_PLAN
     if directive.deflect_topics:

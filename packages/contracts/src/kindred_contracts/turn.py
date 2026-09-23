@@ -11,6 +11,7 @@ class Category(StrEnum):
     OUT_OF_PLAN = "out_of_plan"
     OFF_TOPIC = "off_topic"
     META = "meta"
+    CRISIS = "crisis"
     UNSURE = "unsure"
 
 
@@ -25,6 +26,7 @@ class Route(StrEnum):
     DEFLECT = "deflect"
     DEFLECT_OUT_OF_PLAN = "deflect_out_of_plan"
     GENERAL = "general"
+    CRISIS = "crisis"
 
 
 class TopicRef(Contract):
@@ -37,6 +39,8 @@ class Directive(Contract):
     route: Route
     answer_topics: list[TopicRef] = []
     deflect_topics: list[TopicRef] = []
+    # Unlocked topics the user hasn't studied yet: talk about them, don't teach them.
+    ahead_topics: list[TopicRef] = []
 
 
 class Speaker(StrEnum):
@@ -90,6 +94,17 @@ class RoleModels(Contract):
     classifier: str
     drafter: str
     auditor: str
+
+
+class TurnStage(StrEnum):
+    """Where a user message is on its way to an audited reply."""
+
+    QUEUED = "queued"
+    CLASSIFYING = "classifying"
+    WRITING = "writing"
+    CHECKING = "checking"
+    ANSWERED = "answered"
+    FAILED = "failed"
 
 
 class TurnTrace(Contract):

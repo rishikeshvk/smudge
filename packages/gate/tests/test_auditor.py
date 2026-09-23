@@ -37,3 +37,22 @@ async def test_auditor_sees_locked_briefs_and_the_rules(
     assert "Covers: Brief about iam-intro." not in prompt
     assert "Key terms: S3\n" in prompt
     assert prompt.endswith("DRAFT REPLY TO AUDIT:\nS3 stores objects.")
+
+
+@pytest.mark.anyio
+async def test_notes_are_audited_against_the_same_locked_briefs(
+    topics: TopicMap, scripted_llm: ScriptedLLM, sent_prompt: SentPrompt
+) -> None:
+    llm, seen = scripted_llm(['{"verdict": "pass", "rationale": "only IAM"}'])
+    day_1 = topics.topics[0].unlock_at
+
+    result = await LLMAuditor(llm).audit_note(
+        "IAM decides who can do what.", topics, day_1, "study-1:auditor"
+    )
+
+    assert result.verdict is Verdict.PASS
+    system, prompt = sent_prompt(seen[0])
+    assert "study note" in system
+    assert "LEAK" in system
+    assert "Covers: Brief about s3-basics." in prompt
+    assert prompt.endswith("NOTE TO AUDIT:\nIAM decides who can do what.")

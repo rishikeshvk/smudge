@@ -3,7 +3,7 @@ import json
 import httpx2
 import pytest
 
-from kindred_llm import Embedder, EmbeddingError
+from kindred_llm import Embedder, EmbeddingError, LLMUnavailableError
 
 
 def embedder(vectors: list[list[float]], seen: list[httpx2.Request]) -> Embedder:
@@ -61,3 +61,20 @@ async def test_queries_carry_the_retrieval_instruction() -> None:
 async def test_wrong_dimensions_are_rejected() -> None:
     with pytest.raises(EmbeddingError, match="dimensions"):
         await embedder([[1.0, 0.0, 0.0]], []).embed_documents(["text"])
+
+
+@pytest.mark.anyio
+async def test_a_down_embedding_service_is_unavailable() -> None:
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        raise httpx2.ConnectError("connection refused")
+
+    down = Embedder(
+        base_url="http://embed.test/v1",
+        api_key="k",
+        model="m",
+        dimensions=3,
+        http_client=httpx2.AsyncClient(transport=httpx2.MockTransport(handler)),
+    )
+
+    with pytest.raises(LLMUnavailableError):
+        await down.embed_query("hi")

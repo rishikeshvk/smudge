@@ -3,7 +3,14 @@ import re
 from importlib.metadata import version
 
 import httpx2
-from openai import AsyncOpenAI, RateLimitError
+from openai import (
+    APIConnectionError,
+    AsyncOpenAI,
+    AuthenticationError,
+    InternalServerError,
+    PermissionDeniedError,
+    RateLimitError,
+)
 from openai.types.chat import ChatCompletionMessageParam
 from pydantic import BaseModel, ValidationError
 
@@ -18,8 +25,21 @@ class StructuredOutputError(Exception):
     pass
 
 
-class RateLimitedError(Exception):
+class LLMUnavailableError(Exception):
+    """The endpoint can't serve calls right now; retry later rather than fail."""
+
+
+class RateLimitedError(LLMUnavailableError):
     """The provider refused the call for usage limits; retrying now won't help."""
+
+
+# Down, unreachable or refusing the key: all things the user fixes outside Kindred.
+UNAVAILABLE = (
+    APIConnectionError,
+    AuthenticationError,
+    InternalServerError,
+    PermissionDeniedError,
+)
 
 
 class LLMClient:
@@ -77,6 +97,16 @@ class LLMClient:
             f"{schema.__name__} still invalid after {STRUCTURED_ATTEMPTS} attempts"
         )
 
+    async def list_models(self) -> list[str]:
+        """What the endpoint serves; free to call, so Settings can test a key."""
+        try:
+            page = await self._client.models.list()
+            return [model.id async for model in page]
+        except RateLimitError as error:
+            raise RateLimitedError(str(error)) from error
+        except UNAVAILABLE as error:
+            raise LLMUnavailableError(str(error)) from error
+
     async def _chat(
         self, messages: list[ChatCompletionMessageParam], session_id: str
     ) -> str:
@@ -88,6 +118,8 @@ class LLMClient:
             )
         except RateLimitError as error:
             raise RateLimitedError(str(error)) from error
+        except UNAVAILABLE as error:
+            raise LLMUnavailableError(str(error)) from error
         return response.choices[0].message.content or ""
 
 

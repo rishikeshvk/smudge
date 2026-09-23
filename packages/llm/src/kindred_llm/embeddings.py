@@ -1,7 +1,7 @@
 import httpx2
 from openai import AsyncOpenAI
 
-from kindred_llm.client import USER_AGENT
+from kindred_llm.client import UNAVAILABLE, USER_AGENT, LLMUnavailableError
 
 # Qwen3-Embedding is asymmetric: queries carry a task instruction, documents don't.
 QUERY_INSTRUCTION = (
@@ -39,7 +39,12 @@ class Embedder:
         return vector
 
     async def _embed(self, texts: list[str]) -> list[list[float]]:
-        response = await self._client.embeddings.create(model=self.model, input=texts)
+        try:
+            response = await self._client.embeddings.create(
+                model=self.model, input=texts
+            )
+        except UNAVAILABLE as error:
+            raise LLMUnavailableError(str(error)) from error
         vectors = [
             item.embedding for item in sorted(response.data, key=lambda d: d.index)
         ]

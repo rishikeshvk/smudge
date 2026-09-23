@@ -1,4 +1,4 @@
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
@@ -33,6 +33,15 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     timezone: Mapped[str]
+
+
+# One persona per user, kept across every goal they take on.
+class Buddy(Base):
+    __tablename__ = "buddies"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
+    name: Mapped[str]
 
 
 class Plan(Base):
@@ -97,6 +106,19 @@ class LedgerNote(Base):
     written_at: Mapped[datetime]
 
 
+# Real material the buddy studies from, gated by its topic's unlock like the notes.
+class SourceDocument(Base):
+    __tablename__ = "source_documents"
+    __table_args__ = (UniqueConstraint("node_id", "url"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), index=True)
+    url: Mapped[str]
+    title: Mapped[str]
+    text: Mapped[str]
+    fetched_at: Mapped[datetime]
+
+
 # Kept apart from the ledger so embedding, or re-embedding with a new model,
 # never has to update an append-only row.
 class NoteEmbedding(Base):
@@ -123,3 +145,80 @@ class Turn(Base):
     fell_back: Mapped[bool]
     final_reply: Mapped[str]
     trace: Mapped[dict[str, object]] = mapped_column(JSONB)
+
+
+# Dev-only time travel: how far Kindred's clock runs ahead of real time.
+class DevClock(Base):
+    __tablename__ = "dev_clock"
+    __table_args__ = (CheckConstraint("id = 1", name="single_row"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    offset: Mapped[timedelta]
+
+
+# The chat thread belongs to the user, since the buddy lasts across goals.
+class Message(Base):
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    # "chat" once a plan exists; "onboarding" while planning it together.
+    thread: Mapped[str] = mapped_column(server_default="chat")
+    speaker: Mapped[str]
+    text: Mapped[str]
+    at: Mapped[datetime]
+    # A Planner reply's plan proposal, kept so the user can accept it later.
+    proposal: Mapped[dict[str, object] | None] = mapped_column(JSONB)
+    # Set on user messages only: where each one is on its way to a reply.
+    stage: Mapped[str | None] = mapped_column(index=True)
+    reply_to_id: Mapped[int | None] = mapped_column(
+        ForeignKey("messages.id"), unique=True
+    )
+    turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
+
+
+# The user saying "I studied today"; one per topic, in plan order.
+class StudyCheckin(Base):
+    __tablename__ = "study_checkins"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
+    at: Mapped[datetime]
+
+
+# One night's study per topic: the note it wrote, or why it wrote nothing.
+class StudySession(Base):
+    __tablename__ = "study_sessions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
+    status: Mapped[str]
+    at: Mapped[datetime]
+    note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
+    # Every draft and its audit, for debugging what the Curator tried.
+    attempts: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
+
+
+# Who the user is to the buddy: one snapshot per finished day, kept apart from the
+# ledger of what it knows. The latest snapshot is the current memory.
+class RelationshipMemory(Base):
+    __tablename__ = "relationship_memory"
+    __table_args__ = (UniqueConstraint("user_id", "for_date"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    for_date: Mapped[date]
+    summary: Mapped[str]
+    facts: Mapped[list[str]] = mapped_column(JSONB)
+    written_at: Mapped[datetime]
+
+
+# Bring-your-own-key settings saved from the app; each set field overrides .env.
+class LLMSettings(Base):
+    __tablename__ = "llm_settings"
+    __table_args__ = (CheckConstraint("id = 1", name="single_row"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    base_url: Mapped[str | None]
+    api_key: Mapped[str | None]
+    models: Mapped[dict[str, str] | None] = mapped_column(JSONB)

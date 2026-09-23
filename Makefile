@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed embed-model turn probe test check fmt llm-ping api-types mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types mobile mobile-tunnel
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -25,6 +25,10 @@ embed-model:
 seed: migrate
 	uv run python -m kindred_api.seed curricula/aws-2week.yaml
 
+# Fetches each topic's reading list from the web; stored pages are skipped.
+ingest: migrate
+	uv run python -m kindred_api.ingest
+
 # make turn ARGS='"What is a bucket policy?" --day 3 --time 10:00'
 turn:
 	uv run python -m kindred_api.try_turn $(ARGS)
@@ -33,6 +37,11 @@ turn:
 probe:
 	docker compose up -d --wait db ollama
 	uv run python -m kindred_api.probes $(ARGS)
+
+# make simulate ARGS='--days 14'. Real LLM calls: about 150 for 14 days.
+simulate:
+	docker compose up -d --wait db ollama
+	uv run python -m kindred_api.simulate $(ARGS)
 
 test:
 	docker compose up -d --wait db

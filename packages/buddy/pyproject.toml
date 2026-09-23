@@ -1,0 +1,20 @@
+[project]
+name = "kindred-buddy"
+version = "0.1.0"
+description = "The buddy's own LLM components, outside the gate"
+authors = [
+    { name = "Rishikesh", email = "rishikeshvk2001@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "kindred-contracts",
+    "kindred-llm",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.10,<0.11.0"]
+build-backend = "uv_build"
+
+[tool.uv.sources]
+kindred-contracts = { workspace = true }
+kindred-llm = { workspace = true }
