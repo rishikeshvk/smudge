@@ -5,8 +5,12 @@ from kindred_contracts.api import (
     ChatMessage,
     ClockChange,
     ClockView,
+    ConnectionCheck,
     JumpToDay,
+    LLMSettingsUpdate,
+    LLMSettingsView,
     MessageStatus,
+    ModelsPerRole,
     NotebookView,
     OnboardingMessage,
     OnboardingReply,
@@ -67,6 +71,10 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "ConnectionCheck",
+    "LLMSettingsUpdate",
+    "LLMSettingsView",
+    "ModelsPerRole",
     "AcceptPlan",
     "Course",
     "OnboardingMessage",

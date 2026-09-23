@@ -20,6 +20,7 @@ TABLES = {
     "source_documents",
     "study_sessions",
     "relationship_memory",
+    "llm_settings",
 }
 
 

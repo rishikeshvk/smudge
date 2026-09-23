@@ -1,6 +1,6 @@
 from typing import Annotated, Literal
 
-from pydantic import AwareDatetime, Field
+from pydantic import AwareDatetime, Field, SecretStr
 
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.planning import PlanProposal
@@ -106,3 +106,32 @@ class OnboardingReply(Contract):
 class AcceptPlan(Contract):
     proposal_message_id: int
     buddy_name: str = Field(min_length=1, max_length=40)
+
+
+class ModelsPerRole(Contract):
+    classifier: str = Field(min_length=1)
+    persona: str = Field(min_length=1)
+    auditor: str = Field(min_length=1)
+    planner: str = Field(min_length=1)
+    curator: str = Field(min_length=1)
+
+
+class LLMSettingsView(Contract):
+    base_url: str
+    # The key itself never leaves the backend.
+    api_key_set: bool
+    models: ModelsPerRole
+
+
+class LLMSettingsUpdate(Contract):
+    """Only the fields sent change; the key is write-only."""
+
+    base_url: str | None = Field(default=None, min_length=1)
+    api_key: SecretStr | None = Field(default=None, min_length=1)
+    models: ModelsPerRole | None = None
+
+
+class ConnectionCheck(Contract):
+    ok: bool
+    models: list[str]
+    detail: str | None

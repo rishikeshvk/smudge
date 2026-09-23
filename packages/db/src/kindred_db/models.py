@@ -211,3 +211,14 @@ class RelationshipMemory(Base):
     summary: Mapped[str]
     facts: Mapped[list[str]] = mapped_column(JSONB)
     written_at: Mapped[datetime]
+
+
+# Bring-your-own-key settings saved from the app; each set field overrides .env.
+class LLMSettings(Base):
+    __tablename__ = "llm_settings"
+    __table_args__ = (CheckConstraint("id = 1", name="single_row"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    base_url: Mapped[str | None]
+    api_key: Mapped[str | None]
+    models: Mapped[dict[str, str] | None] = mapped_column(JSONB)
