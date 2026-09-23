@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from kindred_api.seed import load_curriculum
+from kindred_api.catalog import load_curriculum
 from kindred_contracts import Curriculum
 from kindred_gate import Topic, TopicMap
 from kindred_gate.jargon import jargon_in

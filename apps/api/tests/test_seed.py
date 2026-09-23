@@ -6,7 +6,8 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_api.seed import AlreadySeededError, load_curriculum, seed_plan
+from kindred_api.catalog import load_curriculum
+from kindred_api.seed import AlreadySeededError, seed_plan
 from kindred_contracts import Curriculum
 from kindred_db import (
     EMBEDDING_DIMENSIONS,
@@ -81,9 +82,8 @@ async def test_seed_writes_plan_nodes_with_unlock_times(
         curriculum,
         START,
         KOLKATA,
-        FakeEmbedder(),
         "Juno",
-        reference_notes=True,
+        reference_embedder=FakeEmbedder(),
     )
 
     plan = await session.scalar(select(Plan))
@@ -106,9 +106,8 @@ async def test_seed_links_prerequisites_and_vocabulary(
         curriculum,
         START,
         KOLKATA,
-        FakeEmbedder(),
         "Juno",
-        reference_notes=True,
+        reference_embedder=FakeEmbedder(),
     )
     ids = {n.slug: n.id for n in await session.scalars(select(TopicNode))}
 
@@ -134,9 +133,8 @@ async def test_seeded_notes_are_written_when_their_topic_unlocks(
         curriculum,
         START,
         KOLKATA,
-        FakeEmbedder(),
         "Juno",
-        reference_notes=True,
+        reference_embedder=FakeEmbedder(),
     )
 
     rows = await session.execute(
@@ -158,9 +156,8 @@ async def test_seeding_twice_is_refused(
         curriculum,
         START,
         KOLKATA,
-        FakeEmbedder(),
         "Juno",
-        reference_notes=True,
+        reference_embedder=FakeEmbedder(),
     )
 
     with pytest.raises(AlreadySeededError):
@@ -169,9 +166,8 @@ async def test_seeding_twice_is_refused(
             curriculum,
             START,
             KOLKATA,
-            FakeEmbedder(),
             "Juno",
-            reference_notes=True,
+            reference_embedder=FakeEmbedder(),
         )
 
 
@@ -182,7 +178,7 @@ async def test_seed_embeds_each_note_with_its_topic_title(
     embedder = FakeEmbedder()
 
     await seed_plan(
-        session, curriculum, START, KOLKATA, embedder, "Juno", reference_notes=True
+        session, curriculum, START, KOLKATA, "Juno", reference_embedder=embedder
     )
 
     embeddings = (await session.scalars(select(NoteEmbedding))).all()
@@ -200,9 +196,8 @@ async def test_seed_gives_the_user_their_buddy(
         curriculum,
         START,
         KOLKATA,
-        FakeEmbedder(),
         "Wren",
-        reference_notes=True,
+        reference_embedder=FakeEmbedder(),
     )
 
     user = await session.scalar(select(User))
@@ -220,9 +215,8 @@ async def test_without_reference_notes_the_ledger_starts_empty(
         curriculum,
         START,
         KOLKATA,
-        FakeEmbedder(),
         "Juno",
-        reference_notes=False,
+        reference_embedder=None,
     )
 
     assert await session.scalar(select(TopicNode.id).limit(1)) is not None

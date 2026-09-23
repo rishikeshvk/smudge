@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.chat import (
     HISTORY_LIMIT,
+    Thread,
     history_before,
     next_queued,
     post_message,
@@ -44,7 +45,9 @@ async def test_the_thread_never_shows_messages_from_after_now(
     await post_message(session, plan.user_id, "today", NOW)
     await post_message(session, plan.user_id, "tomorrow", NOW + timedelta(days=1))
 
-    thread = await read_thread(session, plan.user_id, NOW, before_id=None, limit=10)
+    thread = await read_thread(
+        session, plan.user_id, NOW, thread=Thread.CHAT, before_id=None, limit=10
+    )
 
     assert [m.text for m in thread] == ["today"]
 

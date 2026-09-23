@@ -2,7 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Query, status
 
-from kindred_api.chat import post_message, read_reply, read_thread, to_contract
+from kindred_api.chat import (
+    Thread,
+    post_message,
+    read_reply,
+    read_thread,
+    to_contract,
+)
 from kindred_api.dependencies import ClockDep, SessionDep, WorkerDep
 from kindred_api.plans import load_current_plan
 from kindred_contracts import ChatMessage, MessageStatus, SendMessage
@@ -36,7 +42,12 @@ async def list_messages(
     if plan is None:
         return []
     messages = await read_thread(
-        session, plan.user_id, clock.now(), before_id=before_id, limit=limit
+        session,
+        plan.user_id,
+        clock.now(),
+        thread=Thread.CHAT,
+        before_id=before_id,
+        limit=limit,
     )
     return [to_contract(message) for message in messages]
 

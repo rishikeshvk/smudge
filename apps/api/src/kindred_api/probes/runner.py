@@ -10,13 +10,14 @@ from sqlalchemy import create_engine, select, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from kindred_api.catalog import load_curriculum
 from kindred_api.config import Settings
 from kindred_api.llm_clients import build_embedder, build_llm, build_turn_components
 from kindred_api.persona_context import load_persona_context
 from kindred_api.probes.judge import Judge
 from kindred_api.probes.report import ProbeOutcome, ReplyOutcome
 from kindred_api.schedule import plan_moment
-from kindred_api.seed import load_curriculum, seed_plan
+from kindred_api.seed import seed_plan
 from kindred_api.turn_log import record_turn
 from kindred_contracts import ChatTurn, JudgeVerdict, Probe, Speaker, TurnTrace
 from kindred_db import Plan, session_factory
@@ -65,9 +66,8 @@ async def seed_eval_plan(url: str, curriculum_path: Path, settings: Settings) ->
                 load_curriculum(curriculum_path),
                 PLAN_START,
                 PLAN_TIMEZONE,
-                build_embedder(settings),
                 BUDDY_NAME,
-                reference_notes=True,
+                reference_embedder=build_embedder(settings),
             )
     finally:
         await engine.dispose()

@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
+from kindred_api.catalog import load_curriculum
 from kindred_api.probes.suite import load_probes
-from kindred_api.seed import load_curriculum
 from kindred_contracts import Curriculum, Expectation, Probe, ProbeCategory
 
 REPO = Path(__file__).parents[3]

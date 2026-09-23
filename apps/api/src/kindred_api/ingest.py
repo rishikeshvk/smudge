@@ -8,10 +8,10 @@ import trafilatura
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from kindred_api.catalog import load_curriculum
 from kindred_api.clock import SystemClock
 from kindred_api.config import get_settings
 from kindred_api.plans import load_current_plan
-from kindred_api.seed import load_curriculum
 from kindred_contracts import Curriculum
 from kindred_db import SourceDocument, TopicNode, create_engine, session_factory
 

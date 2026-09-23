@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import StrEnum
 
 from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,6 +8,13 @@ from kindred_contracts import ChatMessage, ChatTurn, Speaker, TurnStage
 from kindred_db import Message
 
 HISTORY_LIMIT = 12
+
+
+class Thread(StrEnum):
+    CHAT = "chat"
+    ONBOARDING = "onboarding"
+
+
 IN_FLIGHT = [TurnStage.CLASSIFYING, TurnStage.WRITING, TurnStage.CHECKING]
 
 
@@ -26,6 +34,7 @@ async def post_message(
 ) -> Message:
     message = Message(
         user_id=user_id,
+        thread=Thread.CHAT.value,
         speaker=Speaker.USER.value,
         text=text,
         at=now,
@@ -41,6 +50,7 @@ async def add_reply(
 ) -> Message:
     reply = Message(
         user_id=to.user_id,
+        thread=to.thread,
         speaker=Speaker.BUDDY.value,
         text=text,
         at=now,
@@ -57,11 +67,14 @@ async def read_thread(
     user_id: int,
     now: datetime,
     *,
+    thread: Thread,
     before_id: int | None,
     limit: int,
 ) -> list[Message]:
-    """The latest messages up to now, oldest first."""
-    query = select(Message).where(Message.user_id == user_id, Message.at <= now)
+    """The latest messages in a thread up to now, oldest first."""
+    query = select(Message).where(
+        Message.user_id == user_id, Message.thread == thread.value, Message.at <= now
+    )
     if before_id is not None:
         query = query.where(Message.id < before_id)
     latest = await session.scalars(query.order_by(Message.id.desc()).limit(limit))
@@ -83,6 +96,7 @@ async def history_before(
         select(Message)
         .where(
             Message.user_id == message.user_id,
+            Message.thread == message.thread,
             Message.at <= now,
             Message.id != message.id,
             or_(Message.speaker == Speaker.BUDDY.value, Message.id < message.id),

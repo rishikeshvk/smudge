@@ -10,6 +10,7 @@ from kindred_api.dependencies import Services
 from kindred_api.dev_clock import build_clock
 from kindred_api.llm_clients import (
     build_memory_writer,
+    build_planning,
     build_study_components,
     build_turn_components,
 )
@@ -19,6 +20,7 @@ from kindred_api.routes import (
     dev,
     health,
     notebook,
+    onboarding,
     progress,
     roadmap,
     turns,
@@ -50,7 +52,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         build_memory_writer(settings),
     )
     app.state.services = Services(
-        sessions=sessions, clock=clock, worker=worker, ticker=ticker
+        sessions=sessions,
+        clock=clock,
+        worker=worker,
+        ticker=ticker,
+        planning=build_planning(settings),
     )
     tasks = [asyncio.create_task(worker.run()), asyncio.create_task(ticker.run())]
     yield
@@ -60,5 +66,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="Kindred", lifespan=lifespan)
-for router in (health, dev, chat, turns, buddy, progress, roadmap, notebook):
+for router in (
+    health,
+    dev,
+    onboarding,
+    chat,
+    turns,
+    buddy,
+    progress,
+    roadmap,
+    notebook,
+):
     app.include_router(router.router)

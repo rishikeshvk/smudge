@@ -144,6 +144,26 @@ change.
 - **Risk.** Memory could still carry subject content the user typed. It never enters the ledger, and the auditor
   checks every reply, so it can shape tone but not get past the gate unaudited.
 
+## Planner onboarding (step 7)
+
+- The catalog is every `curricula/*.yaml` (`CURRICULA_DIR`), shown to the Planner as course titles, day counts,
+  topic titles and default study times. Titles are public, so the Planner may name them.
+- The Planner (`llm_model_planner`) chats until the course, start date, study time and hours a day are clear, then
+  returns a `PlanChoice`. Code builds the `PlanProposal` card from the catalog. It drops a choice naming a course
+  that doesn't exist or starting in the past, so the Planner can't invent a plan.
+- It pushes back on unsustainable daily time, and says honestly what it has when the goal doesn't match a course.
+- **Audit.** Every Planner reply and its quick replies are audited against every catalog topic, all locked:
+  onboarding happens before the buddy has studied anything. A leak gets one redraft; a second leak sends a fixed
+  fallback (vetted by a test to name nothing from any course) but keeps the card, which code built from public
+  titles.
+- Messages carry a `thread` (`chat` or `onboarding`), so the chat history, the worker and the Persona never see
+  onboarding, and a buddy reply can store its `proposal` for accepting later.
+
+| Endpoint | Returns | Notes |
+| --- | --- | --- |
+| `POST /onboarding/messages` `{text, timezone}` | `OnboardingReply {message, quick_replies, proposal}` | Blocks for the audited reply; creates the single user; `409` once a plan exists; `422` for an unknown timezone |
+| `POST /onboarding/accept` `{proposal_message_id, buddy_name}` | `201` `RoadmapView` | Creates the plan from the card (its start date and study time) and names the buddy |
+
 ## Steps
 
 Each step is built, reviewed and committed on its own.

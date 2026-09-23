@@ -4,16 +4,16 @@ from datetime import date
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-import yaml
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from tzlocal import get_localzone_name
 
+from kindred_api.catalog import load_curriculum
 from kindred_api.clock import SystemClock
 from kindred_api.config import get_settings
 from kindred_api.embedding import DocumentEmbedder
 from kindred_api.llm_clients import build_embedder
-from kindred_api.schedule import plan_moment
+from kindred_api.plans import create_plan
 from kindred_contracts import Curriculum
 from kindred_db import (
     Buddy,
@@ -21,8 +21,6 @@ from kindred_db import (
     NoteEmbedding,
     Plan,
     TopicNode,
-    TopicPrerequisite,
-    TopicVocabulary,
     User,
     create_engine,
     session_factory,
@@ -33,22 +31,17 @@ class AlreadySeededError(Exception):
     pass
 
 
-def load_curriculum(path: Path) -> Curriculum:
-    return Curriculum.model_validate(yaml.safe_load(path.read_text()))
-
-
 async def seed_plan(
     session: AsyncSession,
     curriculum: Curriculum,
     start_date: date,
     tz: ZoneInfo,
-    embedder: DocumentEmbedder,
     buddy_name: str,
     *,
-    reference_notes: bool,
+    reference_embedder: DocumentEmbedder | None,
 ) -> None:
-    """Seed the plan; reference notes are the hand-written ones, kept for evals. In
-    the app the Curator writes the ledger instead."""
+    """Seed a user, their buddy and a plan. With an embedder it also stores the
+    curriculum's hand-written notes, as evals do; otherwise the Curator writes them."""
     # Seeded notes can't be removed from the ledger, so never seed on top of a plan.
     if await session.scalar(select(Plan.id).limit(1)) is not None:
         raise AlreadySeededError("a plan already exists; run `make db-reset` first")
@@ -57,67 +50,42 @@ async def seed_plan(
     session.add(user)
     await session.flush()
     session.add(Buddy(user_id=user.id, name=buddy_name))
-
-    plan = Plan(
-        user_id=user.id,
-        curriculum_slug=curriculum.slug,
-        title=curriculum.title,
-        start_date=start_date,
-        study_time=curriculum.study_time,
-        baseline_card=curriculum.baseline_card,
+    plan = await create_plan(
+        session, user.id, curriculum, start_date, curriculum.study_time, tz
     )
-    session.add(plan)
-    await session.flush()
+    if reference_embedder is not None:
+        await _store_reference_notes(session, plan.id, curriculum, reference_embedder)
 
+
+async def _store_reference_notes(
+    session: AsyncSession,
+    plan_id: int,
+    curriculum: Curriculum,
+    embedder: DocumentEmbedder,
+) -> None:
     nodes = {
-        topic.slug: TopicNode(
-            plan_id=plan.id,
-            slug=topic.slug,
-            day=topic.day,
-            title=topic.title,
-            audit_brief=topic.audit_brief,
-            unlock_at=plan_moment(start_date, topic.day, curriculum.study_time, tz),
+        node.slug: node
+        for node in await session.scalars(
+            select(TopicNode).where(TopicNode.plan_id == plan_id)
+        )
+    }
+    # A note counts as written when the buddy studied the topic.
+    notes = [
+        (
+            nodes[topic.slug],
+            LedgerNote(
+                node_id=nodes[topic.slug].id,
+                body=note.body,
+                shaky=note.shaky,
+                sources=[str(url) for url in note.sources],
+                written_at=nodes[topic.slug].unlock_at,
+            ),
         )
         for topic in curriculum.nodes
-    }
-    session.add_all(nodes.values())
-    await session.flush()
-
-    notes: list[tuple[TopicNode, LedgerNote]] = []
-    for topic in curriculum.nodes:
-        node = nodes[topic.slug]
-        session.add_all(
-            TopicPrerequisite(node_id=node.id, prerequisite_id=nodes[slug].id)
-            for slug in topic.prerequisites
-        )
-        session.add_all(
-            TopicVocabulary(
-                node_id=node.id,
-                term=word.term,
-                kind=word.kind.value,
-                everyday=word.everyday,
-            )
-            for word in topic.vocabulary
-        )
-        # A note counts as written when the buddy studied the topic.
-        notes += [
-            (
-                node,
-                LedgerNote(
-                    node_id=node.id,
-                    body=note.body,
-                    shaky=note.shaky,
-                    sources=[str(url) for url in note.sources],
-                    written_at=node.unlock_at,
-                ),
-            )
-            for note in topic.notes
-            if reference_notes
-        ]
+        for note in topic.notes
+    ]
     session.add_all(note for _, note in notes)
     await session.flush()
-    if not notes:
-        return
 
     vectors = await embedder.embed_documents(
         [f"{node.title}\n\n{note.body}" for node, note in notes]
@@ -148,9 +116,10 @@ async def run(
                 curriculum,
                 start,
                 tz,
-                build_embedder(settings),
                 buddy_name,
-                reference_notes=reference_notes,
+                reference_embedder=build_embedder(settings)
+                if reference_notes
+                else None,
             )
     finally:
         await engine.dispose()
