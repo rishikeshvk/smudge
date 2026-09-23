@@ -9,11 +9,15 @@ requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.20.0",
     "fastapi[standard]>=0.141.1",
+    "httpx2>=2.13.0",
+    "kindred-buddy",
     "kindred-contracts",
     "kindred-db",
+    "kindred-gate",
     "kindred-llm",
     "pydantic-settings>=2.15.0",
     "pyyaml>=6.0.3",
+    "trafilatura>=2.2.0",
     "tzlocal>=5.4.4",
 ]
 
@@ -25,3 +29,5 @@ build-backend = "uv_build"
 kindred-llm = { workspace = true }
 kindred-db = { workspace = true }
 kindred-contracts = { workspace = true }
+kindred-gate = { workspace = true }
+kindred-buddy = { workspace = true }

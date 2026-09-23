@@ -11,3 +11,11 @@ class RetrievedNote(Contract):
     body: str
     shaky: list[str]
     distance: float
+
+
+class SourceExcerpt(Contract):
+    """Real material for one topic, as the Curator reads it."""
+
+    url: str
+    title: str
+    text: str

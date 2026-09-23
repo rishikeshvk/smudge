@@ -94,7 +94,7 @@ def main() -> None:
         git_sha=git_sha(),
         models={
             "classifier": settings.llm_model_classifier,
-            "drafter": settings.llm_model_drafter,
+            "drafter": settings.llm_model_persona,
             "auditor": settings.llm_model_auditor,
             "judge": settings.llm_model_judge,
             "embeddings": settings.embed_model,

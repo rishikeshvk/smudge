@@ -1,7 +1,7 @@
 from datetime import UTC, date, datetime, time
 from zoneinfo import ZoneInfo
 
-from kindred_api.schedule import plan_moment
+from kindred_api.schedule import plan_day, plan_moment
 
 STUDY_TIME = time(19, 0)
 
@@ -32,4 +32,22 @@ def test_unlock_stays_at_local_study_time_across_a_dst_change() -> None:
     )
     assert plan_moment(start, 4, STUDY_TIME, new_york) == datetime(
         2026, 11, 3, 0, 0, tzinfo=UTC
+    )
+
+
+def test_plan_day_follows_the_users_local_date() -> None:
+    kolkata = ZoneInfo("Asia/Kolkata")
+    start = date(2026, 10, 1)
+
+    # 20:00Z on 1 Oct is already 01:30 on 2 Oct in Kolkata.
+    assert plan_day(start, datetime(2026, 10, 1, 18, 0, tzinfo=UTC), kolkata) == 1
+    assert plan_day(start, datetime(2026, 10, 1, 20, 0, tzinfo=UTC), kolkata) == 2
+
+
+def test_plan_day_counts_below_one_before_the_start() -> None:
+    kolkata = ZoneInfo("Asia/Kolkata")
+
+    assert (
+        plan_day(date(2026, 10, 1), datetime(2026, 9, 29, 12, 0, tzinfo=UTC), kolkata)
+        == -1
     )

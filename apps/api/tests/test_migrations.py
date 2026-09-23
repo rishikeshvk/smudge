@@ -13,6 +13,14 @@ TABLES = {
     "ledger_notes",
     "note_embeddings",
     "turns",
+    "dev_clock",
+    "buddies",
+    "messages",
+    "study_checkins",
+    "source_documents",
+    "study_sessions",
+    "relationship_memory",
+    "llm_settings",
 }
 
 

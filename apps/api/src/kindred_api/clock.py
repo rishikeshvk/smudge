@@ -27,6 +27,26 @@ class FixedClock:
         self._at += delta
 
 
+class OffsetClock:
+    """Real time shifted by an offset, so dev time travel keeps ticking."""
+
+    def __init__(self, base: Clock, offset: timedelta) -> None:
+        self._base = base
+        self.offset = offset
+
+    def now(self) -> datetime:
+        return self._base.now() + self.offset
+
+    def move_to(self, at: datetime) -> None:
+        self.offset = _require_aware(at) - self._base.now()
+
+    def advance(self, delta: timedelta) -> None:
+        self.offset += delta
+
+    def reset(self) -> None:
+        self.offset = timedelta()
+
+
 def _require_aware(at: datetime) -> datetime:
     if at.tzinfo is None:
         raise ValueError("clock times must be timezone-aware")

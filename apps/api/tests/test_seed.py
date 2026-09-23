@@ -6,16 +6,19 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_api.seed import AlreadySeededError, load_curriculum, seed_plan
+from kindred_api.catalog import load_curriculum
+from kindred_api.seed import AlreadySeededError, seed_plan
 from kindred_contracts import Curriculum
 from kindred_db import (
     EMBEDDING_DIMENSIONS,
+    Buddy,
     LedgerNote,
     NoteEmbedding,
     Plan,
     TopicNode,
     TopicPrerequisite,
     TopicVocabulary,
+    User,
 )
 
 CURRICULUM = """
@@ -74,7 +77,14 @@ def curriculum(tmp_path: Path) -> Curriculum:
 async def test_seed_writes_plan_nodes_with_unlock_times(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
+    await seed_plan(
+        session,
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=FakeEmbedder(),
+    )
 
     plan = await session.scalar(select(Plan))
     assert plan is not None
@@ -91,7 +101,14 @@ async def test_seed_writes_plan_nodes_with_unlock_times(
 async def test_seed_links_prerequisites_and_vocabulary(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
+    await seed_plan(
+        session,
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=FakeEmbedder(),
+    )
     ids = {n.slug: n.id for n in await session.scalars(select(TopicNode))}
 
     prerequisite = await session.scalar(select(TopicPrerequisite))
@@ -111,7 +128,14 @@ async def test_seed_links_prerequisites_and_vocabulary(
 async def test_seeded_notes_are_written_when_their_topic_unlocks(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
+    await seed_plan(
+        session,
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=FakeEmbedder(),
+    )
 
     rows = await session.execute(
         select(TopicNode.slug, LedgerNote.written_at, TopicNode.unlock_at).join(
@@ -127,10 +151,24 @@ async def test_seeded_notes_are_written_when_their_topic_unlocks(
 async def test_seeding_twice_is_refused(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
+    await seed_plan(
+        session,
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=FakeEmbedder(),
+    )
 
     with pytest.raises(AlreadySeededError):
-        await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
+        await seed_plan(
+            session,
+            curriculum,
+            START,
+            KOLKATA,
+            "Juno",
+            reference_embedder=FakeEmbedder(),
+        )
 
 
 @pytest.mark.anyio
@@ -139,9 +177,47 @@ async def test_seed_embeds_each_note_with_its_topic_title(
 ) -> None:
     embedder = FakeEmbedder()
 
-    await seed_plan(session, curriculum, START, KOLKATA, embedder)
+    await seed_plan(
+        session, curriculum, START, KOLKATA, "Juno", reference_embedder=embedder
+    )
 
     embeddings = (await session.scalars(select(NoteEmbedding))).all()
     assert len(embeddings) == 2
     assert {e.model for e in embeddings} == {"fake-embed"}
     assert embedder.texts[0] == "First topic\n\nI learned the first thing."
+
+
+@pytest.mark.anyio
+async def test_seed_gives_the_user_their_buddy(
+    session: AsyncSession, curriculum: Curriculum
+) -> None:
+    await seed_plan(
+        session,
+        curriculum,
+        START,
+        KOLKATA,
+        "Wren",
+        reference_embedder=FakeEmbedder(),
+    )
+
+    user = await session.scalar(select(User))
+    buddy = await session.scalar(select(Buddy))
+    assert user is not None and buddy is not None
+    assert (buddy.user_id, buddy.name) == (user.id, "Wren")
+
+
+@pytest.mark.anyio
+async def test_without_reference_notes_the_ledger_starts_empty(
+    session: AsyncSession, curriculum: Curriculum
+) -> None:
+    await seed_plan(
+        session,
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=None,
+    )
+
+    assert await session.scalar(select(TopicNode.id).limit(1)) is not None
+    assert await session.scalar(select(LedgerNote.id).limit(1)) is None

@@ -1,0 +1,45 @@
+{
+  "started_at": "2026-09-23T14:37:11.390350+00:00",
+  "wall_seconds": 299.834035,
+  "onboarding": [
+    "user: hi! I want to learn AWS in two weeks, maybe 3 hours a day",
+    "buddy: hey! AWS in two weeks \u2014 that's exactly the course I've got: aws fundamentals, 14 days, finishing right on schedule. one honest heads-up: 3 hours a day on top of everything else is a lot to sustain for two weeks straight. 2 hours might be easier to keep up, but it's totally your call. the course usually runs at 19:00 \u2014 does that time work for you?",
+    "user: ok, an hour a day is more realistic. let's start tomorrow and study at 19:00",
+    "buddy: perfect \u2014 one hour a day is a nice sustainable pace. plan's set: aws fundamentals, starting tomorrow (friday) at 19:00, 14 days total. see you then!",
+    "accepted: AWS fundamentals in two weeks from 2026-10-02 at 19:00:00"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "title": "What AWS is & global infrastructure",
+      "studied": "written",
+      "note_words": 394,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "can you remind me what you made of What AWS is & global infrastructure?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "honestly? nothing yet \u2014 that's our day 1 topic and we're both down for it at 19:00 tonight \ud83d\ude04 i know the baseline stuff like aws being amazon's cloud business, but the global infrastructure part is a mystery to me until we actually study it. want to swap takes after tonight's session?",
+          "audited": true
+        },
+        {
+          "message": "how did What AWS is & global infrastructure go for you? anything still shaky?",
+          "route": "answer",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "it went well! biggest click: aws really is just the 'someone else's computers' idea i came in with, except you rent it on demand. the regions/AZs picture finally explains why aws outages make the news. still shaky on why the a/b/c zone names got shuffled per account, and what a global resource even looks like. if you haven't done it yet, give it a go and we'll compare notes \ud83d\ude42",
+          "audited": true
+        }
+      ],
+      "remembered": true
+    }
+  ],
+  "llm_calls_at_least": 13,
+  "problems": []
+}

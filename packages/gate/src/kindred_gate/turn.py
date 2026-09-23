@@ -1,4 +1,5 @@
 import time
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
@@ -15,6 +16,8 @@ from kindred_contracts import (
     DraftRequest,
     RetrievedNote,
     RoleModels,
+    Route,
+    TurnStage,
     TurnTrace,
     Verdict,
 )
@@ -25,6 +28,12 @@ from kindred_gate.topics import TopicMap
 from kindred_llm import Embedder, StructuredOutputError
 
 NOTES_PER_TURN = 4
+
+StageReporter = Callable[[TurnStage], Awaitable[None]]
+
+
+async def ignore_stage(stage: TurnStage) -> None:
+    """For callers with nobody waiting on the turn, such as probes and the CLI."""
 
 
 class Classifier(Protocol):
@@ -92,11 +101,14 @@ async def run_turn(
     topics: TopicMap,
     components: TurnComponents,
     session_id: str,
+    user_studied: frozenset[str],
+    on_stage: StageReporter,
 ) -> TurnTrace:
     """One user message in, one audited reply out; nothing unaudited is returned."""
     started = time.monotonic()
+    await on_stage(TurnStage.CLASSIFYING)
     classification = await _classify(message, history, topics, components, session_id)
-    directive = route(classification, topics, now)
+    directive = route(classification, topics, now, user_studied)
     notes = (
         await components.retriever.retrieve(message, now)
         if directive.answer_topics
@@ -113,9 +125,10 @@ async def run_turn(
 
     attempts: list[DraftAttempt] = []
     final_reply: str | None = None
-    for _ in range(2):
+    # A crisis gets the fixed template straight away; no draft is worth the wait.
+    for _ in range(0 if directive.route is Route.CRISIS else 2):
         attempt = await _draft_and_audit(
-            request, history, topics, now, components, session_id
+            request, history, topics, now, components, session_id, on_stage
         )
         if attempt is None:
             break
@@ -167,12 +180,15 @@ async def _draft_and_audit(
     now: datetime,
     components: TurnComponents,
     session_id: str,
+    on_stage: StageReporter,
 ) -> DraftAttempt | None:
+    await on_stage(TurnStage.WRITING)
     try:
         draft = await components.drafter.draft(request, f"{session_id}:drafter")
     except StructuredOutputError:
         return None
 
+    await on_stage(TurnStage.CHECKING)
     try:
         verdict = await components.auditor.audit(
             draft.reply,
