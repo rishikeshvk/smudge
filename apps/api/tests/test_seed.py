@@ -8,7 +8,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.seed import AlreadySeededError, load_curriculum, seed_plan
 from kindred_contracts import Curriculum
-from kindred_db import LedgerNote, Plan, TopicNode, TopicPrerequisite, TopicVocabulary
+from kindred_db import (
+    EMBEDDING_DIMENSIONS,
+    LedgerNote,
+    NoteEmbedding,
+    Plan,
+    TopicNode,
+    TopicPrerequisite,
+    TopicVocabulary,
+)
 
 CURRICULUM = """
 slug: tiny
@@ -44,6 +52,17 @@ START = date(2026, 10, 1)
 KOLKATA = ZoneInfo("Asia/Kolkata")
 
 
+class FakeEmbedder:
+    model = "fake-embed"
+
+    def __init__(self) -> None:
+        self.texts: list[str] = []
+
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        self.texts += texts
+        return [[1.0] * EMBEDDING_DIMENSIONS for _ in texts]
+
+
 @pytest.fixture
 def curriculum(tmp_path: Path) -> Curriculum:
     path = tmp_path / "tiny.yaml"
@@ -55,7 +74,7 @@ def curriculum(tmp_path: Path) -> Curriculum:
 async def test_seed_writes_plan_nodes_with_unlock_times(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA)
+    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
 
     plan = await session.scalar(select(Plan))
     assert plan is not None
@@ -72,7 +91,7 @@ async def test_seed_writes_plan_nodes_with_unlock_times(
 async def test_seed_links_prerequisites_and_vocabulary(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA)
+    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
     ids = {n.slug: n.id for n in await session.scalars(select(TopicNode))}
 
     prerequisite = await session.scalar(select(TopicPrerequisite))
@@ -92,7 +111,7 @@ async def test_seed_links_prerequisites_and_vocabulary(
 async def test_seeded_notes_are_written_when_their_topic_unlocks(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA)
+    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
 
     rows = await session.execute(
         select(TopicNode.slug, LedgerNote.written_at, TopicNode.unlock_at).join(
@@ -108,7 +127,21 @@ async def test_seeded_notes_are_written_when_their_topic_unlocks(
 async def test_seeding_twice_is_refused(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    await seed_plan(session, curriculum, START, KOLKATA)
+    await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
 
     with pytest.raises(AlreadySeededError):
-        await seed_plan(session, curriculum, START, KOLKATA)
+        await seed_plan(session, curriculum, START, KOLKATA, FakeEmbedder())
+
+
+@pytest.mark.anyio
+async def test_seed_embeds_each_note_with_its_topic_title(
+    session: AsyncSession, curriculum: Curriculum
+) -> None:
+    embedder = FakeEmbedder()
+
+    await seed_plan(session, curriculum, START, KOLKATA, embedder)
+
+    embeddings = (await session.scalars(select(NoteEmbedding))).all()
+    assert len(embeddings) == 2
+    assert {e.model for e in embeddings} == {"fake-embed"}
+    assert embedder.texts[0] == "First topic\n\nI learned the first thing."

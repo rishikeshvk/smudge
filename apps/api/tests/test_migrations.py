@@ -11,6 +11,7 @@ TABLES = {
     "topic_prerequisites",
     "topic_vocabulary",
     "ledger_notes",
+    "note_embeddings",
 }
 
 

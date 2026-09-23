@@ -1,5 +1,6 @@
 from datetime import date, datetime, time
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     CheckConstraint,
     DateTime,
@@ -10,6 +11,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+EMBEDDING_DIMENSIONS = 1024
 
 
 class Base(DeclarativeBase):
@@ -92,3 +95,15 @@ class LedgerNote(Base):
     shaky: Mapped[list[str]] = mapped_column(JSONB)
     sources: Mapped[list[str]] = mapped_column(ARRAY(Text))
     written_at: Mapped[datetime]
+
+
+# Kept apart from the ledger so embedding, or re-embedding with a new model,
+# never has to update an append-only row.
+class NoteEmbedding(Base):
+    __tablename__ = "note_embeddings"
+
+    note_id: Mapped[int] = mapped_column(
+        ForeignKey("ledger_notes.id", ondelete="RESTRICT"), primary_key=True
+    )
+    model: Mapped[str] = mapped_column(primary_key=True)
+    embedding: Mapped[list[float]] = mapped_column(Vector(EMBEDDING_DIMENSIONS))

@@ -2,6 +2,7 @@ import argparse
 import asyncio
 from datetime import date
 from pathlib import Path
+from typing import Protocol
 from zoneinfo import ZoneInfo
 
 import yaml
@@ -11,10 +12,12 @@ from tzlocal import get_localzone_name
 
 from kindred_api.clock import SystemClock
 from kindred_api.config import get_settings
+from kindred_api.llm_clients import build_embedder
 from kindred_api.schedule import unlock_at
 from kindred_contracts import Curriculum
 from kindred_db import (
     LedgerNote,
+    NoteEmbedding,
     Plan,
     TopicNode,
     TopicPrerequisite,
@@ -29,12 +32,22 @@ class AlreadySeededError(Exception):
     pass
 
 
+class DocumentEmbedder(Protocol):
+    model: str
+
+    async def embed_documents(self, texts: list[str]) -> list[list[float]]: ...
+
+
 def load_curriculum(path: Path) -> Curriculum:
     return Curriculum.model_validate(yaml.safe_load(path.read_text()))
 
 
 async def seed_plan(
-    session: AsyncSession, curriculum: Curriculum, start_date: date, tz: ZoneInfo
+    session: AsyncSession,
+    curriculum: Curriculum,
+    start_date: date,
+    tz: ZoneInfo,
+    embedder: DocumentEmbedder,
 ) -> None:
     # Seeded notes can't be removed from the ledger, so never seed on top of a plan.
     if await session.scalar(select(Plan.id).limit(1)) is not None:
@@ -69,6 +82,7 @@ async def seed_plan(
     session.add_all(nodes.values())
     await session.flush()
 
+    notes: list[tuple[TopicNode, LedgerNote]] = []
     for topic in curriculum.nodes:
         node = nodes[topic.slug]
         session.add_all(
@@ -85,16 +99,29 @@ async def seed_plan(
             for word in topic.vocabulary
         )
         # A note counts as written when the buddy studied the topic.
-        session.add_all(
-            LedgerNote(
-                node_id=node.id,
-                body=note.body,
-                shaky=note.shaky,
-                sources=[str(url) for url in note.sources],
-                written_at=node.unlock_at,
+        notes += [
+            (
+                node,
+                LedgerNote(
+                    node_id=node.id,
+                    body=note.body,
+                    shaky=note.shaky,
+                    sources=[str(url) for url in note.sources],
+                    written_at=node.unlock_at,
+                ),
             )
             for note in topic.notes
-        )
+        ]
+    session.add_all(note for _, note in notes)
+    await session.flush()
+
+    vectors = await embedder.embed_documents(
+        [f"{node.title}\n\n{note.body}" for node, note in notes]
+    )
+    session.add_all(
+        NoteEmbedding(note_id=note.id, model=embedder.model, embedding=vector)
+        for (_, note), vector in zip(notes, vectors, strict=True)
+    )
     await session.flush()
 
 
@@ -102,10 +129,11 @@ async def run(path: Path, start_date: date | None, tz: ZoneInfo) -> None:
     curriculum = load_curriculum(path)
     start = start_date or SystemClock().now().astimezone(tz).date()
 
-    engine = create_engine(get_settings().database_url)
+    settings = get_settings()
+    engine = create_engine(settings.database_url)
     try:
         async with session_factory(engine)() as session, session.begin():
-            await seed_plan(session, curriculum, start, tz)
+            await seed_plan(session, curriculum, start, tz, build_embedder(settings))
     finally:
         await engine.dispose()
 
