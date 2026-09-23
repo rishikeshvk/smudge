@@ -6,7 +6,11 @@ from kindred_contracts.api import (
     ClockView,
     JumpToDay,
     MessageStatus,
+    NotebookView,
     ResetClock,
+    RoadmapTopic,
+    RoadmapView,
+    SealedDay,
     SendMessage,
 )
 from kindred_contracts.curriculum import (
@@ -24,6 +28,13 @@ from kindred_contracts.probes import (
     Probe,
     ProbeCategory,
     ProbeTime,
+)
+from kindred_contracts.study import (
+    MAX_NOTE_WORDS,
+    EarlierNote,
+    NotebookNote,
+    NoteDraft,
+    StudyBrief,
 )
 from kindred_contracts.turn import (
     AuditVerdict,
@@ -45,6 +56,11 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "MAX_NOTE_WORDS",
+    "EarlierNote",
+    "NoteDraft",
+    "NotebookNote",
+    "StudyBrief",
     "AdvanceClock",
     "BuddyStatus",
     "ChatMessage",
@@ -52,6 +68,10 @@ __all__ = [
     "ClockView",
     "JumpToDay",
     "MessageStatus",
+    "NotebookView",
+    "RoadmapTopic",
+    "RoadmapView",
+    "SealedDay",
     "PersonaContext",
     "ResetClock",
     "SendMessage",

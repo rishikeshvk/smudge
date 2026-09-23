@@ -3,7 +3,8 @@ from typing import Annotated, Literal
 from pydantic import AwareDatetime, Field
 
 from kindred_contracts.curriculum import Contract
-from kindred_contracts.turn import Speaker, TurnStage
+from kindred_contracts.study import NotebookNote
+from kindred_contracts.turn import Speaker, TopicRef, TurnStage
 
 
 class ClockView(Contract):
@@ -58,3 +59,32 @@ class BuddyStatus(Contract):
     name: str
     # False while the model endpoint fails; messages wait in the queue meanwhile.
     available: bool
+    # True while the Curator is writing tonight's note.
+    studying: bool
+
+
+class RoadmapTopic(Contract):
+    topic: TopicRef
+    unlocks_at: AwareDatetime
+    unlocked: bool
+    buddy_studied: bool
+    user_studied: bool
+
+
+class RoadmapView(Contract):
+    plan_title: str
+    # Below 1 before the plan starts.
+    day: int
+    topics: list[RoadmapTopic]
+
+
+class SealedDay(Contract):
+    """A day whose note isn't written yet: only its day and date, never its content."""
+
+    day: int
+    unlocks_at: AwareDatetime
+
+
+class NotebookView(Contract):
+    notes: list[NotebookNote]
+    sealed: list[SealedDay]
