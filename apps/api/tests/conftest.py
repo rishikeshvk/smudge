@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 
 import pytest
@@ -6,8 +6,10 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import Connection, create_engine, text
 from sqlalchemy.engine import make_url
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.config import get_settings
+from kindred_db import create_engine as create_async_engine
 
 ALEMBIC_INI = Path(__file__).parents[1] / "alembic.ini"
 
@@ -58,3 +60,18 @@ def connection(database_url: str) -> Iterator[Connection]:
         yield connection
         transaction.rollback()
     engine.dispose()
+
+
+@pytest.fixture
+async def session(database_url: str) -> AsyncIterator[AsyncSession]:
+    engine = create_async_engine(database_url)
+    async with engine.connect() as connection:
+        transaction = await connection.begin()
+        async with AsyncSession(
+            bind=connection,
+            join_transaction_mode="create_savepoint",
+            expire_on_commit=False,
+        ) as session:
+            yield session
+        await transaction.rollback()
+    await engine.dispose()

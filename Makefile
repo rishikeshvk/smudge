@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset test check fmt llm-ping mobile mobile-tunnel
+.PHONY: up down migrate db-reset seed test check fmt llm-ping mobile mobile-tunnel
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -17,6 +17,9 @@ db-reset:
 	docker compose up -d --wait db
 	$(ALEMBIC) downgrade base
 	$(ALEMBIC) upgrade head
+
+seed: migrate
+	uv run python -m kindred_api.seed curricula/aws-2week.yaml
 
 test:
 	docker compose up -d --wait db
