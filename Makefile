@@ -32,7 +32,8 @@ test:
 check:
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy apps/api packages conftest.py
+	uv run mypy apps/api packages
+	uv run mypy conftest.py
 	npm --prefix apps/mobile run lint
 
 fmt:
