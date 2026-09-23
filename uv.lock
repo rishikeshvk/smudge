@@ -11,6 +11,7 @@ resolution-markers = [
 [manifest]
 members = [
     "kindred-api",
+    "kindred-contracts",
     "kindred-llm",
 ]
 
@@ -610,6 +611,17 @@ requires-dist = [
     { name = "kindred-llm", editable = "packages/llm" },
     { name = "pydantic-settings", specifier = ">=2.15.0" },
 ]
+
+[[package]]
+name = "kindred-contracts"
+version = "0.1.0"
+source = { editable = "packages/contracts" }
+dependencies = [
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pydantic", specifier = ">=2.13.5" }]
 
 [[package]]
 name = "kindred-llm"

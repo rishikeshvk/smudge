@@ -13,7 +13,7 @@ test:
 check:
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy apps/api packages/llm
+	uv run mypy apps/api packages
 	npm --prefix apps/mobile run lint
 
 fmt:
