@@ -4,6 +4,7 @@ import { Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useThemeColor } from "@/theme/useTheme";
+import { useKeyboardOpen } from "@/useKeyboardOpen";
 
 const TABS: Record<string, { label: string; Icon: LucideIcon }> = {
   index: { label: "Chat", Icon: MessageSquare },
@@ -16,6 +17,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const you = useThemeColor("you");
   const inkMuted = useThemeColor("ink-muted");
   const ink = useThemeColor("ink");
+  const keyboardOpen = useKeyboardOpen();
+
+  // The composer sits right above the keyboard, so the tab bar steps aside while typing.
+  if (keyboardOpen) return null;
 
   return (
     <View

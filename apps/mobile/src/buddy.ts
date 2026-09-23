@@ -14,9 +14,11 @@ export function gateFor(query: { data?: BuddyStatus; error: unknown }): Gate {
   return "loading";
 }
 
-export function useBuddy() {
+// Chat polls while it's on screen so the lamp and the unavailable banner stay current.
+export function useBuddy({ pollMs }: { pollMs?: number } = {}) {
   return useQuery({
     ...readBuddyOptions(),
     retry: (failures, error) => !hasStatus(error, 404) && failures < 2,
+    refetchInterval: pollMs ?? false,
   });
 }
