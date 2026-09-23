@@ -162,9 +162,13 @@ class Message(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    # "chat" once a plan exists; "onboarding" while planning it together.
+    thread: Mapped[str] = mapped_column(server_default="chat")
     speaker: Mapped[str]
     text: Mapped[str]
     at: Mapped[datetime]
+    # A Planner reply's plan proposal, kept so the user can accept it later.
+    proposal: Mapped[dict[str, object] | None] = mapped_column(JSONB)
     # Set on user messages only: where each one is on its way to a reply.
     stage: Mapped[str | None] = mapped_column(index=True)
     reply_to_id: Mapped[int | None] = mapped_column(
