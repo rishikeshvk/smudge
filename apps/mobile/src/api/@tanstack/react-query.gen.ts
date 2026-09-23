@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { accept, addCheckin, changeClock, health, listMessages, messageStatus, type Options, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
-import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
+import { accept, addCheckin, changeClock, health, listMessages, listOnboardingMessages, messageStatus, type Options, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
+import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -110,6 +110,24 @@ export const studyNowMutation = (options?: Partial<Options<StudyNowData>>): UseM
     };
     return mutationOptions;
 };
+
+export const listOnboardingMessagesQueryKey = (options?: Options<ListOnboardingMessagesData>) => createQueryKey('listOnboardingMessages', options);
+
+/**
+ * List Onboarding Messages
+ */
+export const listOnboardingMessagesOptions = (options?: Options<ListOnboardingMessagesData>) => queryOptions<ListOnboardingMessagesResponse, DefaultError, ListOnboardingMessagesResponse, ReturnType<typeof listOnboardingMessagesQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await listOnboardingMessages({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: listOnboardingMessagesQueryKey(options)
+});
 
 /**
  * Send Onboarding Message

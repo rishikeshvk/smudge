@@ -106,6 +106,34 @@ async def test_onboarding_ends_in_an_accepted_plan(client: httpx.AsyncClient) ->
 
 
 @pytest.mark.anyio
+async def test_the_transcript_comes_back_with_its_plan_card(
+    client: httpx.AsyncClient,
+) -> None:
+    sent = await client.post(
+        "/onboarding/messages",
+        json={"text": "tiny, an hour a day", "timezone": "Asia/Kolkata"},
+    )
+
+    transcript = (await client.get("/onboarding/messages")).json()
+
+    assert [entry["message"]["speaker"] for entry in transcript] == ["user", "buddy"]
+    assert transcript[0]["message"]["text"] == "tiny, an hour a day"
+    assert transcript[0]["proposal"] is None
+    assert transcript[1]["message"]["id"] == sent.json()["message"]["id"]
+    assert transcript[1]["proposal"]["title"] == "Tiny course"
+
+
+@pytest.mark.anyio
+async def test_the_transcript_is_empty_before_anyone_writes(
+    client: httpx.AsyncClient,
+) -> None:
+    response = await client.get("/onboarding/messages")
+
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.anyio
 async def test_an_unknown_timezone_is_rejected(client: httpx.AsyncClient) -> None:
     response = await client.post(
         "/onboarding/messages", json={"text": "hi", "timezone": "Mars/Olympus"}

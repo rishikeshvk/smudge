@@ -323,6 +323,16 @@ export type NotebookView = {
 };
 
 /**
+ * OnboardingEntry
+ *
+ * One message of the onboarding chat, with the plan card a reply offered.
+ */
+export type OnboardingEntry = {
+    message: ChatMessage;
+    proposal: PlanProposal | null;
+};
+
+/**
  * OnboardingMessage
  */
 export type OnboardingMessage = {
@@ -710,6 +720,24 @@ export type StudyNowResponses = {
 };
 
 export type StudyNowResponse = StudyNowResponses[keyof StudyNowResponses];
+
+export type ListOnboardingMessagesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/onboarding/messages';
+};
+
+export type ListOnboardingMessagesResponses = {
+    /**
+     * Response List Onboarding Messages
+     *
+     * Successful Response
+     */
+    200: Array<OnboardingEntry>;
+};
+
+export type ListOnboardingMessagesResponse = ListOnboardingMessagesResponses[keyof ListOnboardingMessagesResponses];
 
 export type SendOnboardingMessageData = {
     body: OnboardingMessage;

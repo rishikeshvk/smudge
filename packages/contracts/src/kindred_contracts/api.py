@@ -103,6 +103,13 @@ class OnboardingReply(Contract):
     proposal: PlanProposal | None
 
 
+class OnboardingEntry(Contract):
+    """One message of the onboarding chat, with the plan card a reply offered."""
+
+    message: ChatMessage
+    proposal: PlanProposal | None
+
+
 class AcceptPlan(Contract):
     proposal_message_id: int
     buddy_name: str = Field(min_length=1, max_length=40)
