@@ -15,6 +15,8 @@ TABLES = {
     "turns",
     "dev_clock",
     "buddies",
+    "messages",
+    "study_checkins",
 }
 
 

@@ -141,3 +141,29 @@ class DevClock(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     offset: Mapped[timedelta]
+
+
+# The chat thread belongs to the user, since the buddy lasts across goals.
+class Message(Base):
+    __tablename__ = "messages"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    speaker: Mapped[str]
+    text: Mapped[str]
+    at: Mapped[datetime]
+    # Set on user messages only: where each one is on its way to a reply.
+    stage: Mapped[str | None] = mapped_column(index=True)
+    reply_to_id: Mapped[int | None] = mapped_column(
+        ForeignKey("messages.id"), unique=True
+    )
+    turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
+
+
+# The user saying "I studied today"; one per topic, in plan order.
+class StudyCheckin(Base):
+    __tablename__ = "study_checkins"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
+    at: Mapped[datetime]
