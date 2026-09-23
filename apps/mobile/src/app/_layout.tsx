@@ -22,7 +22,10 @@ export default function RootLayout() {
 
   return (
     <ThemeRoot>
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="settings" options={{ headerShown: true, title: "Settings" }} />
+      </Stack>
     </ThemeRoot>
   );
 }
