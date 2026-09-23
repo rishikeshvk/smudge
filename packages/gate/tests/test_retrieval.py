@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime, time
+from datetime import UTC, date, datetime, time, timedelta
 
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,10 +8,11 @@ from kindred_db import (
     LedgerNote,
     NoteEmbedding,
     Plan,
+    SourceDocument,
     TopicNode,
     User,
 )
-from kindred_gate import retrieve_notes
+from kindred_gate import read_sources, retrieve_notes
 
 MODEL = "test-embed"
 DAY_1 = datetime(2026, 10, 1, 13, 30, tzinfo=UTC)
@@ -117,3 +118,70 @@ async def test_naive_now_is_refused(session: AsyncSession) -> None:
 
     with pytest.raises(ValueError, match="timezone-aware"):
         await slugs_at(session, plan, datetime(2026, 10, 2, 19, 0), axis(0))
+
+
+@pytest.mark.anyio
+async def test_a_note_written_after_unlock_stays_hidden_until_written(
+    session: AsyncSession,
+) -> None:
+    plan = await add_plan(session)
+    note = await add_note(session, plan, 1, DAY_1, axis(0))
+    written = DAY_1 + timedelta(minutes=40)
+    later = LedgerNote(
+        node_id=note.node_id,
+        body="Second pass",
+        shaky=[],
+        sources=[],
+        written_at=written,
+    )
+    session.add(later)
+    await session.flush()
+    session.add(NoteEmbedding(note_id=later.id, model=MODEL, embedding=axis(0)))
+    await session.flush()
+
+    async def bodies(now: datetime) -> set[str]:
+        notes = await retrieve_notes(
+            session,
+            plan_id=plan.id,
+            query_embedding=axis(0),
+            model=MODEL,
+            now=now,
+            limit=5,
+        )
+        return {n.body for n in notes}
+
+    assert await bodies(written - timedelta(seconds=1)) == {"Notes for day 1"}
+    assert await bodies(written) == {"Notes for day 1", "Second pass"}
+
+
+@pytest.mark.anyio
+async def test_sources_stay_hidden_until_their_topic_unlocks(
+    session: AsyncSession,
+) -> None:
+    plan = await add_plan(session)
+    note = await add_note(session, plan, 2, DAY_2, axis(0))
+    session.add(
+        SourceDocument(
+            node_id=note.node_id,
+            url="https://docs.example/s3",
+            title="S3 docs",
+            text="Buckets hold objects.",
+            fetched_at=DAY_1,
+        )
+    )
+    await session.flush()
+
+    async def titles(now: datetime) -> list[str]:
+        found = await read_sources(
+            session, plan_id=plan.id, node_id=note.node_id, now=now
+        )
+        return [source.title for source in found]
+
+    assert await titles(DAY_2 - timedelta(seconds=1)) == []
+    assert await titles(DAY_2) == ["S3 docs"]
+
+
+@pytest.mark.anyio
+async def test_sources_refuse_a_naive_now(session: AsyncSession) -> None:
+    with pytest.raises(ValueError, match="timezone-aware"):
+        await read_sources(session, plan_id=1, node_id=1, now=datetime(2026, 10, 1))

@@ -2,14 +2,18 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).parents[3]
-LEDGER = re.compile(r"\bLedgerNote\b|\bledger_notes\b")
+GATED = re.compile(
+    r"\bLedgerNote\b|\bledger_notes\b|\bSourceDocument\b|\bsource_documents\b"
+)
 
-# Invariant 2: one function reads the ledger. The others define or write it.
+# Invariant 2: gated knowledge is read in one module, through one unlock filter.
+# The other files define the tables or only ever write to them.
 ALLOWED = {
     "packages/db/src/kindred_db/models.py",
     "packages/db/src/kindred_db/__init__.py",
     "packages/gate/src/kindred_gate/retrieval.py",
     "apps/api/src/kindred_api/seed.py",
+    "apps/api/src/kindred_api/ingest.py",
 }
 
 
@@ -21,12 +25,11 @@ def source_files() -> list[Path]:
     ]
 
 
-def test_only_the_gated_retrieval_function_reads_the_ledger() -> None:
+def test_only_the_retrieval_module_reads_gated_knowledge() -> None:
     offenders = [
         str(path.relative_to(ROOT))
         for path in source_files()
-        if str(path.relative_to(ROOT)) not in ALLOWED
-        and LEDGER.search(path.read_text())
+        if str(path.relative_to(ROOT)) not in ALLOWED and GATED.search(path.read_text())
     ]
 
     assert offenders == []

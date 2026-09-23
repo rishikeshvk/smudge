@@ -16,7 +16,7 @@ from kindred_contracts.curriculum import (
     VocabularyKind,
     VocabularyTerm,
 )
-from kindred_contracts.knowledge import RetrievedNote
+from kindred_contracts.knowledge import RetrievedNote, SourceExcerpt
 from kindred_contracts.persona import PersonaContext
 from kindred_contracts.probes import (
     Expectation,
@@ -72,6 +72,7 @@ __all__ = [
     "RetrievedNote",
     "RoadmapEntry",
     "RoleModels",
+    "SourceExcerpt",
     "Route",
     "Speaker",
     "StudyNote",

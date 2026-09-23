@@ -17,6 +17,7 @@ TABLES = {
     "buddies",
     "messages",
     "study_checkins",
+    "source_documents",
 }
 
 

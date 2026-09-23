@@ -1,6 +1,6 @@
 from kindred_gate.auditor import LLMAuditor
 from kindred_gate.classifier import LLMClassifier
-from kindred_gate.retrieval import retrieve_notes
+from kindred_gate.retrieval import read_sources, retrieve_notes
 from kindred_gate.topics import Topic, TopicMap, load_topic_map
 from kindred_gate.turn import (
     Auditor,
@@ -28,6 +28,7 @@ __all__ = [
     "TurnComponents",
     "ignore_stage",
     "load_topic_map",
+    "read_sources",
     "retrieve_notes",
     "run_turn",
 ]

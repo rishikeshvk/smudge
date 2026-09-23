@@ -106,6 +106,19 @@ class LedgerNote(Base):
     written_at: Mapped[datetime]
 
 
+# Real material the buddy studies from, gated by its topic's unlock like the notes.
+class SourceDocument(Base):
+    __tablename__ = "source_documents"
+    __table_args__ = (UniqueConstraint("node_id", "url"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), index=True)
+    url: Mapped[str]
+    title: Mapped[str]
+    text: Mapped[str]
+    fetched_at: Mapped[datetime]
+
+
 # Kept apart from the ledger so embedding, or re-embedding with a new model,
 # never has to update an append-only row.
 class NoteEmbedding(Base):

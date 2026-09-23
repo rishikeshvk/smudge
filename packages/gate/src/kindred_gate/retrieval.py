@@ -1,10 +1,21 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import ColumnElement, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_contracts import RetrievedNote
-from kindred_db import LedgerNote, NoteEmbedding, TopicNode
+from kindred_contracts import RetrievedNote, SourceExcerpt
+from kindred_db import LedgerNote, NoteEmbedding, SourceDocument, TopicNode
+
+
+def _unlocked(plan_id: int, now: datetime) -> list[ColumnElement[bool]]:
+    """The gate itself: this plan's topics whose unlock time has passed, in SQL."""
+    if now.tzinfo is None:
+        raise ValueError("now must be timezone-aware")
+    return [TopicNode.plan_id == plan_id, TopicNode.unlock_at <= now]
+
+
+def _written(plan_id: int, now: datetime) -> list[ColumnElement[bool]]:
+    return [*_unlocked(plan_id, now), LedgerNote.written_at <= now]
 
 
 async def retrieve_notes(
@@ -16,10 +27,7 @@ async def retrieve_notes(
     now: datetime,
     limit: int,
 ) -> list[RetrievedNote]:
-    """The only read of the knowledge ledger: unlocked notes, nearest first."""
-    if now.tzinfo is None:
-        raise ValueError("now must be timezone-aware")
-
+    """Unlocked, written notes, nearest the query first."""
     distance = NoteEmbedding.embedding.cosine_distance(query_embedding).label(
         "distance"
     )
@@ -27,12 +35,7 @@ async def retrieve_notes(
         select(LedgerNote, TopicNode, distance)
         .join(TopicNode, LedgerNote.node_id == TopicNode.id)
         .join(NoteEmbedding, NoteEmbedding.note_id == LedgerNote.id)
-        .where(
-            TopicNode.plan_id == plan_id,
-            TopicNode.unlock_at <= now,
-            LedgerNote.written_at <= now,
-            NoteEmbedding.model == model,
-        )
+        .where(*_written(plan_id, now), NoteEmbedding.model == model)
         .order_by(distance)
         .limit(limit)
     )
@@ -47,4 +50,19 @@ async def retrieve_notes(
             distance=note_distance,
         )
         for note, node, note_distance in rows.tuples()
+    ]
+
+
+async def read_sources(
+    session: AsyncSession, *, plan_id: int, node_id: int, now: datetime
+) -> list[SourceExcerpt]:
+    """A topic's reading material, only once the topic has unlocked."""
+    documents = await session.scalars(
+        select(SourceDocument)
+        .join(TopicNode, SourceDocument.node_id == TopicNode.id)
+        .where(*_unlocked(plan_id, now), TopicNode.id == node_id)
+        .order_by(SourceDocument.id)
+    )
+    return [
+        SourceExcerpt(url=doc.url, title=doc.title, text=doc.text) for doc in documents
     ]
