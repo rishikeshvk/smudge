@@ -50,6 +50,8 @@ class ChatMessage(Contract):
     turn_id: int | None
     # Set on the buddy's rituals: messages it sends unprompted.
     card: RitualCard | None
+    # The buddy's emoji on a user message it acknowledged without a reply.
+    reaction: str | None
 
 
 class SendMessage(Contract):

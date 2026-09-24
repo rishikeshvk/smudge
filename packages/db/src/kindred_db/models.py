@@ -178,6 +178,8 @@ class Message(Base):
     turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
     # A ritual's card: what the app draws around the text.
     card: Mapped[dict[str, object] | None] = mapped_column(JSONB)
+    # The buddy's emoji on a user message it acknowledged instead of replying to.
+    reaction: Mapped[str | None]
 
 
 # The user saying "I studied today"; one per topic, in plan order.
