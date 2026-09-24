@@ -8,12 +8,16 @@ function topic(day: number, unlocked: boolean, buddyStudied: boolean): RoadmapTo
     unlocked,
     buddy_studied: buddyStudied,
     user_studied: false,
+    can_pull: false,
   };
 }
 
 const roadmap: RoadmapView = {
   plan_title: "AWS fundamentals in two weeks",
   day: 2,
+  study_time: "19:00:00",
+  streak: 0,
+  gap: 1,
   topics: [topic(1, true, true), topic(2, true, false), topic(3, false, false)],
 };
 

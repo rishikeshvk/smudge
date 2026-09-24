@@ -9,6 +9,7 @@ function message(id: number, speaker: ChatMessage["speaker"]): ChatMessage {
     at: "2026-10-05T03:31:00Z",
     stage: null,
     turn_id: null,
+    card: null,
   };
 }
 

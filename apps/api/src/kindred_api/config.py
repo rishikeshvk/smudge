@@ -1,3 +1,4 @@
+from datetime import time
 from functools import lru_cache
 from pathlib import Path
 
@@ -24,6 +25,13 @@ class Settings(BaseSettings):
     embed_model: str = Field(min_length=1)
 
     curricula_dir: Path = Path("curricula")
+
+    # The buddy's rituals, in the user's local time.
+    morning_ritual_time: time = time(8)
+    night_review_time: time = time(21, 30)
+    # Unprompted messages a day at most; replies don't count.
+    ritual_daily_cap: int = Field(default=4, ge=1)
+    expo_push_url: str = "https://exp.host/--/api/v2/push/send"
 
     # Swaps real time for the persisted dev clock and enables /dev time controls.
     dev_mode: bool = False

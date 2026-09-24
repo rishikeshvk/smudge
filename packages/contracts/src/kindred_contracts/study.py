@@ -5,6 +5,7 @@ from kindred_contracts.knowledge import SourceExcerpt
 from kindred_contracts.turn import TopicRef
 
 MAX_NOTE_WORDS = 400
+MAX_SHARE_WORDS = 60
 
 
 class EarlierNote(Contract):
@@ -30,6 +31,8 @@ class NoteDraft(Contract):
     # The seeded gaps: what the buddy honestly didn't get.
     shaky: list[str] = Field(min_length=1, max_length=3)
     sources: list[str] = Field(min_length=1)
+    # Tonight's study share: a text to the user about how it went.
+    share: str = Field(min_length=1)
 
     @field_validator("body")
     @classmethod
@@ -37,6 +40,13 @@ class NoteDraft(Contract):
         if len(body.split()) > MAX_NOTE_WORDS:
             raise ValueError(f"the note must be at most {MAX_NOTE_WORDS} words")
         return body
+
+    @field_validator("share")
+    @classmethod
+    def _short_enough_for_a_text(cls, share: str) -> str:
+        if len(share.split()) > MAX_SHARE_WORDS:
+            raise ValueError(f"the share must be at most {MAX_SHARE_WORDS} words")
+        return share
 
 
 class NotebookNote(Contract):

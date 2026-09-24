@@ -1,4 +1,5 @@
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { useEffect } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import Animated, {
@@ -146,7 +147,15 @@ export function StudySeal({ topic, caption, onClose }: Props) {
               </Text>
               <Text className="text-center font-meta text-meta text-ink-muted">{caption}</Text>
             </View>
-            <Button label="See it on the roadmap" variant="text" onPress={onClose} />
+            <Button
+              label="See it on the roadmap"
+              variant="text"
+              onPress={() => {
+                onClose();
+                // Already there when sealed from the Roadmap; from a night review, it goes there.
+                router.navigate("/roadmap");
+              }}
+            />
           </View>
         </View>
       )}

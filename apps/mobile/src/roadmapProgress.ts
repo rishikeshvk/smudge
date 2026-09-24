@@ -1,4 +1,4 @@
-import type { RoadmapTopic, RoadmapView } from "./api/types.gen";
+import type { RoadmapTopic, RoadmapView, TopicRef } from "./api/types.gen";
 
 export type Station = "done" | "here" | "level" | "todo";
 
@@ -101,4 +101,16 @@ export function weeks(topics: RoadmapTopic[]): { week: number; topics: RoadmapTo
 // The topic a check-in would mark: the user's next, in plan order.
 export function nextForYou(view: RoadmapView): RoadmapTopic | undefined {
   return view.topics.find((topic) => !topic.user_studied);
+}
+
+// After a check-in, the gap it leaves, in the same plain words as the hero.
+export function sealCaption(view: RoadmapView, sealed: TopicRef, buddyName: string): string {
+  const after = {
+    ...view,
+    topics: view.topics.map((topic) =>
+      topic.topic.slug === sealed.slug ? { ...topic, user_studied: true } : topic,
+    ),
+  };
+  const gap = gapLine(after, buddyName);
+  return `${sealed.title} is sealed on your roadmap. ${gap.quiet}${gap.loud} now.`;
 }

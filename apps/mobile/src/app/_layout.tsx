@@ -12,6 +12,7 @@ import { gateFor, useBuddy } from "@/buddy";
 import { Unreachable } from "@/components/Unreachable";
 import { queryClient, useRefetchOnAppFocus } from "@/queryClient";
 import { usePref } from "@/prefs";
+import { usePush } from "@/push";
 import { fonts } from "@/theme/fonts";
 import { colorSchemeFor } from "@/theme/preference";
 import { ThemeRoot } from "@/theme/ThemeRoot";
@@ -30,6 +31,7 @@ function AppStack() {
   useApplyThemePreference();
   const buddy = useBuddy();
   const gate = gateFor(buddy);
+  usePush(gate === "ready");
 
   useEffect(() => {
     if (gate !== "loading") SplashScreen.hideAsync();
@@ -47,6 +49,8 @@ function AppStack() {
         <Stack.Screen name="notebook/[noteId]" />
         {/* A route, not an RN Modal: Expo Go's modal window clips the bottom 42 dp off a bottom sheet. */}
         <Stack.Screen name="trace/[turnId]" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="pull/[slug]" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="change-plan" options={{ presentation: "transparentModal", animation: "fade" }} />
       </Stack.Protected>
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />

@@ -16,3 +16,7 @@ class PersonaContext(Contract):
     # Relationship memory: who the user is, never what the buddy knows.
     facts: list[str]
     recent_days: list[DaySummary]
+    # Days in a row the user has checked in.
+    streak: int = Field(ge=0)
+    # Topics the buddy is ahead of the user; negative when the user is ahead.
+    gap: int

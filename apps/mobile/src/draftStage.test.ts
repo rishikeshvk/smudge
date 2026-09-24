@@ -9,6 +9,7 @@ function message(overrides: Partial<ChatMessage>): ChatMessage {
     at: "2026-10-05T03:31:00Z",
     stage: "queued",
     turn_id: null,
+    card: null,
     ...overrides,
   };
 }

@@ -4,6 +4,7 @@ import {
   headline,
   nextForYou,
   rails,
+  sealCaption,
   sightLine,
   topicMeta,
   weeks,
@@ -19,6 +20,7 @@ function topic(
     unlocked,
     buddy_studied: buddy,
     user_studied: user,
+    can_pull: false,
   };
 }
 
@@ -26,6 +28,9 @@ function topic(
 const behind: RoadmapView = {
   plan_title: "Tiny",
   day: 3,
+  study_time: "19:00:00",
+  streak: 2,
+  gap: 1,
   topics: [
     topic(1, { unlocked: true, buddy: true, user: true }),
     topic(2, { unlocked: true, buddy: true, user: true }),
@@ -126,5 +131,15 @@ describe("weeks", () => {
 describe("nextForYou", () => {
   it("is the topic a check-in would mark", () => {
     expect(nextForYou(behind)?.topic.day).toBe(3);
+  });
+});
+
+describe("sealCaption", () => {
+  it("says what the check-in sealed and the gap it leaves", () => {
+    const sealed = behind.topics[2].topic;
+
+    expect(sealCaption(behind, sealed, "Juno")).toBe(
+      `${sealed.title} is sealed on your roadmap. You're level with Juno now.`,
+    );
   });
 });

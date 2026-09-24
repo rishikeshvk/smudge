@@ -136,6 +136,7 @@ async def study_topic(
                     status=StudyStatus.WRITTEN.value,
                     at=now,
                     note_id=note_id,
+                    share=draft.share,
                     attempts=attempts,
                 )
             )
@@ -150,6 +151,7 @@ async def study_topic(
             status=StudyStatus.FAILED.value,
             at=now,
             note_id=None,
+            share=None,
             attempts=attempts,
         )
     )
@@ -182,7 +184,8 @@ async def _audit(
 
 
 def _note_text(draft: NoteDraft) -> str:
-    return "\n".join([draft.body, *draft.shaky])
+    # The share is sent to the user, so it's audited with the note.
+    return "\n".join([draft.body, *draft.shaky, draft.share])
 
 
 def _feedback(

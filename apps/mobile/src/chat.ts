@@ -16,7 +16,8 @@ const pagesKey = () => [...listMessagesQueryKey(), "pages"] as const;
 // While the buddy is away nothing moves, so there's no point asking every second.
 const POLL_MS = { available: 1_000, away: 10_000 };
 
-export function useChatPages() {
+// Rituals arrive on the buddy's schedule, so the thread polls while it's on screen.
+export function useChatPages({ pollMs }: { pollMs?: number } = {}) {
   return useInfiniteQuery({
     queryKey: pagesKey(),
     queryFn: async ({ pageParam, signal }) => {
@@ -29,6 +30,7 @@ export function useChatPages() {
     },
     initialPageParam: undefined as number | undefined,
     getNextPageParam: olderPageFrom,
+    refetchInterval: pollMs ?? false,
   });
 }
 

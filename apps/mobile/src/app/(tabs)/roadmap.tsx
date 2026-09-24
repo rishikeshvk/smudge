@@ -1,14 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 
-import {
-  addCheckinMutation,
-  readRoadmapOptions,
-  readRoadmapQueryKey,
-} from "@/api/@tanstack/react-query.gen";
-import type { RoadmapView, TopicRef } from "@/api/types.gen";
+import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
+import type { RoadmapView } from "@/api/types.gen";
 import { useBuddy } from "@/buddy";
+import { useCheckIn } from "@/checkIn";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { Rail } from "@/components/Rail";
@@ -25,6 +22,7 @@ import {
   topicMeta,
   weeks,
 } from "@/roadmapProgress";
+import { streakNumber } from "@/rituals";
 
 function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
   const title = headline(view);
@@ -49,9 +47,9 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
               className="font-counter text-counter text-ink"
               style={{ fontVariant: ["tabular-nums"] }}
             >
-              {String(Math.min(view.day, view.topics.length)).padStart(2, "0")}
+              {streakNumber(view.streak)}
             </Text>
-            <Text className="font-meta text-meta text-ink-muted">day</Text>
+            <Text className="font-meta text-meta text-ink-muted">together</Text>
           </View>
         )}
       </View>
@@ -83,33 +81,10 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
   );
 }
 
-// After a check-in, the gap it leaves, in the same plain words as the hero.
-function sealCaption(view: RoadmapView, sealed: TopicRef, buddyName: string): string {
-  const after = {
-    ...view,
-    topics: view.topics.map((topic) =>
-      topic.topic.slug === sealed.slug ? { ...topic, user_studied: true } : topic,
-    ),
-  };
-  const gap = gapLine(after, buddyName);
-  return `${sealed.title} is sealed on your roadmap. ${gap.quiet}${gap.loud} now.`;
-}
-
 export default function Roadmap() {
-  const queryClient = useQueryClient();
   const buddy = useBuddy();
   const roadmap = useQuery(readRoadmapOptions());
-  const [sealed, setSealed] = useState<{ topic: TopicRef; caption: string } | null>(null);
-
-  const checkIn = useMutation({
-    ...addCheckinMutation(),
-    onSuccess: (topic) => {
-      if (roadmap.data && buddy.data) {
-        setSealed({ topic, caption: sealCaption(roadmap.data, topic, buddy.data.name) });
-      }
-      queryClient.invalidateQueries({ queryKey: readRoadmapQueryKey() });
-    },
-  });
+  const { checkIn, sealed, closeSeal } = useCheckIn();
 
   const view = roadmap.data;
   const buddyName = buddy.data?.name ?? "Your buddy";
@@ -136,6 +111,7 @@ export default function Roadmap() {
               Couldn&apos;t save that check-in. Try again.
             </Text>
           )}
+          <Button label="Change plan" variant="text" onPress={() => router.push("/change-plan")} />
           {weeks(view.topics).map((group) => (
             <View key={group.week} className="gap-2">
               <Text className="py-1 font-label text-label uppercase text-ink-muted">
@@ -147,6 +123,12 @@ export default function Roadmap() {
                   topic={topic}
                   meta={topicMeta(view, topic, buddyName)}
                   today={topic.topic.day === view.day}
+                  onPull={
+                    topic.can_pull
+                      ? () =>
+                          router.push({ pathname: "/pull/[slug]", params: { slug: topic.topic.slug } })
+                      : undefined
+                  }
                 />
               ))}
             </View>
@@ -156,7 +138,7 @@ export default function Roadmap() {
       <StudySeal
         topic={sealed?.topic ?? null}
         caption={sealed?.caption ?? ""}
-        onClose={() => setSealed(null)}
+        onClose={closeSeal}
       />
     </Screen>
   );

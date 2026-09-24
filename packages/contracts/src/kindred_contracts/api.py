@@ -1,9 +1,11 @@
+from datetime import time
 from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, Field, SecretStr
 
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.planning import PlanProposal
+from kindred_contracts.rituals import RitualCard
 from kindred_contracts.study import NotebookNote
 from kindred_contracts.turn import Speaker, TopicRef, TurnStage
 
@@ -45,6 +47,8 @@ class ChatMessage(Contract):
     stage: TurnStage | None
     # A buddy reply links to its turn for the X-ray view.
     turn_id: int | None
+    # Set on the buddy's rituals: messages it sends unprompted.
+    card: RitualCard | None
 
 
 class SendMessage(Contract):
@@ -70,13 +74,37 @@ class RoadmapTopic(Contract):
     unlocked: bool
     buddy_studied: bool
     user_studied: bool
+    # Whether "Pull earlier" can move this topic into the next free study slot.
+    can_pull: bool
 
 
 class RoadmapView(Contract):
     plan_title: str
     # Below 1 before the plan starts.
     day: int
+    # When the buddy studies each day, in the user's local time.
+    study_time: time
+    # Days in a row the user has checked in.
+    streak: int = Field(ge=0)
+    # Topics the buddy is ahead of the user; negative when the user is ahead.
+    gap: int
     topics: list[RoadmapTopic]
+
+
+class PullTopic(Contract):
+    slug: str
+
+
+class PausePlan(Contract):
+    days: int = Field(ge=1, le=7)
+
+
+class StudyTimeChange(Contract):
+    study_time: time
+
+
+class PushRegistration(Contract):
+    token: str = Field(pattern=r"^Expo(nent)?PushToken\[.+\]$")
 
 
 class SealedDay(Contract):

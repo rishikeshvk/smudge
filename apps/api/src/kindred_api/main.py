@@ -2,6 +2,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import httpx2
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
@@ -9,8 +10,10 @@ from kindred_api.chat import requeue_interrupted
 from kindred_api.config import get_settings
 from kindred_api.dependencies import Services
 from kindred_api.dev_clock import build_clock
+from kindred_api.director import RitualSchedule
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.llm_settings import effective, load_saved
+from kindred_api.push import Pusher
 from kindred_api.routes import (
     buddy,
     chat,
@@ -18,7 +21,9 @@ from kindred_api.routes import (
     health,
     notebook,
     onboarding,
+    plan,
     progress,
+    push,
     roadmap,
     settings,
     turns,
@@ -38,7 +43,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await requeue_interrupted(session)
         llm = LLMRuntime(base, effective(base, await load_saved(session)))
     worker = TurnWorker(sessions, clock, llm.turn_components)
-    ticker = Ticker(sessions, clock, llm.study, llm.memory)
+    push_client = httpx2.AsyncClient(timeout=15)
+    ticker = Ticker(
+        sessions,
+        clock,
+        llm.study,
+        llm.memory,
+        RitualSchedule.from_settings(base),
+        Pusher(push_client, base.expo_push_url),
+    )
     app.state.services = Services(
         sessions=sessions, clock=clock, worker=worker, ticker=ticker, llm=llm
     )
@@ -46,6 +59,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     yield
     for task in tasks:
         task.cancel()
+    await push_client.aclose()
     await engine.dispose()
 
 
@@ -65,8 +79,10 @@ for router in (
     turns,
     buddy,
     progress,
+    push,
     roadmap,
     notebook,
+    plan,
     settings,
 ):
     app.include_router(router.router)

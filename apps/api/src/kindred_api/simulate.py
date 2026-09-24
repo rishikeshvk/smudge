@@ -14,11 +14,13 @@ from kindred_api.catalog import load_catalog
 from kindred_api.chat import post_message
 from kindred_api.clock import FixedClock, SystemClock
 from kindred_api.config import Settings, get_settings
+from kindred_api.director import RitualSchedule
 from kindred_api.ingest import USER_AGENT, ingest_sources
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.onboarding import accept_plan, ensure_user, onboarding_turn
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.progress import check_in, studied_slugs
+from kindred_api.push import Pusher
 from kindred_api.schedule import plan_moment
 from kindred_api.scratch_databases import recreate_database, sibling_url
 from kindred_api.ticker import Ticker
@@ -70,6 +72,10 @@ class Day:
     user_checked_in: bool = False
     replies: list[Reply] = field(default_factory=list)
     remembered: bool = False
+    # The Director's messages, by kind, in the order sent.
+    rituals: list[str] = field(default_factory=list)
+    # The day's chat as the user saw it, for reading whether it feels like a buddy.
+    thread: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -108,7 +114,16 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
     clock = FixedClock(START)
     llm = LLMRuntime(settings, settings)
     worker = TurnWorker(sessions, clock, llm.turn_components)
-    ticker = Ticker(sessions, clock, llm.study, llm.memory)
+    # The fresh database has no push tokens, so nothing reaches a phone.
+    push_client = httpx2.AsyncClient()
+    ticker = Ticker(
+        sessions,
+        clock,
+        llm.study,
+        llm.memory,
+        RitualSchedule.from_settings(settings),
+        Pusher(push_client, settings.expo_push_url),
+    )
     try:
         onboarding = await _onboard(sessions, clock, llm)
         plan = await _plan(sessions)
@@ -120,6 +135,7 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
         await ticker.tick()
         report_days = await _days(sessions, plan, clock.now(), days)
     finally:
+        await push_client.aclose()
         await engine.dispose()
     return Report(
         started_at=started.isoformat(),
@@ -127,7 +143,7 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
         onboarding=onboarding,
         days=report_days,
         llm_calls_at_least=_calls(onboarding, report_days),
-        problems=problems(report_days),
+        problems=problems(report_days, ticker.rituals.daily_cap),
     )
 
 
@@ -206,7 +222,8 @@ async def _live_day(
     topics: list[TopicRef],
     per_day: int,
 ) -> None:
-    """Morning chat, the buddy's study at study time, evening chat, a check-in."""
+    """Morning chat, the buddy's study at study time, evening chat, a check-in, then
+    the night review."""
     script = messages_for(day, topics, per_day)
     morning, evening = (script[0], script[1]) if per_day > 1 else (None, script[0])
     clock.set(plan_moment(plan.start_date, day, time(9), plan.tz))
@@ -222,6 +239,9 @@ async def _live_day(
         async with sessions() as session:
             await check_in(session, plan.id, clock.now())
             await session.commit()
+    night = plan_moment(plan.start_date, day, ticker.rituals.night, plan.tz)
+    clock.set(max(clock.now(), night) + timedelta(minutes=15))
+    await ticker.tick()
     print(f"day {day} done", flush=True)
 
 
@@ -266,13 +286,12 @@ async def _days(
             m.for_date for m in await session.scalars(select(RelationshipMemory))
         }
         turns = {t.id: t for t in await session.scalars(select(Turn))}
-        replies = list(
+        chat = list(
             await session.scalars(
-                select(Message)
-                .where(Message.thread == "chat", Message.turn_id.is_not(None))
-                .order_by(Message.id)
+                select(Message).where(Message.thread == "chat").order_by(Message.id)
             )
         )
+        replies = [m for m in chat if m.turn_id is not None]
         result = []
         for day in range(1, days + 1):
             node = nodes[day]
@@ -287,6 +306,12 @@ async def _days(
                 user_checked_in=day in checked,
                 remembered=local.date() in remembered,
             )
+            for message in chat:
+                if message.at.astimezone(plan.tz).date() != local.date():
+                    continue
+                if message.card is not None:
+                    entry.rituals.append(str(message.card["kind"]))
+                entry.thread.append(f"{message.speaker}: {message.text}")
             for reply in replies:
                 if reply.at.astimezone(plan.tz).date() != local.date():
                     continue
@@ -311,10 +336,22 @@ def audited(trace: TurnTrace) -> bool:
     return trace.fell_back or trace.final_reply in passed
 
 
-def problems(days: list[Day]) -> list[str]:
-    """What would make this run fail M2's "14 simulated days run end to end"."""
+# Every plan day should have these; the small ask depends on what the user has done.
+EXPECTED_RITUALS = ("morning", "study_share", "night_review")
+
+
+def problems(days: list[Day], cap: int) -> list[str]:
+    """What would make this run fail M2's "14 simulated days run end to end", or M4's
+    rituals."""
     found = []
     for day in days:
+        found += [
+            f"day {day.day}: no {kind} ritual"
+            for kind in EXPECTED_RITUALS
+            if kind not in day.rituals
+        ]
+        if len(day.rituals) > cap:
+            found.append(f"day {day.day}: {len(day.rituals)} rituals, over the cap")
         if day.studied is None:
             found.append(f"day {day.day}: the buddy never sat down to study")
         if not day.replies:
@@ -363,6 +400,7 @@ def main() -> None:
         print(
             f"day {day.day:>2} {day.studied or 'not studied':<10} "
             f"{day.note_words or 0:>3} words · user {user} · memory {memory} · {routes}"
+            f" · rituals: {', '.join(day.rituals)}"
         )
     print(
         f"\n{report.wall_seconds / 60:.1f} min, at least {report.llm_calls_at_least} "

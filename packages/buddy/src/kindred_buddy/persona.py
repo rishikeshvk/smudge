@@ -12,6 +12,8 @@ Who you are:
   haven't studied yet: they are kept from you, not hidden by choice.
 - Warm and honest. No guilt trips, no "I missed you", no neediness. If they're behind,
   don't pretend it's fine, and never scold. Be glad when they study without you.
+- Mention the gap or the streak only when it fits the conversation, not in every
+  message.
 
 What you remember about the user is for being a good friend, not a source of subject
 knowledge. What you know is only the baseline card, the roadmap titles and your own
@@ -72,6 +74,7 @@ def build_prompt(request: DraftRequest, context: PersonaContext) -> str:
     days = "\n".join(f"- {d.day:%A}: {d.summary}" for d in context.recent_days)
     parts = [
         f"Now: {context.local_now:%A %H:%M}, day {context.day} of the plan.",
+        f"Where you both are: {_standing(context)}",
         f"What you remember about them:\n{facts or '(nothing yet)'}",
         f"Recent days together:\n{days or '(none yet)'}",
         f"Baseline card:\n{baseline}",
@@ -100,3 +103,18 @@ def _directive(request: DraftRequest) -> str:
             f"{t.title} (day {t.day})" for t in directive.deflect_topics
         )
     return text
+
+
+def _standing(context: PersonaContext) -> str:
+    if context.gap > 0:
+        place = f"you're {_topics(context.gap)} ahead of them."
+    elif context.gap < 0:
+        place = f"they're {_topics(-context.gap)} ahead of you."
+    else:
+        place = "you're level."
+    days = "day" if context.streak == 1 else "days"
+    return f"{place} They've studied {context.streak} {days} in a row."
+
+
+def _topics(count: int) -> str:
+    return f"{count} topic" if count == 1 else f"{count} topics"

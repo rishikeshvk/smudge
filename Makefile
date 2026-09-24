@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types mobile mobile-tunnel mobile-usb
+.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types mobile mobile-tunnel mobile-usb mobile-build
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -78,3 +78,7 @@ mobile-usb:
 	adb reverse tcp:8081 tcp:8081
 	adb reverse tcp:8000 tcp:8000
 	cd apps/mobile && npx expo start --localhost
+
+# The development build with push notifications; install the APK it links to on the phone.
+mobile-build:
+	cd apps/mobile && npx eas-cli@latest build --profile development --platform android

@@ -8,6 +8,7 @@ import {
   changeClockMutation,
   readClockOptions,
   readRoadmapOptions,
+  nextRitualMutation,
   studyNowMutation,
 } from "@/api/@tanstack/react-query.gen";
 import { hasStatus } from "@/apiErrors";
@@ -31,10 +32,11 @@ export default function Developer() {
   const refreshAll = () => queryClient.invalidateQueries();
   const change = useMutation({ ...changeClockMutation(), onSuccess: refreshAll });
   const studyNow = useMutation({ ...studyNowMutation(), onSuccess: refreshAll });
+  const nextRitual = useMutation({ ...nextRitualMutation(), onSuccess: refreshAll });
 
   const planDays = roadmap.data?.topics.length ?? null;
   const target = planDays === null ? null : jumpTarget(jump, planDays);
-  const busy = change.isPending || studyNow.isPending;
+  const busy = change.isPending || studyNow.isPending || nextRitual.isPending;
 
   return (
     <KeyboardAvoidingView
@@ -144,6 +146,22 @@ export default function Developer() {
                   {hasStatus(studyNow.error, 409)
                     ? "There's no plan to study yet."
                     : "The study run didn't finish. Try again."}
+                </Text>
+              )}
+              <Button
+                label={nextRitual.isPending ? "Moving…" : "Next ritual"}
+                disabled={busy}
+                onPress={() => nextRitual.mutate({})}
+              />
+              <Text className="font-meta text-meta text-ink-muted">
+                Moves the clock to the next morning message, study time or night review, then
+                runs the buddy&apos;s jobs. At study time that calls your model too.
+              </Text>
+              {nextRitual.isError && (
+                <Text className="font-meta text-meta text-leak">
+                  {hasStatus(nextRitual.error, 409)
+                    ? "There's no plan yet."
+                    : "Couldn't reach the next ritual. Try again."}
                 </Text>
               )}
             </View>

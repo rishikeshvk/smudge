@@ -60,7 +60,8 @@ class TopicNode(Base):
     __tablename__ = "topic_nodes"
     __table_args__ = (
         UniqueConstraint("plan_id", "slug"),
-        UniqueConstraint("plan_id", "day"),
+        # Checked at commit, so replanning can shift a run of days in one go.
+        UniqueConstraint("plan_id", "day", deferrable=True, initially="DEFERRED"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -175,6 +176,8 @@ class Message(Base):
         ForeignKey("messages.id"), unique=True
     )
     turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
+    # A ritual's card: what the app draws around the text.
+    card: Mapped[dict[str, object] | None] = mapped_column(JSONB)
 
 
 # The user saying "I studied today"; one per topic, in plan order.
@@ -195,8 +198,34 @@ class StudySession(Base):
     status: Mapped[str]
     at: Mapped[datetime]
     note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
+    # The written note's study share, audited with it; the Director sends it.
+    share: Mapped[str | None]
     # Every draft and its audit, for debugging what the Curator tried.
     attempts: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
+
+
+# One ritual per plan day and kind, so a tick never sends one twice.
+class Ritual(Base):
+    __tablename__ = "rituals"
+    __table_args__ = (UniqueConstraint("plan_id", "day", "kind"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+    day: Mapped[int]
+    kind: Mapped[str]
+    message_id: Mapped[int] = mapped_column(ForeignKey("messages.id"))
+    # A small ask's shaky point, so none is asked twice.
+    note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
+    shaky: Mapped[str | None]
+
+
+# A phone that gets the buddy's rituals as push notifications, via Expo.
+class PushToken(Base):
+    __tablename__ = "push_tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    token: Mapped[str] = mapped_column(unique=True)
+    registered_at: Mapped[datetime]
 
 
 # Who the user is to the buddy: one snapshot per finished day, kept apart from the

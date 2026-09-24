@@ -33,6 +33,21 @@ export type AdvanceClock = {
 };
 
 /**
+ * AskCard
+ */
+export type AskCard = {
+    /**
+     * Kind
+     */
+    kind: 'ask';
+    /**
+     * Note Id
+     */
+    note_id: number;
+    topic: TopicRef;
+};
+
+/**
  * AuditVerdict
  */
 export type AuditVerdict = {
@@ -96,6 +111,18 @@ export type ChatMessage = {
      * Turn Id
      */
     turn_id: number | null;
+    /**
+     * Card
+     */
+    card: ({
+        kind: 'morning';
+    } & MorningCard) | ({
+        kind: 'study_share';
+    } & StudyShareCard) | ({
+        kind: 'ask';
+    } & AskCard) | ({
+        kind: 'night_review';
+    } & NightReviewCard) | null;
 };
 
 /**
@@ -282,6 +309,52 @@ export type ModelsPerRole = {
 };
 
 /**
+ * MorningCard
+ */
+export type MorningCard = {
+    /**
+     * Kind
+     */
+    kind: 'morning';
+    /**
+     * Day
+     */
+    day: number;
+    you: TopicRef | null;
+    buddy: TopicRef;
+    /**
+     * Quick Replies
+     */
+    quick_replies: Array<string>;
+};
+
+/**
+ * NightReviewCard
+ */
+export type NightReviewCard = {
+    /**
+     * Kind
+     */
+    kind: 'night_review';
+    /**
+     * Day
+     */
+    day: number;
+    /**
+     * Streak
+     */
+    streak: number;
+    /**
+     * Gap
+     */
+    gap: number;
+    /**
+     * Checked In Today
+     */
+    checked_in_today: boolean;
+};
+
+/**
  * NotebookNote
  */
 export type NotebookNote = {
@@ -359,6 +432,16 @@ export type OnboardingReply = {
 };
 
 /**
+ * PausePlan
+ */
+export type PausePlan = {
+    /**
+     * Days
+     */
+    days: number;
+};
+
+/**
  * PlanProposal
  */
 export type PlanProposal = {
@@ -386,6 +469,26 @@ export type PlanProposal = {
      * Topics
      */
     topics: Array<TopicRef>;
+};
+
+/**
+ * PullTopic
+ */
+export type PullTopic = {
+    /**
+     * Slug
+     */
+    slug: string;
+};
+
+/**
+ * PushRegistration
+ */
+export type PushRegistration = {
+    /**
+     * Token
+     */
+    token: string;
 };
 
 /**
@@ -453,6 +556,10 @@ export type RoadmapTopic = {
      * User Studied
      */
     user_studied: boolean;
+    /**
+     * Can Pull
+     */
+    can_pull: boolean;
 };
 
 /**
@@ -467,6 +574,18 @@ export type RoadmapView = {
      * Day
      */
     day: number;
+    /**
+     * Study Time
+     */
+    study_time: string;
+    /**
+     * Streak
+     */
+    streak: number;
+    /**
+     * Gap
+     */
+    gap: number;
     /**
      * Topics
      */
@@ -526,6 +645,35 @@ export type SendMessage = {
  * Speaker
  */
 export type Speaker = 'user' | 'buddy';
+
+/**
+ * StudyShareCard
+ */
+export type StudyShareCard = {
+    /**
+     * Kind
+     */
+    kind: 'study_share';
+    /**
+     * Day
+     */
+    day: number;
+    topic: TopicRef;
+    /**
+     * Shaky
+     */
+    shaky: Array<string>;
+};
+
+/**
+ * StudyTimeChange
+ */
+export type StudyTimeChange = {
+    /**
+     * Study Time
+     */
+    study_time: string;
+};
 
 /**
  * TopicRef
@@ -720,6 +868,22 @@ export type StudyNowResponses = {
 };
 
 export type StudyNowResponse = StudyNowResponses[keyof StudyNowResponses];
+
+export type NextRitualData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/dev/next-ritual';
+};
+
+export type NextRitualResponses = {
+    /**
+     * Successful Response
+     */
+    200: ClockView;
+};
+
+export type NextRitualResponse = NextRitualResponses[keyof NextRitualResponses];
 
 export type ListOnboardingMessagesData = {
     body?: never;
@@ -942,6 +1106,31 @@ export type AddCheckinResponses = {
 
 export type AddCheckinResponse = AddCheckinResponses[keyof AddCheckinResponses];
 
+export type AddPushTokenData = {
+    body: PushRegistration;
+    path?: never;
+    query?: never;
+    url: '/push/tokens';
+};
+
+export type AddPushTokenErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddPushTokenError = AddPushTokenErrors[keyof AddPushTokenErrors];
+
+export type AddPushTokenResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type AddPushTokenResponse = AddPushTokenResponses[keyof AddPushTokenResponses];
+
 export type ReadRoadmapData = {
     body?: never;
     path?: never;
@@ -957,6 +1146,31 @@ export type ReadRoadmapResponses = {
 };
 
 export type ReadRoadmapResponse = ReadRoadmapResponses[keyof ReadRoadmapResponses];
+
+export type PullTopicData = {
+    body: PullTopic;
+    path?: never;
+    query?: never;
+    url: '/roadmap/pull';
+};
+
+export type PullTopicErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PullTopicError = PullTopicErrors[keyof PullTopicErrors];
+
+export type PullTopicResponses = {
+    /**
+     * Successful Response
+     */
+    200: RoadmapView;
+};
+
+export type PullTopicResponse = PullTopicResponses[keyof PullTopicResponses];
 
 export type ReadNotebookData = {
     body?: never;
@@ -1003,6 +1217,56 @@ export type ReadNoteResponses = {
 };
 
 export type ReadNoteResponse = ReadNoteResponses[keyof ReadNoteResponses];
+
+export type PausePlanData = {
+    body: PausePlan;
+    path?: never;
+    query?: never;
+    url: '/plan/pause';
+};
+
+export type PausePlanErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PausePlanError = PausePlanErrors[keyof PausePlanErrors];
+
+export type PausePlanResponses = {
+    /**
+     * Successful Response
+     */
+    200: RoadmapView;
+};
+
+export type PausePlanResponse = PausePlanResponses[keyof PausePlanResponses];
+
+export type ChangePlanStudyTimeData = {
+    body: StudyTimeChange;
+    path?: never;
+    query?: never;
+    url: '/plan/study-time';
+};
+
+export type ChangePlanStudyTimeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChangePlanStudyTimeError = ChangePlanStudyTimeErrors[keyof ChangePlanStudyTimeErrors];
+
+export type ChangePlanStudyTimeResponses = {
+    /**
+     * Successful Response
+     */
+    200: RoadmapView;
+};
+
+export type ChangePlanStudyTimeResponse = ChangePlanStudyTimeResponses[keyof ChangePlanStudyTimeResponses];
 
 export type ReadSettingsData = {
     body?: never;

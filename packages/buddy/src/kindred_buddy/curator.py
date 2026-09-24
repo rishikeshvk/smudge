@@ -1,4 +1,10 @@
-from kindred_contracts import MAX_NOTE_WORDS, NoteDraft, SourceExcerpt, StudyBrief
+from kindred_contracts import (
+    MAX_NOTE_WORDS,
+    MAX_SHARE_WORDS,
+    NoteDraft,
+    SourceExcerpt,
+    StudyBrief,
+)
 from kindred_llm import LLMClient
 
 # About 6k tokens of reading a night: enough for the key pages, cheap by default.
@@ -22,7 +28,11 @@ find confusing or not fully get on a first pass, list them in "shaky" as honest
 questions or doubts, and don't resolve them in the body. Never write something wrong on
 purpose; the gaps are things you're unsure of, not mistakes.
 
-In "sources", list the URLs of the pages you actually used."""
+In "sources", list the URLs of the pages you actually used.
+
+In "share", text your study partner about tonight, like a friend would: what you got
+done and which shaky point bugs you most, in lowercase and at most {MAX_SHARE_WORDS}
+words. It follows the same rules as the note: today's topic only, nothing new."""
 
 
 class Curator:

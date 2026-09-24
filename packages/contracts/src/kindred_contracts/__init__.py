@@ -15,11 +15,15 @@ from kindred_contracts.api import (
     OnboardingEntry,
     OnboardingMessage,
     OnboardingReply,
+    PausePlan,
+    PullTopic,
+    PushRegistration,
     ResetClock,
     RoadmapTopic,
     RoadmapView,
     SealedDay,
     SendMessage,
+    StudyTimeChange,
 )
 from kindred_contracts.curriculum import (
     Curriculum,
@@ -45,8 +49,16 @@ from kindred_contracts.probes import (
     ProbeCategory,
     ProbeTime,
 )
+from kindred_contracts.rituals import (
+    AskCard,
+    MorningCard,
+    NightReviewCard,
+    RitualCard,
+    StudyShareCard,
+)
 from kindred_contracts.study import (
     MAX_NOTE_WORDS,
+    MAX_SHARE_WORDS,
     EarlierNote,
     NotebookNote,
     NoteDraft,
@@ -72,6 +84,15 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "PausePlan",
+    "PullTopic",
+    "PushRegistration",
+    "StudyTimeChange",
+    "AskCard",
+    "MorningCard",
+    "NightReviewCard",
+    "RitualCard",
+    "StudyShareCard",
     "ConnectionCheck",
     "LLMSettingsUpdate",
     "LLMSettingsView",
@@ -90,6 +111,7 @@ __all__ = [
     "MemoryBrief",
     "MemoryUpdate",
     "MAX_NOTE_WORDS",
+    "MAX_SHARE_WORDS",
     "EarlierNote",
     "NoteDraft",
     "NotebookNote",

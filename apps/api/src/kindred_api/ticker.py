@@ -5,7 +5,9 @@ from collections.abc import Callable
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.clock import Clock
+from kindred_api.director import RitualSchedule, send_due_rituals
 from kindred_api.plans import CurrentPlan, load_current_plan
+from kindred_api.push import Pusher
 from kindred_api.relationship import Rememberer, remember_day, unremembered_days
 from kindred_api.study import StudyComponents, due_topics, study_topic
 from kindred_llm import LLMUnavailableError
@@ -25,11 +27,15 @@ class Ticker:
         clock: Clock,
         study: Callable[[], StudyComponents],
         memory: Callable[[], Rememberer],
+        rituals: RitualSchedule,
+        pusher: Pusher,
     ) -> None:
         self._sessions = sessions
         self._clock = clock
         self._study = study
         self._memory = memory
+        self.rituals = rituals
+        self._pusher = pusher
         self._lock = asyncio.Lock()
         self.studying = False
 
@@ -52,6 +58,9 @@ class Ticker:
             except LLMUnavailableError:
                 await session.rollback()
                 logger.warning("model endpoint unavailable; trying again next tick")
+            # Rituals are templates and the stored share, so they go out even while
+            # the endpoint is down.
+            await self._send_rituals(session, plan)
 
     async def _study_due(self, session: AsyncSession, plan_id: int) -> None:
         due = await due_topics(session, plan_id, self._clock.now())
@@ -74,3 +83,10 @@ class Ticker:
             await remember_day(session, plan.user_id, day, plan.tz, now, self._memory())
             await session.commit()
             logger.info("remembered %s", day)
+
+    async def _send_rituals(self, session: AsyncSession, plan: CurrentPlan) -> None:
+        sent = await send_due_rituals(session, plan, self.rituals, self._clock.now())
+        await session.commit()
+        for message in sent:
+            logger.info("sent a ritual: %s", message.text)
+        await self._pusher.push(session, sent)

@@ -17,7 +17,7 @@ from kindred_contracts import (
     RetrievedNote,
     Verdict,
 )
-from kindred_db import Plan
+from kindred_db import Message, Plan
 from kindred_gate import TurnComponents
 
 AddCourse = Callable[[int], Awaitable[Plan]]
@@ -100,6 +100,29 @@ async def test_the_thread_lists_both_sides_oldest_first(
         ("user", "hi"),
         ("buddy", "re: hi"),
     ]
+
+
+@pytest.mark.anyio
+async def test_rituals_come_with_their_card(
+    client: httpx.AsyncClient, session: AsyncSession, add_course: AddCourse
+) -> None:
+    plan = await add_course(3)
+    topic = {"slug": "topic-3", "title": "Topic 3", "day": 3}
+    card = {"kind": "study_share", "day": 3, "topic": topic, "shaky": ["?"]}
+    session.add(
+        Message(
+            user_id=plan.user_id,
+            speaker="buddy",
+            text="done with topic 3!",
+            at=NOW,
+            card=card,
+        )
+    )
+    await session.flush()
+
+    [message] = (await client.get("/chat/messages")).json()
+
+    assert (message["text"], message["card"]) == ("done with topic 3!", card)
 
 
 @pytest.mark.anyio

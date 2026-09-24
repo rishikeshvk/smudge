@@ -75,11 +75,21 @@ def test_redraft_prompt_ends_with_the_feedback() -> None:
 
 def test_notes_must_be_short_and_have_one_to_three_gaps() -> None:
     with pytest.raises(ValidationError):
-        NoteDraft(body="word " * 401, shaky=["a"], sources=["https://docs.test"])
+        NoteDraft(
+            body="word " * 401,
+            shaky=["a"],
+            sources=["https://docs.test"],
+            share="went ok",
+        )
     with pytest.raises(ValidationError):
-        NoteDraft(body="fine", shaky=[], sources=["https://docs.test"])
+        NoteDraft(body="fine", shaky=[], sources=["https://docs.test"], share="went ok")
     with pytest.raises(ValidationError):
-        NoteDraft(body="fine", shaky=["a", "b", "c", "d"], sources=["https://d.test"])
+        NoteDraft(
+            body="fine",
+            shaky=["a", "b", "c", "d"],
+            sources=["https://d.test"],
+            share="went ok",
+        )
 
 
 @pytest.mark.anyio
@@ -89,7 +99,8 @@ async def test_the_note_cites_only_pages_it_was_given(
     llm, seen = scripted_llm(
         [
             '{"body": "policies are json", "shaky": ["deny beats allow?"], '
-            '"sources": ["https://docs.test/policies", "https://elsewhere.test"]}'
+            '"sources": ["https://docs.test/policies", "https://elsewhere.test"], '
+            '"share": "policies done, deny still confuses me"}'
         ]
     )
 
@@ -97,6 +108,7 @@ async def test_the_note_cites_only_pages_it_was_given(
 
     assert note.sources == ["https://docs.test/policies"]
     assert note.shaky == ["deny beats allow?"]
+    assert note.share == "policies done, deny still confuses me"
     system, _ = sent_prompt(seen[0])
     assert '"AWS fundamentals in two weeks"' in system
 
@@ -106,7 +118,10 @@ async def test_a_note_citing_nothing_given_falls_back_to_its_reading(
     scripted_llm: ScriptedLLM,
 ) -> None:
     llm, _ = scripted_llm(
-        ['{"body": "b", "shaky": ["s"], "sources": ["https://elsewhere.test"]}']
+        [
+            '{"body": "b", "shaky": ["s"], "sources": ["https://elsewhere.test"], '
+            '"share": "done"}'
+        ]
     )
 
     note = await Curator(llm).study(brief(), "study-1")
