@@ -32,12 +32,13 @@ function AppStack() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={gate === "ready"}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="settings" options={{ headerShown: true, title: "Settings" }} />
         <Stack.Screen name="notebook/[noteId]" />
       </Stack.Protected>
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />
       </Stack.Protected>
+      {/* Reachable before onboarding too: without a working model key, the Planner can't answer. */}
+      <Stack.Screen name="settings" />
     </Stack>
   );
 }

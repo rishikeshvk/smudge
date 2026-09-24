@@ -109,8 +109,9 @@ export default function OnboardingChat() {
         {send.isError && sending && (
           <View className="gap-2">
             <Text className="font-meta text-meta text-leak">{sendFailureText(send.error)}</Text>
-            <View className="flex-row">
+            <View className="flex-row gap-2">
               <Button label="Try again" small onPress={() => submit(sending)} />
+              <Button label="Model settings" small onPress={() => router.push("/settings")} />
             </View>
           </View>
         )}
