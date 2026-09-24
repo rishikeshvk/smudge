@@ -1,16 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { ChevronLeft } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { readNoteOptions } from "@/api/@tanstack/react-query.gen";
 import { useBuddy } from "@/buddy";
+import { BackHeader } from "@/components/BackHeader";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { NoteBody } from "@/components/NoteBody";
-import { useThemeColor } from "@/theme/useTheme";
 
 function sourceLabel(url: string): string {
   return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
@@ -18,7 +17,6 @@ function sourceLabel(url: string): string {
 
 export default function NoteDetail() {
   const insets = useSafeAreaInsets();
-  const ink = useThemeColor("ink");
   const { noteId } = useLocalSearchParams<{ noteId: string }>();
   const note = useQuery(readNoteOptions({ path: { note_id: Number(noteId) } }));
   const buddy = useBuddy();
@@ -26,19 +24,7 @@ export default function NoteDetail() {
 
   return (
     <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
-      <View className="flex-row items-center gap-2 px-2 pb-3 pt-5">
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          className="h-[44px] w-[44px] items-center justify-center rounded-full"
-        >
-          <ChevronLeft size={22} strokeWidth={1.75} color={ink} />
-        </Pressable>
-        <Text accessibilityRole="header" className="font-display text-display text-ink">
-          Note
-        </Text>
-      </View>
+      <BackHeader title="Note" />
       <ScrollView contentContainerClassName="gap-4 px-4" contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
         <LoadState isPending={note.isPending} error={note.error} />
         {note.data && (
@@ -72,7 +58,7 @@ export default function NoteDetail() {
                       key={url}
                       onPress={() => WebBrowser.openBrowserAsync(url)}
                       accessibilityRole="link"
-                      className="min-h-[32px] justify-center"
+                      className="min-h-[44px] justify-center"
                     >
                       <Text className="font-meta text-meta text-you underline">{sourceLabel(url)}</Text>
                     </Pressable>
