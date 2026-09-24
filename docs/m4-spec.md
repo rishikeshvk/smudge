@@ -1,6 +1,6 @@
 # M4 spec: Rituals
 
-2026-09-24 · Status: **built; waiting for the phone check**; design changes during build are noted inline
+2026-09-24 · Status: **done**; design changes during build are noted inline
 
 M4 gives the buddy a day of its own. It texts you in the morning, shares what it studied, asks small favours and
 checks in at night. A shared streak and the gap between you show on every screen, and you can move the plan. It is
@@ -161,6 +161,19 @@ All times are the user's local time. `day` is the plan day.
 - **Found and fixed:** a paused day broke the streak. Day 4 was paused, had no topic and no check-in, so the streak
   dropped to 00 on day 5. Days with no topic are now skipped when counting: they neither count nor break it. The
   phone plan shows 3 again.
+
+## Closing (2026-09-24)
+
+Accepted as done after the 3-day simulation and the phone check, including push on the development build. The
+7-day simulation waits for the OpenCode Go weekly limit to reset.
+
+Follow-ups, none of them blocking:
+- The Roadmap list doesn't mark a paused day; it jumps from 03 to 05.
+- The Roadmap hero's "14 days" counts topics, not the plan's finish day after a pause.
+- The streak refetches only when the app returns to the foreground or after a check-in, so it goes stale if the day
+  changes while the app stays open.
+- Developer → "Next ritual" was checked through its endpoint, not tapped on the phone.
+- Run the 7-day simulation (`make simulate ARGS='--days 7 --messages-per-day 1'`, about 50–60 calls).
 
 ## Steps
 
