@@ -8,12 +8,14 @@ from kindred_api.onboarding import (
     AlreadyPlannedError,
     accept_plan,
     ensure_user,
+    onboarding_transcript,
     onboarding_turn,
 )
 from kindred_api.plans import load_current_plan
 from kindred_api.roadmap import build_roadmap
 from kindred_contracts import (
     AcceptPlan,
+    OnboardingEntry,
     OnboardingMessage,
     OnboardingReply,
     RoadmapView,
@@ -21,6 +23,16 @@ from kindred_contracts import (
 from kindred_db import User
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
+
+
+@router.get("/messages")
+async def list_onboarding_messages(
+    session: SessionDep, clock: ClockDep
+) -> list[OnboardingEntry]:
+    user = await session.scalar(select(User).order_by(User.id).limit(1))
+    if user is None:
+        return []
+    return await onboarding_transcript(session, user, clock.now())
 
 
 @router.post("/messages")

@@ -66,12 +66,14 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make probe ARGS='--per-category 4'` — measure leak and over-block rates; spends OpenCode Go budget, so keep runs small
 - `make simulate ARGS='--days 14'` — onboard, then run simulated days end to end through the Clock on a fresh
   `kindred_sim` database; about 150 real LLM calls for 14 days, so ask first
-- `make test` — pytest
-- `make check` — ruff, mypy and expo lint
+- `make test` — pytest and the app's jest tests
+- `make check` — ruff, mypy, expo lint and the app's TypeScript check
 - `make fmt` — ruff format and autofix
 - `make llm-ping` — one real call to the configured LLM endpoint
+- `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
 - `make mobile` — Expo dev server; scan the QR code with Expo Go
 - `make mobile-tunnel` — same over an ngrok tunnel, for networks where the phone can't reach the PC
+- `make mobile-usb` — same over USB (`adb reverse`), so the app also reaches the API on :8000
 
 ## How to work with me
 - I'm building this to learn agentic systems. Use plan mode for any new module:

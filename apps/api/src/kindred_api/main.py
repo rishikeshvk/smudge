@@ -3,6 +3,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.routing import APIRoute
 
 from kindred_api.chat import requeue_interrupted
 from kindred_api.config import get_settings
@@ -48,7 +49,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await engine.dispose()
 
 
-app = FastAPI(title="Kindred", lifespan=lifespan)
+def operation_id(route: APIRoute) -> str:
+    # The app's generated SDK names its functions after these.
+    return route.name
+
+
+app = FastAPI(
+    title="Kindred", lifespan=lifespan, generate_unique_id_function=operation_id
+)
 for router in (
     health,
     dev,

@@ -13,6 +13,7 @@ from kindred_contracts import (
     AuditVerdict,
     ChatTurn,
     Curriculum,
+    OnboardingEntry,
     OnboardingReply,
     PlanChoice,
     PlannerBrief,
@@ -27,6 +28,8 @@ from kindred_gate import Auditor
 from kindred_llm import StructuredOutputError
 
 PLANNER_ATTEMPTS = 2
+# Onboarding is a short conversation; this only bounds a runaway one.
+TRANSCRIPT_LIMIT = 200
 # Sent when every draft failed its audit, so it may never name any topic's content.
 FALLBACK = (
     "let's save the details for when we actually get there! "
@@ -60,6 +63,29 @@ async def ensure_user(session: AsyncSession, timezone: str) -> User:
     user.timezone = timezone
     await session.flush()
     return user
+
+
+async def onboarding_transcript(
+    session: AsyncSession, user: User, now: datetime
+) -> list[OnboardingEntry]:
+    """The onboarding chat so far, so the app can pick it up after a restart."""
+    messages = await read_thread(
+        session,
+        user.id,
+        now,
+        thread=Thread.ONBOARDING,
+        before_id=None,
+        limit=TRANSCRIPT_LIMIT,
+    )
+    return [
+        OnboardingEntry(
+            message=to_contract(message),
+            proposal=PlanProposal.model_validate(message.proposal)
+            if message.proposal is not None
+            else None,
+        )
+        for message in messages
+    ]
 
 
 async def onboarding_turn(
