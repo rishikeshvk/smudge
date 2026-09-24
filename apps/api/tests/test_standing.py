@@ -17,27 +17,41 @@ KOLKATA = ZoneInfo("Asia/Kolkata")
 TODAY = date(2026, 10, 5)
 
 
+# Every day from 1 to 5 Oct has a topic.
+PLAN = [date(2026, 10, day) for day in range(1, 6)]
+
+
 def test_no_check_ins_is_no_streak() -> None:
-    assert streak_length([], TODAY) == 0
+    assert streak_length([], PLAN, TODAY) == 0
 
 
 def test_today_counts_once_checked_in() -> None:
     days = [date(2026, 10, 3), date(2026, 10, 4), TODAY]
 
-    assert streak_length(days, TODAY) == 3
+    assert streak_length(days, PLAN, TODAY) == 3
 
 
 def test_today_without_a_check_in_does_not_break_the_streak() -> None:
-    assert streak_length([date(2026, 10, 3), date(2026, 10, 4)], TODAY) == 2
+    assert streak_length([date(2026, 10, 3), date(2026, 10, 4)], PLAN, TODAY) == 2
 
 
 def test_a_missed_day_breaks_the_streak() -> None:
-    assert streak_length([date(2026, 10, 2), date(2026, 10, 4), TODAY], TODAY) == 2
-    assert streak_length([date(2026, 10, 3)], TODAY) == 0
+    days = [date(2026, 10, 2), date(2026, 10, 4), TODAY]
+
+    assert streak_length(days, PLAN, TODAY) == 2
+    assert streak_length([date(2026, 10, 3)], PLAN, TODAY) == 0
+
+
+def test_a_paused_day_neither_counts_nor_breaks_the_streak() -> None:
+    # 3 Oct was paused, so it has no topic.
+    paused = [day for day in PLAN if day != date(2026, 10, 3)]
+    days = [date(2026, 10, 1), date(2026, 10, 2), date(2026, 10, 4)]
+
+    assert streak_length(days, paused, date(2026, 10, 4)) == 3
 
 
 def test_several_check_ins_on_one_day_count_once() -> None:
-    assert streak_length([TODAY, TODAY, TODAY], TODAY) == 1
+    assert streak_length([TODAY, TODAY, TODAY], PLAN, TODAY) == 1
 
 
 async def write_note(session: AsyncSession, day: int, at: datetime) -> None:

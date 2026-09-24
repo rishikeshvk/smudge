@@ -19,7 +19,7 @@ the "Main", "Chat-StudyShare", "Chat-NightReview" and "Roadmap-PullEarlier" boar
 | Message cap | At most `RITUAL_DAILY_CAP` (default 4) unprompted messages a day, checked in the Director's one send function. The small ask is the first to drop: it only goes out if it leaves room for the night review. Replies don't count | A cap per kind |
 | Ritual in the thread | A buddy `Message` with a `card` (JSONB). `ChatMessage.card` is a `RitualCard` union, and `text` carries the prose, so the Persona's history reads rituals as ordinary buddy messages | A separate rituals feed the app merges in |
 | Idempotency | A `rituals` row per plan, day and kind (unique), pointing at its message | Querying the cards' JSON |
-| Streak | Consecutive local days with at least one check-in, ending today if you've checked in and yesterday otherwise, so today can't break it before midnight | Days you both studied: a failed Curator night would break *your* streak |
+| Streak | Consecutive local days with at least one check-in, ending today if you've checked in and yesterday otherwise, so today can't break it before midnight. Days with no topic, such as paused days, are skipped | Days you both studied: a failed Curator night would break *your* streak |
 | Gap | Topics the buddy has a note for minus topics you've checked in. It's negative when you're ahead. The Persona gets it and names it honestly, without guilt | — |
 | Small ask | A shaky point from a note whose topic you've checked in on, so answering is retrieval practice, not a spoiler. It's never asked twice | Asking about the newest note, which you may not have reached |
 | Pull earlier | The **slot** is the first topic that is locked and unstudied. The pulled topic takes the slot's day and unlock time. The topics from the slot up to its old day move back one day, so the finish date doesn't change. A pull needs the topic to be locked, unstudied and after the slot, with every prerequisite before the slot day | Swapping two days, which breaks the order of the topics in between |
@@ -158,8 +158,9 @@ All times are the user's local time. `day` is the plan day.
   - Delivery: `/dev/next-ritual` sent the day 5 morning message, and it arrived as a "Juno" notification while
     the app was in the background.
   - Tap: tapping the notification opened Chat on the morning card.
-- **Found:** a paused day breaks the streak. Day 4 was paused, had no topic and no check-in, so the streak dropped
-  to 00 on day 5. Not fixed yet.
+- **Found and fixed:** a paused day broke the streak. Day 4 was paused, had no topic and no check-in, so the streak
+  dropped to 00 on day 5. Days with no topic are now skipped when counting: they neither count nor break it. The
+  phone plan shows 3 again.
 
 ## Steps
 
