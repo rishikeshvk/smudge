@@ -36,7 +36,7 @@ export function XrayBadge({ parts, onPress }: Props) {
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={`Why this reply: ${summary}`}
-      hitSlop={8}
+      hitSlop={12}
       className={frame}
     >
       {label}

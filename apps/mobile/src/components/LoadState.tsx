@@ -5,7 +5,7 @@ type Props = {
   error: unknown;
 };
 
-// Placeholder states until each screen gets its designed empty and unavailable views.
+// The plain first-load and can't-reach states; each screen draws its own designed empty view.
 export function LoadState({ isPending, error }: Props) {
   if (error) {
     return (

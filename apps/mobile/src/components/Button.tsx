@@ -37,6 +37,8 @@ export function Button({ label, onPress, variant = "quiet", small, disabled, gro
       accessibilityState={{ disabled }}
       // ink at 12%: the only pressed colour the design allows.
       android_ripple={{ color: `${ink}1F` }}
+      // Small buttons are 36 px to the eye but still 44 px to the finger.
+      hitSlop={small ? 4 : undefined}
       className={`items-center justify-center overflow-hidden rounded-sm border-[1.5px] ${FRAME[variant]} ${size} ${variant === "text" ? "px-2" : ""} ${grow ? "flex-1" : ""} ${disabled ? "opacity-[0.45]" : ""}`}
     >
       <Text

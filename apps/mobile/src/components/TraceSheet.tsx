@@ -166,24 +166,27 @@ export function TraceSheet({ turnId, buddyName, onClose }: Props) {
         accessibilityLabel="Close"
         className="absolute inset-0 bg-ink opacity-[0.32]"
       />
-      <Animated.View
-        entering={SlideInDown.duration(SLIDE_MS)}
-        accessibilityViewIsModal
-        className="absolute bottom-0 left-0 right-0 max-h-[80%] gap-4 rounded-t-sheet bg-surface-raised px-4 pt-2"
-        style={{ boxShadow: shadowSheet[theme], paddingBottom: insets.bottom + 24 }}
-      >
-        <View className="h-[4px] w-[36px] self-center rounded-full bg-line-strong" />
-        <View className="flex-row flex-wrap items-baseline justify-between gap-3">
-          <Text accessibilityRole="header" className="font-title text-title text-ink">
-            {`Why ${buddyName} said that`}
-          </Text>
-          {trace.data && <XrayBadge parts={badgeParts(trace.data)} />}
-        </View>
-        <ScrollView contentContainerClassName="gap-4 pb-2">
-          <LoadState isPending={trace.isPending} error={trace.error} />
-          {trace.data && <Trace trace={trace.data} buddyName={buddyName} />}
-        </ScrollView>
-      </Animated.View>
+      {/* Flex, not absolute positioning, puts the sheet flush with the bottom edge. */}
+      <View pointerEvents="box-none" className="flex-1 justify-end">
+        <Animated.View
+          entering={SlideInDown.duration(SLIDE_MS)}
+          accessibilityViewIsModal
+          className="max-h-[80%] gap-4 rounded-t-sheet bg-surface-raised px-4 pt-2"
+          style={{ boxShadow: shadowSheet[theme], paddingBottom: insets.bottom + 24 }}
+        >
+          <View className="h-[4px] w-[36px] self-center rounded-full bg-line-strong" />
+          <View className="flex-row flex-wrap items-baseline justify-between gap-3">
+            <Text accessibilityRole="header" className="font-title text-title text-ink">
+              {`Why ${buddyName} said that`}
+            </Text>
+            {trace.data && <XrayBadge parts={badgeParts(trace.data)} />}
+          </View>
+          <ScrollView contentContainerClassName="gap-4 pb-2">
+            <LoadState isPending={trace.isPending} error={trace.error} />
+            {trace.data && <Trace trace={trace.data} buddyName={buddyName} />}
+          </ScrollView>
+        </Animated.View>
+      </View>
     </Modal>
   );
 }
