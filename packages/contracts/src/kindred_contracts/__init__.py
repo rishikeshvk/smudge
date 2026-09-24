@@ -33,7 +33,13 @@ from kindred_contracts.curriculum import (
     VocabularyTerm,
 )
 from kindred_contracts.knowledge import RetrievedNote, SourceExcerpt
-from kindred_contracts.memory import MAX_FACTS, DaySummary, MemoryBrief, MemoryUpdate
+from kindred_contracts.memory import (
+    MAX_FACTS,
+    DayMessage,
+    DaySummary,
+    MemoryBrief,
+    MemoryUpdate,
+)
 from kindred_contracts.persona import PersonaContext
 from kindred_contracts.planning import (
     Course,
@@ -107,6 +113,7 @@ __all__ = [
     "PlannerBrief",
     "PlannerDraft",
     "MAX_FACTS",
+    "DayMessage",
     "DaySummary",
     "MemoryBrief",
     "MemoryUpdate",

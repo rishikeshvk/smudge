@@ -3,9 +3,16 @@ import datetime as dt
 from pydantic import Field
 
 from kindred_contracts.curriculum import Contract
-from kindred_contracts.turn import ChatTurn
+from kindred_contracts.turn import Speaker
 
 MAX_FACTS = 20
+
+
+class DayMessage(Contract):
+    speaker: Speaker
+    text: str
+    # A ritual the buddy sent on its own schedule, not a reply to the user.
+    scheduled: bool
 
 
 class MemoryBrief(Contract):
@@ -13,7 +20,7 @@ class MemoryBrief(Contract):
 
     buddy_name: str
     day: dt.date
-    conversation: list[ChatTurn] = Field(min_length=1)
+    conversation: list[DayMessage] = Field(min_length=1)
     facts: list[str]
 
 

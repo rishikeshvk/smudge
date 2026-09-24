@@ -6,7 +6,7 @@ from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_contracts import (
-    ChatTurn,
+    DayMessage,
     DaySummary,
     MemoryBrief,
     MemoryUpdate,
@@ -74,7 +74,12 @@ async def remember_day(
             buddy_name=name,
             day=day,
             conversation=[
-                ChatTurn(speaker=Speaker(m.speaker), text=m.text) for m in messages
+                DayMessage(
+                    speaker=Speaker(m.speaker),
+                    text=m.text,
+                    scheduled=m.speaker == Speaker.BUDDY and m.card is not None,
+                )
+                for m in messages
             ],
             facts=current.facts if current is not None else [],
         ),
