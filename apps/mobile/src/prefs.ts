@@ -2,11 +2,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 
+import type { ThemePreference } from "./theme/preference";
+
 export type CoachId = "onboarding-name" | "xray-badge" | "fog-lift";
 
 // Per-phone conveniences only; anything that must survive a reinstall belongs on the backend.
 type Prefs = Record<`coach.${CoachId}`, boolean> & {
   xray: boolean;
+  theme: ThemePreference;
   // An instant on the Kindred Clock, compared with when notes were written.
   "notebook.lastOpened": string;
 };

@@ -17,10 +17,12 @@ import { BackHeader } from "@/components/BackHeader";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { Pill } from "@/components/Pill";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { SettingRow } from "@/components/SettingRow";
 import { TextField } from "@/components/TextField";
 import { usePref } from "@/prefs";
 import { formFrom, formProblem, ROLES, settingsUpdate } from "@/settingsForm";
+import { THEME_CHOICES } from "@/theme/preference";
 import { useThemeColor } from "@/theme/useTheme";
 
 function Eyebrow({ text }: { text: string }) {
@@ -64,6 +66,7 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
   const raised = useThemeColor("surface-raised");
   const ink = useThemeColor("ink");
   const xray = usePref("xray");
+  const theme = usePref("theme");
   // Developer controls exist only while the API runs in dev mode; elsewhere it answers 404.
   const devClock = useQuery({ ...readClockOptions(), retry: false });
   const [form, setForm] = useState(() => formFrom(saved));
@@ -143,6 +146,14 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
         </View>
         <View className="gap-1">
           <Eyebrow text="Display" />
+          <SettingRow label="Theme">
+            <SegmentedControl
+              label="Theme"
+              options={THEME_CHOICES}
+              value={theme.value ?? "system"}
+              onChange={theme.set}
+            />
+          </SettingRow>
           <SettingRow label="X-ray view">
             <Switch
               value={xray.value === true}

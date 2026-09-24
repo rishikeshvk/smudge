@@ -6,16 +6,28 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { Appearance } from "react-native";
 
 import { gateFor, useBuddy } from "@/buddy";
 import { Unreachable } from "@/components/Unreachable";
 import { queryClient, useRefetchOnAppFocus } from "@/queryClient";
+import { usePref } from "@/prefs";
 import { fonts } from "@/theme/fonts";
+import { colorSchemeFor } from "@/theme/preference";
 import { ThemeRoot } from "@/theme/ThemeRoot";
 
 SplashScreen.preventAutoHideAsync();
 
+// Overriding the scheme app-wide also themes native UI: the status bar, keyboard and dialogs.
+function useApplyThemePreference() {
+  const theme = usePref("theme");
+  useEffect(() => {
+    if (theme.loaded) Appearance.setColorScheme(colorSchemeFor(theme.value));
+  }, [theme.loaded, theme.value]);
+}
+
 function AppStack() {
+  useApplyThemePreference();
   const buddy = useBuddy();
   const gate = gateFor(buddy);
 
