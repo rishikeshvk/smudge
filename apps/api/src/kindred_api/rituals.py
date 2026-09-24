@@ -42,8 +42,8 @@ def morning(
 ) -> RitualMessage:
     at = f"{study_time:%H:%M}"
     openers = [
-        f"morning! mine tonight is {buddy.title}, around {at}. you?",
-        f"morning. {buddy.title} for me today, sitting down around {at}. when's yours?",
+        f"morning! tonight I'm studying {buddy.title}, around {at}. you?",
+        f"morning. my topic today: {buddy.title}. sitting down around {at}, when's yours?",
         f"hey, day {day}. I'm on {buddy.title} around {at}. what about you?",
     ]
     text = _variant(openers, day)
@@ -81,7 +81,7 @@ def failed_study_share(day: int, topic: TopicRef) -> RitualMessage:
 def ask(day: int, note_id: int, topic: TopicRef, shaky: str) -> RitualMessage:
     openers = [
         f"small ask: can you check my note on {topic.title}? I'm still shaky on this:",
-        f"could you look at my {topic.title} note sometime? this part didn't click:",
+        f"could you look at my note on {topic.title} sometime? this part didn't click:",
     ]
     return RitualMessage(
         f"{_variant(openers, day)} “{shaky}”",

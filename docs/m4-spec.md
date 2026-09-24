@@ -1,6 +1,6 @@
 # M4 spec: Rituals
 
-2026-09-24 · Status: **in progress**; design changes during build are noted inline
+2026-09-24 · Status: **built; waiting for the phone check**; design changes during build are noted inline
 
 M4 gives the buddy a day of its own. It texts you in the morning, shares what it studied, asks small favours and
 checks in at night. A shared streak and the gap between you show on every screen, and you can move the plan. It is
@@ -117,6 +117,27 @@ All times are the user's local time. `day` is the plan day.
   3. Upload the file: `eas env:create --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json`.
   4. Upload the FCM V1 service-account key: `eas credentials`, then Android, then push notifications.
   5. Run `make mobile-build` and install the APK.
+
+## Simulation results (step 10)
+
+**3-day run, 1 message a day, 2026-09-24.** About 30 minutes and roughly 25 LLM calls.
+
+- **Days 1 and 2 passed:**
+  - Each day sent its morning, study share, small ask and night review, in that order and under the cap.
+  - Both notes passed their audit on the first attempt. The Curator's shares read like texts: "day 2 done: root
+    user and billing… budgets is an alarm not a cap…".
+  - The asks quoted real shaky points from topics the user had checked in on.
+  - The night reviews counted the streak correctly ("2 days in a row for us. we're level.").
+- **Day 3 stopped early.** The Curator's note failed closed after three leaking drafts: "IAM Identity Center",
+  then STS, then a correct guess about groups. The honest failed-study share went out, and the small ask fell
+  back to day 2's note. Then the model endpoint became unavailable, most likely the OpenCode Go usage limit. The
+  simulation stopped before the night review and before writing its report file.
+- **Fixed after the run:** long topic titles read badly inside the morning template ("What AWS is & global
+  infrastructure for me today"). The templates now give the title its own clause.
+- **Left open:** a full `make simulate ARGS='--days 7 --messages-per-day 1'` (about 50–60 calls) once the budget
+  allows. It would cover the skipped day 4, where the gap and the broken streak show in the night reviews.
+- **Not yet checked on the phone:** the ritual cards, the sheets, and push in the development build. The build
+  needs the one-time setup under step 9.
 
 ## Steps
 
