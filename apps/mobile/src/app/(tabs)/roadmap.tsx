@@ -1,14 +1,10 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ScrollView, Text, View } from "react-native";
 
-import {
-  addCheckinMutation,
-  readRoadmapOptions,
-  readRoadmapQueryKey,
-} from "@/api/@tanstack/react-query.gen";
-import type { RoadmapView, TopicRef } from "@/api/types.gen";
+import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
+import type { RoadmapView } from "@/api/types.gen";
 import { useBuddy } from "@/buddy";
+import { useCheckIn } from "@/checkIn";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { Rail } from "@/components/Rail";
@@ -83,33 +79,10 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
   );
 }
 
-// After a check-in, the gap it leaves, in the same plain words as the hero.
-function sealCaption(view: RoadmapView, sealed: TopicRef, buddyName: string): string {
-  const after = {
-    ...view,
-    topics: view.topics.map((topic) =>
-      topic.topic.slug === sealed.slug ? { ...topic, user_studied: true } : topic,
-    ),
-  };
-  const gap = gapLine(after, buddyName);
-  return `${sealed.title} is sealed on your roadmap. ${gap.quiet}${gap.loud} now.`;
-}
-
 export default function Roadmap() {
-  const queryClient = useQueryClient();
   const buddy = useBuddy();
   const roadmap = useQuery(readRoadmapOptions());
-  const [sealed, setSealed] = useState<{ topic: TopicRef; caption: string } | null>(null);
-
-  const checkIn = useMutation({
-    ...addCheckinMutation(),
-    onSuccess: (topic) => {
-      if (roadmap.data && buddy.data) {
-        setSealed({ topic, caption: sealCaption(roadmap.data, topic, buddy.data.name) });
-      }
-      queryClient.invalidateQueries({ queryKey: readRoadmapQueryKey() });
-    },
-  });
+  const { checkIn, sealed, closeSeal } = useCheckIn();
 
   const view = roadmap.data;
   const buddyName = buddy.data?.name ?? "Your buddy";
@@ -156,7 +129,7 @@ export default function Roadmap() {
       <StudySeal
         topic={sealed?.topic ?? null}
         caption={sealed?.caption ?? ""}
-        onClose={() => setSealed(null)}
+        onClose={closeSeal}
       />
     </Screen>
   );

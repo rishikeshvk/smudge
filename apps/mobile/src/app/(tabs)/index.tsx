@@ -7,20 +7,23 @@ import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
 import { useBuddy } from "@/buddy";
 import { buddyStatusLine } from "@/buddyStatus";
 import { useChatPages, useSendMessage, useTurnStage } from "@/chat";
+import { useCheckIn } from "@/checkIn";
 import { AmbientGround } from "@/components/AmbientGround";
 import { Bubble } from "@/components/Bubble";
 import { BuddyHeader } from "@/components/BuddyHeader";
 import { ChatRow } from "@/components/ChatRow";
 import { Composer } from "@/components/Composer";
-import { DayChip } from "@/components/DayChip";
 import { DraftStatus } from "@/components/DraftStatus";
 import { LampGlow } from "@/components/LampGlow";
 import { LoadState } from "@/components/LoadState";
+import { StreakChip } from "@/components/StreakChip";
+import { StudySeal } from "@/components/StudySeal";
 import { UnavailableBanner } from "@/components/UnavailableBanner";
 import { XrayToggle } from "@/components/XrayToggle";
 import { draftSteps, isInFlight } from "@/draftStage";
 import { useKindredNow } from "@/kindredNow";
 import { usePref } from "@/prefs";
+import { checkInMessage } from "@/rituals";
 import { ambientForHour } from "@/theme/ambient";
 import { chronological, threadRows } from "@/thread";
 import { localHour } from "@/time";
@@ -31,10 +34,13 @@ export default function Chat() {
   const focused = useIsFocused();
   const buddy = useBuddy({ pollMs: focused ? BUDDY_POLL_MS : undefined });
   const roadmap = useQuery(readRoadmapOptions());
-  const pages = useChatPages();
+  const pages = useChatPages({ pollMs: focused ? BUDDY_POLL_MS : undefined });
   const now = useKindredNow();
   const [draft, setDraft] = useState("");
   const send = useSendMessage({ onFailed: setDraft });
+  const { checkIn, sealed, closeSeal } = useCheckIn({
+    onCheckedIn: (topic) => send.mutate({ body: { text: checkInMessage(topic) } }),
+  });
   const { draft: prefill } = useLocalSearchParams<{ draft?: string }>();
   const [appliedPrefill, setAppliedPrefill] = useState<string | undefined>();
 
@@ -82,7 +88,7 @@ export default function Chat() {
     <AmbientGround ambient={ambientForHour(localHour(now))}>
       {studying && <LampGlow />}
       <BuddyHeader name={name} status={status.text} avatar={status.avatar} lampStatus={status.lamp}>
-        {roadmap.data && roadmap.data.day >= 1 && <DayChip day={roadmap.data.day} />}
+        {roadmap.data && roadmap.data.day >= 1 && <StreakChip streak={roadmap.data.streak} />}
         <XrayToggle on={xray.value === true} onToggle={() => xray.set(!xray.value)} />
       </BuddyHeader>
       {!available && <UnavailableBanner name={name} />}
@@ -110,6 +116,9 @@ export default function Chat() {
                 xray={xray.value === true}
                 xrayHint={item.message.id === newestReplyId}
                 onOpenTrace={(turnId) => router.push({ pathname: "/trace/[turnId]", params: { turnId } })}
+                newest={item.message.id === rows[0]?.message.id && !send.isPending}
+                onCheckIn={() => checkIn.mutate({})}
+                checkingIn={checkIn.isPending}
               />
             )}
             ListHeaderComponent={latest}
@@ -130,6 +139,7 @@ export default function Chat() {
           placeholder={available ? `Message ${name}` : `Messages wait until ${name}'s back`}
         />
       </KeyboardAvoidingView>
+      <StudySeal topic={sealed?.topic ?? null} caption={sealed?.caption ?? ""} onClose={closeSeal} />
     </AmbientGround>
   );
 }

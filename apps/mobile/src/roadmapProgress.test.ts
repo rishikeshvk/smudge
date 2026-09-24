@@ -4,6 +4,7 @@ import {
   headline,
   nextForYou,
   rails,
+  sealCaption,
   sightLine,
   topicMeta,
   weeks,
@@ -129,5 +130,15 @@ describe("weeks", () => {
 describe("nextForYou", () => {
   it("is the topic a check-in would mark", () => {
     expect(nextForYou(behind)?.topic.day).toBe(3);
+  });
+});
+
+describe("sealCaption", () => {
+  it("says what the check-in sealed and the gap it leaves", () => {
+    const sealed = behind.topics[2].topic;
+
+    expect(sealCaption(behind, sealed, "Juno")).toBe(
+      `${sealed.title} is sealed on your roadmap. You're level with Juno now.`,
+    );
   });
 });

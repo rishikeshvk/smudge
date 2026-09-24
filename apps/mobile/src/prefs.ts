@@ -12,6 +12,8 @@ type Prefs = Record<`coach.${CoachId}`, boolean> & {
   theme: ThemePreference;
   // An instant on the Kindred Clock, compared with when notes were written.
   "notebook.lastOpened": string;
+  // Small asks put off with "Later", by message id.
+  "asks.later": number[];
 };
 
 const queryKey = (key: keyof Prefs) => ["pref", key] as const;

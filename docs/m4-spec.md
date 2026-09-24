@@ -77,6 +77,21 @@ All times are the user's local time. `day` is the plan day.
   `DeviceNotRegistered` ticket deletes that token.
 - The simulation's fresh database has no tokens, so it never pushes.
 
+## App rituals (step 7)
+
+- A buddy message with a `card` is drawn as a ritual card. The band names the ritual and its time.
+  - **Morning:** plan rows for both learners, and quick replies sent as ordinary chat messages.
+  - **Study share:** a ticket with the shaky points highlighted and a stub leading to the Roadmap.
+  - **Small ask:** "Open {name}'s note" and "Later". "Later" is remembered on the phone.
+  - **Night review:** "I studied today" checks in, brings up the study seal and posts "I studied today · finished
+    {title}" for the buddy to answer. "Not today" posts those words.
+- A card's buttons show only while it's the newest message in the thread. Once the user has answered, the buttons
+  go, so nobody answers twice.
+- The chat header's day chip became the streak chip. The check-in and study seal moved into a `useCheckIn` hook
+  shared by the Roadmap and Chat.
+- The thread polls every minute while Chat is on screen, so rituals appear without a push notification too.
+- Settings → Developer has a "Next ritual" button.
+
 ## Steps
 
 Each step is built, tested and committed on its own.
