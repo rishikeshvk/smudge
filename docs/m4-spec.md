@@ -39,6 +39,21 @@ All times are the user's local time. `day` is the plan day.
 | Small ask | After today's share, until midnight | "Can you check my note on …?" and one shaky point |
 | Night review | `NIGHT_REVIEW_TIME` (21:30) until midnight | Where each of you is, the gap and the streak, with "I studied today" and "Not today" |
 
+## Director (step 4)
+
+- `rituals.py` holds the templates. `director.py` decides what is due: each ritual kind has a window, one
+  `rituals` row per plan day and kind, and the cap. The ticker calls it after study and memory on every tick.
+- Rituals go out even while the model endpoint is down. They're templates plus the share the Curator already
+  stored, so an outage shouldn't silence the morning message.
+- Days with no topic send nothing: before the plan starts and after it ends.
+- The small ask remembers the note and the shaky point it quoted, so it never asks the same thing twice. It picks
+  the latest topic the user has checked in on.
+- `POST /dev/next-ritual` moves the clock to the next morning, study time or night review and ticks. At study time
+  the tick makes the Curator study, which is paid, just like "Run tonight's study now".
+- Running the API on a `--reference-notes` database still makes the Curator study. Reference notes write no study
+  session, so every unlocked topic still counts as due. Free checks of the Director use `FixedClock` tests, not a
+  live server.
+
 ## Steps
 
 Each step is built, tested and committed on its own.

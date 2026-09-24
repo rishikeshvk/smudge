@@ -33,6 +33,21 @@ export type AdvanceClock = {
 };
 
 /**
+ * AskCard
+ */
+export type AskCard = {
+    /**
+     * Kind
+     */
+    kind: 'ask';
+    /**
+     * Note Id
+     */
+    note_id: number;
+    topic: TopicRef;
+};
+
+/**
  * AuditVerdict
  */
 export type AuditVerdict = {
@@ -96,6 +111,18 @@ export type ChatMessage = {
      * Turn Id
      */
     turn_id: number | null;
+    /**
+     * Card
+     */
+    card: ({
+        kind: 'morning';
+    } & MorningCard) | ({
+        kind: 'study_share';
+    } & StudyShareCard) | ({
+        kind: 'ask';
+    } & AskCard) | ({
+        kind: 'night_review';
+    } & NightReviewCard) | null;
 };
 
 /**
@@ -279,6 +306,52 @@ export type ModelsPerRole = {
      * Curator
      */
     curator: string;
+};
+
+/**
+ * MorningCard
+ */
+export type MorningCard = {
+    /**
+     * Kind
+     */
+    kind: 'morning';
+    /**
+     * Day
+     */
+    day: number;
+    you: TopicRef | null;
+    buddy: TopicRef;
+    /**
+     * Quick Replies
+     */
+    quick_replies: Array<string>;
+};
+
+/**
+ * NightReviewCard
+ */
+export type NightReviewCard = {
+    /**
+     * Kind
+     */
+    kind: 'night_review';
+    /**
+     * Day
+     */
+    day: number;
+    /**
+     * Streak
+     */
+    streak: number;
+    /**
+     * Gap
+     */
+    gap: number;
+    /**
+     * Checked In Today
+     */
+    checked_in_today: boolean;
 };
 
 /**
@@ -536,6 +609,25 @@ export type SendMessage = {
 export type Speaker = 'user' | 'buddy';
 
 /**
+ * StudyShareCard
+ */
+export type StudyShareCard = {
+    /**
+     * Kind
+     */
+    kind: 'study_share';
+    /**
+     * Day
+     */
+    day: number;
+    topic: TopicRef;
+    /**
+     * Shaky
+     */
+    shaky: Array<string>;
+};
+
+/**
  * TopicRef
  */
 export type TopicRef = {
@@ -728,6 +820,22 @@ export type StudyNowResponses = {
 };
 
 export type StudyNowResponse = StudyNowResponses[keyof StudyNowResponses];
+
+export type NextRitualData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/dev/next-ritual';
+};
+
+export type NextRitualResponses = {
+    /**
+     * Successful Response
+     */
+    200: ClockView;
+};
+
+export type NextRitualResponse = NextRitualResponses[keyof NextRitualResponses];
 
 export type ListOnboardingMessagesData = {
     body?: never;

@@ -1,10 +1,11 @@
 from datetime import datetime
 from enum import StrEnum
 
+from pydantic import TypeAdapter
 from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_contracts import ChatMessage, ChatTurn, Speaker, TurnStage
+from kindred_contracts import ChatMessage, ChatTurn, RitualCard, Speaker, TurnStage
 from kindred_db import Message
 
 HISTORY_LIMIT = 12
@@ -17,6 +18,8 @@ class Thread(StrEnum):
 
 IN_FLIGHT = [TurnStage.CLASSIFYING, TurnStage.WRITING, TurnStage.CHECKING]
 
+CARD: TypeAdapter[RitualCard] = TypeAdapter(RitualCard)
+
 
 def to_contract(message: Message) -> ChatMessage:
     return ChatMessage(
@@ -26,6 +29,7 @@ def to_contract(message: Message) -> ChatMessage:
         at=message.at,
         stage=TurnStage(message.stage) if message.stage is not None else None,
         turn_id=message.turn_id,
+        card=CARD.validate_python(message.card) if message.card is not None else None,
     )
 
 

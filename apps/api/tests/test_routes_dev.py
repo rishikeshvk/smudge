@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 import httpx
 import pytest
@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from kindred_api.clock import Clock, FixedClock, OffsetClock, SystemClock
 from kindred_api.dependencies import get_ticker
 from kindred_api.dev_clock import load_offset
+from kindred_api.director import RitualSchedule
 from kindred_api.main import app
 from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
@@ -92,6 +93,7 @@ async def test_time_controls_are_hidden_outside_dev_mode(api: ApiClient) -> None
 class CountingTicker(Ticker):
     def __init__(self) -> None:
         self.ticks = 0
+        self.rituals = RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4)
 
     async def tick(self) -> None:
         self.ticks += 1
@@ -127,3 +129,26 @@ async def test_study_now_after_study_time_just_ticks(
 
     assert response.json()["now"] == "2026-10-01T16:00:00Z"
     assert ticker.ticks == 1
+
+
+@pytest.mark.anyio
+async def test_next_ritual_moves_to_the_next_ritual_moment_and_ticks(
+    api: ApiClient, add_plan: AddPlan
+) -> None:
+    await add_plan(date(2026, 10, 1), "Asia/Kolkata")
+    # 09:00 on day 1 in Kolkata, after the morning message.
+    morning = datetime(2026, 10, 1, 3, 30, tzinfo=UTC)
+    ticker = CountingTicker()
+    app.dependency_overrides[get_ticker] = lambda: ticker
+    client = api(OffsetClock(FixedClock(morning), timedelta()), None)
+
+    study = (await client.post("/dev/next-ritual")).json()["now"]
+    night = (await client.post("/dev/next-ritual")).json()["now"]
+    tomorrow = (await client.post("/dev/next-ritual")).json()["now"]
+
+    assert [study, night, tomorrow] == [
+        "2026-10-01T13:30:00Z",
+        "2026-10-01T16:00:00Z",
+        "2026-10-02T02:30:00Z",
+    ]
+    assert ticker.ticks == 3

@@ -9,6 +9,7 @@ from kindred_api.chat import requeue_interrupted
 from kindred_api.config import get_settings
 from kindred_api.dependencies import Services
 from kindred_api.dev_clock import build_clock
+from kindred_api.director import RitualSchedule
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.llm_settings import effective, load_saved
 from kindred_api.routes import (
@@ -38,7 +39,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await requeue_interrupted(session)
         llm = LLMRuntime(base, effective(base, await load_saved(session)))
     worker = TurnWorker(sessions, clock, llm.turn_components)
-    ticker = Ticker(sessions, clock, llm.study, llm.memory)
+    ticker = Ticker(
+        sessions, clock, llm.study, llm.memory, RitualSchedule.from_settings(base)
+    )
     app.state.services = Services(
         sessions=sessions, clock=clock, worker=worker, ticker=ticker, llm=llm
     )

@@ -14,6 +14,7 @@ from kindred_api.catalog import load_catalog
 from kindred_api.chat import post_message
 from kindred_api.clock import FixedClock, SystemClock
 from kindred_api.config import Settings, get_settings
+from kindred_api.director import RitualSchedule
 from kindred_api.ingest import USER_AGENT, ingest_sources
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.onboarding import accept_plan, ensure_user, onboarding_turn
@@ -108,7 +109,9 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
     clock = FixedClock(START)
     llm = LLMRuntime(settings, settings)
     worker = TurnWorker(sessions, clock, llm.turn_components)
-    ticker = Ticker(sessions, clock, llm.study, llm.memory)
+    ticker = Ticker(
+        sessions, clock, llm.study, llm.memory, RitualSchedule.from_settings(settings)
+    )
     try:
         onboarding = await _onboard(sessions, clock, llm)
         plan = await _plan(sessions)

@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
+import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -46,6 +46,13 @@ export const changeClock = <ThrowOnError extends boolean = false>(options: Optio
  * Run tonight's study: move to today's study time if it's earlier, then tick.
  */
 export const studyNow = <ThrowOnError extends boolean = false>(options?: Options<StudyNowData, ThrowOnError>): RequestResult<StudyNowResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyNowResponses, unknown, ThrowOnError>({ url: '/dev/study-now', ...options });
+
+/**
+ * Next Ritual
+ *
+ * Jump to the next morning, study or night review, then tick.
+ */
+export const nextRitual = <ThrowOnError extends boolean = false>(options?: Options<NextRitualData, ThrowOnError>): RequestResult<NextRitualResponses, unknown, ThrowOnError> => (options?.client ?? client).post<NextRitualResponses, unknown, ThrowOnError>({ url: '/dev/next-ritual', ...options });
 
 /**
  * List Onboarding Messages

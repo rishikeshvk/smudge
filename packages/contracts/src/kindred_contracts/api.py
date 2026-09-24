@@ -4,6 +4,7 @@ from pydantic import AwareDatetime, Field, SecretStr
 
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.planning import PlanProposal
+from kindred_contracts.rituals import RitualCard
 from kindred_contracts.study import NotebookNote
 from kindred_contracts.turn import Speaker, TopicRef, TurnStage
 
@@ -45,6 +46,8 @@ class ChatMessage(Contract):
     stage: TurnStage | None
     # A buddy reply links to its turn for the X-ray view.
     turn_id: int | None
+    # Set on the buddy's rituals: messages it sends unprompted.
+    card: RitualCard | None
 
 
 class SendMessage(Contract):

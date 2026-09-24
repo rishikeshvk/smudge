@@ -175,6 +175,8 @@ class Message(Base):
         ForeignKey("messages.id"), unique=True
     )
     turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
+    # A ritual's card: what the app draws around the text.
+    card: Mapped[dict[str, object] | None] = mapped_column(JSONB)
 
 
 # The user saying "I studied today"; one per topic, in plan order.
@@ -199,6 +201,21 @@ class StudySession(Base):
     share: Mapped[str | None]
     # Every draft and its audit, for debugging what the Curator tried.
     attempts: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
+
+
+# One ritual per plan day and kind, so a tick never sends one twice.
+class Ritual(Base):
+    __tablename__ = "rituals"
+    __table_args__ = (UniqueConstraint("plan_id", "day", "kind"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    plan_id: Mapped[int] = mapped_column(ForeignKey("plans.id"))
+    day: Mapped[int]
+    kind: Mapped[str]
+    message_id: Mapped[int] = mapped_column(ForeignKey("messages.id"))
+    # A small ask's shaky point, so none is asked twice.
+    note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
+    shaky: Mapped[str | None]
 
 
 # Who the user is to the buddy: one snapshot per finished day, kept apart from the

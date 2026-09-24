@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { accept, addCheckin, changeClock, health, listMessages, listOnboardingMessages, messageStatus, type Options, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
-import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
+import { accept, addCheckin, changeClock, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
+import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -101,6 +101,25 @@ export const studyNowMutation = (options?: Partial<Options<StudyNowData>>): UseM
     const mutationOptions: UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await studyNow({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Next Ritual
+ *
+ * Jump to the next morning, study or night review, then tick.
+ */
+export const nextRitualMutation = (options?: Partial<Options<NextRitualData>>): UseMutationOptions<NextRitualResponse, DefaultError, Options<NextRitualData>> => {
+    const mutationOptions: UseMutationOptions<NextRitualResponse, DefaultError, Options<NextRitualData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await nextRitual({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

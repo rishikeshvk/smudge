@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, time
 
 import httpx
 import pytest
@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.clock import Clock, FixedClock
 from kindred_api.dependencies import get_ticker
+from kindred_api.director import RitualSchedule
 from kindred_api.main import app
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
@@ -64,6 +65,7 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
         FixedClock(NOW),
         lambda: StudyComponents(curator=none, auditor=none, embedder=none),
         lambda: none,
+        RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4),
     )
     app.dependency_overrides[get_ticker] = lambda: idle
     return idle
