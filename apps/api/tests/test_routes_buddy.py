@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime, time
+from datetime import UTC, datetime, time, timedelta
 
 import httpx
 import httpx2
@@ -118,3 +118,29 @@ async def test_no_buddy_before_onboarding(
     response = await api(FixedClock(NOW), worker).get("/buddy")
 
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_the_user_can_study_along_only_during_a_session(
+    api: ApiClient, worker: TurnWorker, add_course: AddCourse
+) -> None:
+    await add_course(1)
+    during = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
+
+    refused = await api(FixedClock(during - timedelta(hours=1)), worker).post(
+        "/buddy/study-together"
+    )
+    joined = await api(FixedClock(during), worker).post("/buddy/study-together")
+
+    assert refused.status_code == 409
+    message = joined.json()
+    assert (message["speaker"], message["stage"], message["reaction"]) == (
+        "user",
+        "answered",
+        "📚",
+    )
+    assert message["card"] == {
+        "kind": "study_together",
+        "topic": {"slug": "topic-1", "title": "Topic 1", "day": 1},
+        "until": "2026-10-01T14:30:00Z",
+    }

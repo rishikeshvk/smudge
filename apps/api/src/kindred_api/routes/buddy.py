@@ -1,11 +1,13 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
+from kindred_api.chat import to_contract
 from kindred_api.dependencies import ClockDep, SessionDep, WorkerDep
 from kindred_api.mood import STEADY, load_mood
 from kindred_api.plans import load_current_plan
+from kindred_api.study_together import join_session
 from kindred_api.study_window import load_studying
-from kindred_contracts import BuddyStatus
+from kindred_contracts import BuddyStatus, ChatMessage
 from kindred_db import Buddy
 
 router = APIRouter(tags=["buddy"])
@@ -31,3 +33,18 @@ async def read_buddy(
         available=worker.available,
         studying=studying,
     )
+
+
+@router.post("/buddy/study-together", status_code=status.HTTP_201_CREATED)
+async def study_together(session: SessionDep, clock: ClockDep) -> ChatMessage:
+    """Join the buddy's study session in progress."""
+    plan = await load_current_plan(session)
+    if plan is None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "there is no plan yet")
+    now = clock.now()
+    studying = await load_studying(session, plan.id, plan.session_length, now)
+    if studying is None:
+        raise HTTPException(status.HTTP_409_CONFLICT, "the buddy isn't studying now")
+    message = await join_session(session, plan.user_id, studying, now)
+    await session.commit()
+    return to_contract(message)

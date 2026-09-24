@@ -6,7 +6,7 @@ from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.acknowledgement import reaction_to
-from kindred_contracts import ChatMessage, ChatTurn, RitualCard, Speaker, TurnStage
+from kindred_contracts import ChatMessage, ChatTurn, MessageCard, Speaker, TurnStage
 from kindred_db import Message
 
 HISTORY_LIMIT = 12
@@ -19,7 +19,7 @@ class Thread(StrEnum):
 
 IN_FLIGHT = [TurnStage.CLASSIFYING, TurnStage.WRITING, TurnStage.CHECKING]
 
-CARD: TypeAdapter[RitualCard] = TypeAdapter(RitualCard)
+CARD: TypeAdapter[MessageCard] = TypeAdapter(MessageCard)
 
 
 def to_contract(message: Message) -> ChatMessage:

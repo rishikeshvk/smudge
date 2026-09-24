@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from kindred_api.chat import post_message
 from kindred_api.reply_style import has_emoji, load_reply_style, reply_style
 from kindred_contracts import ReplyStyle
-from kindred_db import Plan
+from kindred_db import Message, Plan
 
 AddCourse = Callable[[int], Awaitable[Plan]]
 NOW = datetime(2026, 10, 2, 14, 0, tzinfo=UTC)
@@ -53,6 +53,27 @@ async def test_only_their_latest_messages_count(
     for n in range(5):
         await post_message(session, plan.user_id, "ok", NOW - timedelta(minutes=n))
     await post_message(session, plan.user_id, "from later 🎉", NOW + timedelta(hours=1))
+
+    style = await load_reply_style(session, plan.user_id, NOW)
+
+    assert style == ReplyStyle(max_words=12, emoji=False)
+
+
+@pytest.mark.anyio
+async def test_messages_the_app_worded_dont_count(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    plan = await add_course(1)
+    await post_message(session, plan.user_id, "ok", NOW)
+    session.add(
+        Message(
+            user_id=plan.user_id,
+            speaker="user",
+            text="studying with you 📚 " + "word " * 30,
+            at=NOW,
+            card={"kind": "study_together"},
+        )
+    )
 
     style = await load_reply_style(session, plan.user_id, NOW)
 

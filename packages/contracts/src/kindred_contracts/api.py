@@ -3,10 +3,10 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, Field, SecretStr
 
+from kindred_contracts.cards import MessageCard
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.persona import Mood, Studying
 from kindred_contracts.planning import PlanProposal
-from kindred_contracts.rituals import RitualCard
 from kindred_contracts.study import NotebookNote
 from kindred_contracts.turn import Speaker, TopicRef, TurnStage
 
@@ -48,8 +48,8 @@ class ChatMessage(Contract):
     stage: TurnStage | None
     # A buddy reply links to its turn for the X-ray view.
     turn_id: int | None
-    # Set on the buddy's rituals: messages it sends unprompted.
-    card: RitualCard | None
+    # Set on the buddy's rituals and on the user's own moments, like joining a session.
+    card: MessageCard | None
     # The buddy's emoji on a user message it acknowledged without a reply.
     reaction: str | None
 

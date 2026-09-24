@@ -25,6 +25,7 @@ from kindred_contracts.api import (
     SendMessage,
     StudyTimeChange,
 )
+from kindred_contracts.cards import MessageCard, StudyTogetherCard
 from kindred_contracts.curriculum import (
     Curriculum,
     StudyNote,
@@ -104,6 +105,8 @@ __all__ = [
     "MorningCard",
     "NightReviewCard",
     "RitualCard",
+    "MessageCard",
+    "StudyTogetherCard",
     "StudyShareCard",
     "ConnectionCheck",
     "LLMSettingsUpdate",

@@ -37,12 +37,14 @@ def reply_style(recent: list[str]) -> ReplyStyle:
 async def load_reply_style(
     session: AsyncSession, user_id: int, now: datetime
 ) -> ReplyStyle:
+    # Messages with a card, like joining a session, are worded by the app, not them.
     recent = await session.scalars(
         select(Message.text)
         .where(
             Message.user_id == user_id,
             Message.thread == Thread.CHAT.value,
             Message.speaker == Speaker.USER.value,
+            Message.card.is_(None),
             Message.at <= now,
         )
         .order_by(Message.id.desc())
