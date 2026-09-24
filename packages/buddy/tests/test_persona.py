@@ -45,8 +45,9 @@ def request(directive: Directive, feedback: str | None = None) -> DraftRequest:
         history=[ChatTurn(speaker=Speaker.USER, text="hi")],
         baseline_card=["AWS is Amazon's cloud."],
         roadmap=[
-            RoadmapEntry(topic=IAM, unlocked=True),
-            RoadmapEntry(topic=S3, unlocked=False),
+            RoadmapEntry(topic=IAM, unlocked=True, has_note=True),
+            RoadmapEntry(topic=POLICIES, unlocked=True, has_note=False),
+            RoadmapEntry(topic=S3, unlocked=False, has_note=False),
         ],
         notes=[
             RetrievedNote(
@@ -72,11 +73,18 @@ def test_prompt_carries_notes_roadmap_and_the_directive() -> None:
 
     assert "IAM decides who can do what." in prompt
     assert "Still shaky on: authN vs authZ" in prompt
+    assert "- day 3: IAM overview (studied)" in prompt
     assert "- day 7: S3 fundamentals (not studied yet)" in prompt
     assert "answer about: IAM overview" in prompt
     assert "not studied yet: S3 fundamentals (day 7)" in prompt
     assert "user: hi" in prompt
     assert "Feedback" not in prompt
+
+
+def test_prompt_never_calls_an_unlocked_topic_without_a_note_studied() -> None:
+    prompt = build_prompt(request(DEFLECT), CONTEXT)
+
+    assert "- day 5: IAM policies (unlocked, but you have no note for it yet)" in prompt
 
 
 def test_prompt_places_the_buddy_in_the_users_day() -> None:

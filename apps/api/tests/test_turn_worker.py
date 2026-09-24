@@ -57,6 +57,9 @@ class Endpoint:
     async def retrieve(self, message: str, now: datetime) -> list[RetrievedNote]:
         return []
 
+    async def noted_slugs(self, *args: object) -> frozenset[str]:
+        return frozenset()
+
     async def draft(self, request: DraftRequest, session_id: str) -> Draft:
         return Draft(reply=f"re: {request.message}")
 

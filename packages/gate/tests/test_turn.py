@@ -63,6 +63,9 @@ class FakeRetriever:
         self.calls += 1
         return [NOTE]
 
+    async def noted_slugs(self, *args: object) -> frozenset[str]:
+        return frozenset([NOTE.topic_slug])
+
 
 class FakeDrafter:
     model = "fake-drafter"
@@ -157,6 +160,16 @@ async def test_unlocked_question_is_answered_from_notes(topics: TopicMap) -> Non
     assert retriever.calls == 1
     assert drafter.requests[0].notes == [NOTE]
     assert_audited(trace)
+
+
+@pytest.mark.anyio
+async def test_the_drafter_sees_which_topics_have_a_note(topics: TopicMap) -> None:
+    drafter = FakeDrafter("IAM is about access.")
+
+    await turn(topics, about("iam-intro"), drafter, FakeAuditor(PASS), FakeRetriever())
+
+    noted = [e.topic.slug for e in drafter.requests[0].roadmap if e.has_note]
+    assert noted == [NOTE.topic_slug]
 
 
 @pytest.mark.anyio

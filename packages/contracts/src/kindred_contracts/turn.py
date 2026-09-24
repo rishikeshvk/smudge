@@ -56,6 +56,8 @@ class ChatTurn(Contract):
 class RoadmapEntry(Contract):
     topic: TopicRef
     unlocked: bool
+    # Unlocked topics can still lack a note: mid-study, or a night that failed.
+    has_note: bool
 
 
 class DraftRequest(Contract):

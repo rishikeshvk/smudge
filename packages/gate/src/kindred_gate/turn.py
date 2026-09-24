@@ -22,7 +22,7 @@ from kindred_contracts import (
     Verdict,
 )
 from kindred_gate.fallback import fallback_reply
-from kindred_gate.retrieval import retrieve_notes
+from kindred_gate.retrieval import list_notes, retrieve_notes
 from kindred_gate.routing import route
 from kindred_gate.topics import TopicMap
 from kindred_llm import Embedder, StructuredOutputError
@@ -46,6 +46,8 @@ class Classifier(Protocol):
 
 class Retriever(Protocol):
     async def retrieve(self, message: str, now: datetime) -> list[RetrievedNote]: ...
+
+    async def noted_slugs(self, now: datetime) -> frozenset[str]: ...
 
 
 class Drafter(Protocol):
@@ -92,6 +94,10 @@ class GatedRetriever:
             limit=NOTES_PER_TURN,
         )
 
+    async def noted_slugs(self, now: datetime) -> frozenset[str]:
+        notes = await list_notes(self._session, plan_id=self._plan_id, now=now)
+        return frozenset(note.topic.slug for note in notes)
+
 
 async def run_turn(
     message: str,
@@ -118,7 +124,7 @@ async def run_turn(
         message=message,
         history=history,
         baseline_card=topics.baseline_card,
-        roadmap=topics.roadmap(now),
+        roadmap=topics.roadmap(now, await components.retriever.noted_slugs(now)),
         notes=notes,
         directive=directive,
     )

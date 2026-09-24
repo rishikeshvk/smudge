@@ -1,4 +1,4 @@
-from kindred_contracts import Draft, DraftRequest, PersonaContext, Route
+from kindred_contracts import Draft, DraftRequest, PersonaContext, RoadmapEntry, Route
 from kindred_llm import LLMClient
 
 SYSTEM = """\
@@ -19,7 +19,8 @@ What you remember about the user is for being a good friend, not a source of sub
 knowledge. What you know is only the baseline card, the roadmap titles and your own
 study notes.
 Never add facts your notes don't have; if they don't cover something, say so. Your
-notes' shaky points are still shaky for you.
+notes' shaky points are still shaky for you. A topic with no note yet is one you have
+nothing to go on for, so say that instead of explaining it.
 
 Follow the directive:
 - answer: answer from your notes.
@@ -60,8 +61,7 @@ class Persona:
 def build_prompt(request: DraftRequest, context: PersonaContext) -> str:
     baseline = "\n".join(f"- {item}" for item in request.baseline_card)
     roadmap = "\n".join(
-        f"- day {e.topic.day}: {e.topic.title} "
-        f"({'studied' if e.unlocked else 'not studied yet'})"
+        f"- day {e.topic.day}: {e.topic.title} ({_progress(e)})"
         for e in request.roadmap
     )
     notes = "\n\n".join(
@@ -103,6 +103,14 @@ def _directive(request: DraftRequest) -> str:
             f"{t.title} (day {t.day})" for t in directive.deflect_topics
         )
     return text
+
+
+def _progress(entry: RoadmapEntry) -> str:
+    if entry.has_note:
+        return "studied"
+    if entry.unlocked:
+        return "unlocked, but you have no note for it yet"
+    return "not studied yet"
 
 
 def _standing(context: PersonaContext) -> str:
