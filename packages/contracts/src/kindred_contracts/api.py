@@ -4,6 +4,7 @@ from typing import Annotated, Literal
 from pydantic import AwareDatetime, Field, SecretStr
 
 from kindred_contracts.curriculum import Contract
+from kindred_contracts.persona import Mood
 from kindred_contracts.planning import PlanProposal
 from kindred_contracts.rituals import RitualCard
 from kindred_contracts.study import NotebookNote
@@ -62,6 +63,7 @@ class MessageStatus(Contract):
 
 class BuddyStatus(Contract):
     name: str
+    mood: Mood
     # False while the model endpoint fails; messages wait in the queue meanwhile.
     available: bool
     # True while the Curator is writing tonight's note.

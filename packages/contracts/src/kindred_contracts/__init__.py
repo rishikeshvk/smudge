@@ -40,7 +40,7 @@ from kindred_contracts.memory import (
     MemoryBrief,
     MemoryUpdate,
 )
-from kindred_contracts.persona import PersonaContext, ReplyStyle
+from kindred_contracts.persona import Mood, MoodKind, PersonaContext, ReplyStyle
 from kindred_contracts.planning import (
     Course,
     PlanChoice,
@@ -134,6 +134,8 @@ __all__ = [
     "RoadmapTopic",
     "RoadmapView",
     "SealedDay",
+    "Mood",
+    "MoodKind",
     "PersonaContext",
     "ReplyStyle",
     "ResetClock",

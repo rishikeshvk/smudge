@@ -1,6 +1,7 @@
 from kindred_contracts import (
     Draft,
     DraftRequest,
+    Mood,
     PersonaContext,
     ReplyStyle,
     RoadmapEntry,
@@ -103,6 +104,7 @@ def build_prompt(request: DraftRequest, context: PersonaContext) -> str:
         f"Now: {context.local_now:%A %H:%M}, day {context.day} of the plan.",
         f"Where you both are: {_standing(context)}",
         f"Reply budget: {_budget(context.style)}",
+        f"Your mood: {_mood(context.mood)}",
         f"What you remember about them:\n{facts or '(nothing yet)'}",
         f"Recent days together:\n{days or '(none yet)'}",
         f"Baseline card:\n{baseline}",
@@ -131,6 +133,15 @@ def _directive(request: DraftRequest) -> str:
             f"{t.title} (day {t.day})" for t in directive.deflect_topics
         )
     return text
+
+
+def _mood(mood: Mood) -> str:
+    if mood.reason is None:
+        return f"{mood.kind.value}."
+    return (
+        f"{mood.kind.value}, since {mood.reason}. Let it colour your tone a little; "
+        "don't announce it unless it comes up."
+    )
 
 
 def _budget(style: ReplyStyle) -> str:

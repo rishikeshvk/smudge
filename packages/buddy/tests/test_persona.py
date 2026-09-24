@@ -11,6 +11,8 @@ from kindred_contracts import (
     DaySummary,
     Directive,
     DraftRequest,
+    Mood,
+    MoodKind,
     PersonaContext,
     ReplyStyle,
     RetrievedNote,
@@ -38,6 +40,7 @@ CONTEXT = PersonaContext(
     streak=3,
     gap=1,
     style=ReplyStyle(max_words=15, emoji=False),
+    mood=Mood(kind=MoodKind.STEADY, reason=None),
 )
 
 
@@ -163,3 +166,18 @@ def test_emoji_are_allowed_only_when_the_user_uses_them() -> None:
     prompt = build_prompt(request(DEFLECT), context)
 
     assert "Reply budget: at most 30 words; an emoji is fine." in prompt
+
+
+def test_a_steady_mood_is_just_named() -> None:
+    assert "Your mood: steady." in build_prompt(request(DEFLECT), CONTEXT)
+
+
+def test_a_mood_with_a_reason_colours_the_tone_without_being_announced() -> None:
+    context = CONTEXT.model_copy(
+        update={"mood": Mood(kind=MoodKind.FRIED, reason="IAM overview was a lot")}
+    )
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "Your mood: fried, since IAM overview was a lot." in prompt
+    assert "don't announce it" in prompt

@@ -4,6 +4,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from kindred_api.mood import load_mood
 from kindred_api.relationship import load_memory
 from kindred_api.reply_style import load_reply_style
 from kindred_api.schedule import plan_day
@@ -35,4 +36,5 @@ async def load_persona_context(
         streak=standing.streak,
         gap=standing.gap,
         style=await load_reply_style(session, user_id, now),
+        mood=await load_mood(session, plan_id, tz, now),
     )

@@ -84,6 +84,7 @@ async def test_buddy_reports_its_name_and_what_it_is_doing(
 
     assert (await client.get("/buddy")).json() == {
         "name": "Juno",
+        "mood": {"kind": "steady", "reason": None},
         "available": True,
         "studying": False,
     }

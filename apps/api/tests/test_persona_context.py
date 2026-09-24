@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.persona_context import load_persona_context
-from kindred_contracts import PersonaContext, ReplyStyle
+from kindred_contracts import Mood, MoodKind, PersonaContext, ReplyStyle
 from kindred_db import Buddy, Plan
 
 AddPlan = Callable[[date, str], Awaitable[Plan]]
@@ -35,6 +35,8 @@ async def test_context_puts_the_buddy_in_the_users_day(
         streak=0,
         gap=0,
         style=ReplyStyle(max_words=40, emoji=False),
+        # 01:30 local.
+        mood=Mood(kind=MoodKind.TIRED, reason="it's late"),
     )
     assert context.local_now.utcoffset() == ZoneInfo("Asia/Kolkata").utcoffset(
         context.local_now

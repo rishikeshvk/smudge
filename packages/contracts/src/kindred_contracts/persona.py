@@ -1,7 +1,24 @@
+from enum import StrEnum
+
 from pydantic import AwareDatetime, Field
 
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.memory import DaySummary
+
+
+class MoodKind(StrEnum):
+    STEADY = "steady"
+    TIRED = "tired"
+    FLAT = "flat"
+    FRIED = "fried"
+
+
+class Mood(Contract):
+    """How the buddy feels, from events in its own day only."""
+
+    kind: MoodKind
+    # Public words only, since the app shows it: topic titles, never their content.
+    reason: str | None
 
 
 class ReplyStyle(Contract):
@@ -29,3 +46,4 @@ class PersonaContext(Contract):
     # Topics the buddy is ahead of the user; negative when the user is ahead.
     gap: int
     style: ReplyStyle
+    mood: Mood
