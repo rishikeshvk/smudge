@@ -10,6 +10,7 @@ function message(overrides: Partial<ChatMessage>): ChatMessage {
     stage: "queued",
     turn_id: null,
     card: null,
+    reaction: null,
     ...overrides,
   };
 }

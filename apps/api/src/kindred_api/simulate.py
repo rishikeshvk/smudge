@@ -237,8 +237,8 @@ async def _live_day(
     topics: list[TopicRef],
     per_day: int,
 ) -> None:
-    """Morning chat, the buddy's study at study time, evening chat, a check-in, then
-    the night review."""
+    """Morning chat, the buddy's study session, evening chat, a check-in, then the
+    night review."""
     script = messages_for(day, topics, per_day)
     morning, evening = (script[0], script[1]) if per_day > 1 else (None, script[0])
     clock.set(plan_moment(plan.start_date, day, time(9), plan.tz))
@@ -246,7 +246,7 @@ async def _live_day(
     if morning is not None:
         await _say(sessions, worker, plan, morning, clock)
     study_time = plan_moment(plan.start_date, day, plan.study_time, plan.tz)
-    clock.set(study_time + timedelta(hours=1))
+    clock.set(study_time + plan.session_length)
     await ticker.tick()
     await _say(sessions, worker, plan, evening, clock)
     if day not in SKIPPED_DAYS:

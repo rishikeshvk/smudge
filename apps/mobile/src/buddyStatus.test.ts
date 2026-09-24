@@ -1,4 +1,4 @@
-import type { RoadmapTopic, RoadmapView } from "./api/types.gen";
+import type { BuddyStatus, RoadmapTopic, RoadmapView } from "./api/types.gen";
 import { buddyStatusLine } from "./buddyStatus";
 
 function topic(day: number, unlocked: boolean, buddyStudied: boolean): RoadmapTopic {
@@ -23,11 +23,20 @@ const roadmap: RoadmapView = {
   topics: [topic(1, true, true), topic(2, true, false), topic(3, false, false)],
 };
 
-const buddy = { name: "Juno", available: true, studying: false };
+const buddy: BuddyStatus = {
+  name: "Juno",
+  mood: { kind: "steady", reason: null },
+  available: true,
+  studying: null,
+};
+const studying = {
+  topic: { slug: "t2", title: "Topic 2", day: 2 },
+  until: "2026-10-02T14:30:00Z",
+};
 
 describe("buddyStatusLine", () => {
   it("says the buddy is unavailable whatever else is going on", () => {
-    expect(buddyStatusLine({ ...buddy, available: false, studying: true }, roadmap)).toEqual({
+    expect(buddyStatusLine({ ...buddy, available: false, studying }, roadmap)).toEqual({
       avatar: "away",
       text: "unavailable right now",
       lamp: false,
@@ -35,7 +44,7 @@ describe("buddyStatusLine", () => {
   });
 
   it("names the topic being studied while the lamp is on", () => {
-    expect(buddyStatusLine({ ...buddy, studying: true }, roadmap)).toEqual({
+    expect(buddyStatusLine({ ...buddy, studying }, roadmap)).toEqual({
       avatar: "studying",
       text: "studying Topic 2",
       lamp: true,

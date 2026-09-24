@@ -37,7 +37,6 @@ class Ticker:
         self.rituals = rituals
         self._pusher = pusher
         self._lock = asyncio.Lock()
-        self.studying = False
 
     async def run(self) -> None:
         while True:
@@ -53,7 +52,7 @@ class Ticker:
             if plan is None:
                 return
             try:
-                await self._study_due(session, plan.id)
+                await self._study_due(session, plan)
                 await self._remember_due(session, plan)
             except LLMUnavailableError:
                 await session.rollback()
@@ -62,20 +61,11 @@ class Ticker:
             # the endpoint is down.
             await self._send_rituals(session, plan)
 
-    async def _study_due(self, session: AsyncSession, plan_id: int) -> None:
-        due = await due_topics(session, plan_id, self._clock.now())
-        if not due:
-            return
-        self.studying = True
-        try:
-            for node in due:
-                outcome = await study_topic(
-                    session, node, self._clock.now(), self._study()
-                )
-                await session.commit()
-                logger.info("studied day %s: %s", node.day, outcome.status.value)
-        finally:
-            self.studying = False
+    async def _study_due(self, session: AsyncSession, plan: CurrentPlan) -> None:
+        for node in await due_topics(session, plan, self._clock.now()):
+            outcome = await study_topic(session, node, self._clock.now(), self._study())
+            await session.commit()
+            logger.info("studied day %s: %s", node.day, outcome.status.value)
 
     async def _remember_due(self, session: AsyncSession, plan: CurrentPlan) -> None:
         now = self._clock.now()

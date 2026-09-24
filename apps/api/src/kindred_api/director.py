@@ -177,7 +177,12 @@ async def _ask(session: AsyncSession, today: Today) -> Composed | None:
 
 
 async def _night_review(session: AsyncSession, today: Today) -> Composed | None:
-    if not today.at(today.schedule.night) <= today.now < today.midnight:
+    # A long session can run past the usual time; the review waits for it to end.
+    start = max(
+        today.at(today.schedule.night),
+        today.at(today.plan.study_time) + today.plan.session_length,
+    )
+    if not start <= today.now < today.midnight:
         return None
     study = await _tonights_study(session, today)
     if study is None:
@@ -236,12 +241,18 @@ async def _send(
 def next_ritual_at(
     plan: CurrentPlan, schedule: RitualSchedule, now: datetime
 ) -> datetime:
-    """The next moment a ritual can fire: a morning, a study (its share follows) or a
-    night review."""
+    """The next moment something happens: a morning, a study session starting, its end
+    (the note and its share follow) or a night review."""
     day = max(plan_day(plan.start_date, now, plan.tz), 1)
     moments = [
-        plan_moment(plan.start_date, d, local_time, plan.tz)
+        moment
         for d in (day, day + 1)
-        for local_time in (schedule.morning, plan.study_time, schedule.night)
+        for study in [plan_moment(plan.start_date, d, plan.study_time, plan.tz)]
+        for moment in (
+            plan_moment(plan.start_date, d, schedule.morning, plan.tz),
+            study,
+            study + plan.session_length,
+            plan_moment(plan.start_date, d, schedule.night, plan.tz),
+        )
     ]
     return min(m for m in moments if m > now)

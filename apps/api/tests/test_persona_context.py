@@ -37,6 +37,7 @@ async def test_context_puts_the_buddy_in_the_users_day(
         style=ReplyStyle(max_words=40, emoji=False),
         # 01:30 local.
         mood=Mood(kind=MoodKind.TIRED, reason="it's late"),
+        studying=None,
     )
     assert context.local_now.utcoffset() == ZoneInfo("Asia/Kolkata").utcoffset(
         context.local_now

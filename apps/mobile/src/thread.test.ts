@@ -10,6 +10,7 @@ function message(id: number, speaker: ChatMessage["speaker"]): ChatMessage {
     stage: null,
     turn_id: null,
     card: null,
+    reaction: null,
   };
 }
 

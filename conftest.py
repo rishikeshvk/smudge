@@ -121,6 +121,7 @@ def add_plan(session: AsyncSession) -> Callable[[date, str], Awaitable[Plan]]:
             title="T",
             start_date=start_date,
             study_time=time(19),
+            session_minutes=60,
             baseline_card=[],
         )
         session.add(plan)

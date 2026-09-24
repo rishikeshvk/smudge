@@ -1,7 +1,13 @@
+import type { BuddyStatus } from "./api/types.gen";
 import { ApiError } from "./apiErrors";
 import { gateFor } from "./buddy";
 
-const buddy = { name: "Juno", available: true, studying: false };
+const buddy: BuddyStatus = {
+  name: "Juno",
+  mood: { kind: "steady", reason: null },
+  available: true,
+  studying: null,
+};
 
 describe("gateFor", () => {
   it("opens the app once there is a buddy", () => {

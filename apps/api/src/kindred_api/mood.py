@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.schedule import plan_day
 from kindred_api.study import StudyStatus
-from kindred_contracts import Mood, MoodKind
+from kindred_contracts import Mood, MoodKind, Studying
 from kindred_db import Plan, StudySession, TopicNode
 from kindred_gate import list_notes
 
@@ -29,9 +29,15 @@ class Tonight:
     shaky: int
 
 
-def mood(local_now: datetime, tonight: Tonight | None) -> Mood:
+def mood(
+    local_now: datetime, studying: Studying | None, tonight: Tonight | None
+) -> Mood:
     """The buddy's mood comes only from its own day, never from the user's gap, streak
     or check-ins, so it can't turn into a guilt lever."""
+    if studying is not None:
+        return Mood(
+            kind=MoodKind.FOCUSED, reason=f"mid-way through {studying.topic.title}"
+        )
     if local_now.hour >= LATE_FROM or local_now.hour < LATE_UNTIL:
         return Mood(kind=MoodKind.TIRED, reason="it's late")
     if tonight is None:
@@ -46,7 +52,11 @@ def mood(local_now: datetime, tonight: Tonight | None) -> Mood:
 
 
 async def load_mood(
-    session: AsyncSession, plan_id: int, tz: ZoneInfo, now: datetime
+    session: AsyncSession,
+    plan_id: int,
+    tz: ZoneInfo,
+    studying: Studying | None,
+    now: datetime,
 ) -> Mood:
     start = (await session.get_one(Plan, plan_id)).start_date
     row = (
@@ -68,4 +78,4 @@ async def load_mood(
         notes = await list_notes(session, plan_id=plan_id, now=now)
         shaky = next((len(n.shaky) for n in notes if n.topic.slug == slug), 0)
         tonight = Tonight(title, StudyStatus(status), shaky)
-    return mood(now.astimezone(tz), tonight)
+    return mood(now.astimezone(tz), studying, tonight)

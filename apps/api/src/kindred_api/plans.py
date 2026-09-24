@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, time
+from datetime import date, time, timedelta
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
@@ -18,7 +18,12 @@ class CurrentPlan:
     title: str
     start_date: date
     study_time: time
+    session_minutes: int
     tz: ZoneInfo
+
+    @property
+    def session_length(self) -> timedelta:
+        return timedelta(minutes=self.session_minutes)
 
 
 async def load_current_plan(session: AsyncSession) -> CurrentPlan | None:
@@ -41,6 +46,7 @@ async def load_current_plan(session: AsyncSession) -> CurrentPlan | None:
         title=plan.title,
         start_date=plan.start_date,
         study_time=plan.study_time,
+        session_minutes=plan.session_minutes,
         tz=ZoneInfo(timezone),
     )
 
@@ -51,6 +57,7 @@ async def create_plan(
     curriculum: Curriculum,
     start_date: date,
     study_time: time,
+    session_minutes: int,
     tz: ZoneInfo,
 ) -> Plan:
     """A plan and its topic graph; each topic unlocks at the study time on its day."""
@@ -60,6 +67,7 @@ async def create_plan(
         title=curriculum.title,
         start_date=start_date,
         study_time=study_time,
+        session_minutes=session_minutes,
         baseline_card=curriculum.baseline_card,
     )
     session.add(plan)

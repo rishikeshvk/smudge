@@ -53,6 +53,8 @@ class Plan(Base):
     title: Mapped[str]
     start_date: Mapped[date]
     study_time: Mapped[time]
+    # How long the buddy studies from the study time, from the hours a day agreed.
+    session_minutes: Mapped[int] = mapped_column(server_default="60")
     baseline_card: Mapped[list[str]] = mapped_column(JSONB)
 
 

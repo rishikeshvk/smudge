@@ -1,4 +1,5 @@
 from collections.abc import Awaitable, Callable
+from dataclasses import replace
 from datetime import UTC, datetime, time, timedelta
 
 import pytest
@@ -185,4 +186,20 @@ async def test_the_next_ritual_is_the_next_morning_study_or_night(
 
     assert next_ritual_at(plan, SCHEDULE, local(1, 7)) == local(1, 8)
     assert next_ritual_at(plan, SCHEDULE, local(1, 8)) == local(1, 19)
+    assert next_ritual_at(plan, SCHEDULE, local(1, 19)) == local(1, 20)
     assert next_ritual_at(plan, SCHEDULE, local(1, 22)) == local(2, 8)
+
+
+@pytest.mark.anyio
+async def test_the_night_review_waits_for_a_long_session_to_end(
+    session: AsyncSession, add_course: AddCourse, add_study: AddStudy
+) -> None:
+    plan = await current(session, add_course, 1)
+    long = replace(plan, session_minutes=180)
+    await add_study(1, local(1, 22))
+
+    during = await send_due_rituals(session, long, SCHEDULE, local(1, 21, 45))
+    after = await send_due_rituals(session, long, SCHEDULE, local(1, 22, 1))
+
+    assert "night_review" not in kinds(during)
+    assert "night_review" in kinds(after)

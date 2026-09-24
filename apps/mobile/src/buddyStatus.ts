@@ -16,16 +16,11 @@ export function buddyStatusLine(
 ): StatusLine {
   if (!buddy.available) return { avatar: "away", text: "unavailable right now", lamp: false };
 
-  const topics = roadmap?.topics ?? [];
   if (buddy.studying) {
-    const studying = topics.find((topic) => topic.unlocked && !topic.buddy_studied);
-    return {
-      avatar: "studying",
-      text: studying ? `studying ${studying.topic.title}` : "studying",
-      lamp: true,
-    };
+    return { avatar: "studying", text: `studying ${buddy.studying.topic.title}`, lamp: true };
   }
 
+  const topics = roadmap?.topics ?? [];
   // Topics unlock at the plan's study time, so the next unlock is when the buddy studies next.
   const next = topics.find((topic) => !topic.unlocked);
   return {

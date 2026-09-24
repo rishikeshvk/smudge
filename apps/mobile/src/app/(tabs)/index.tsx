@@ -96,7 +96,7 @@ export default function Chat() {
 
   return (
     <AmbientGround ambient={ambientForHour(localHour(now))}>
-      <LampGlow on={studying} />
+      <LampGlow on={studying !== null} />
       <BuddyHeader name={name} status={status.text} avatar={status.avatar} lampStatus={status.lamp}>
         {roadmap.data && roadmap.data.day >= 1 && <StreakChip streak={roadmap.data.streak} />}
         <XrayToggle on={xray.value === true} onToggle={() => xray.set(!xray.value)} />

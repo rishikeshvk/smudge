@@ -95,7 +95,8 @@ export const changeClockMutation = (options?: Partial<Options<ChangeClockData>>)
 /**
  * Study Now
  *
- * Run tonight's study: move to today's study time if it's earlier, then tick.
+ * Run tonight's study: move to the end of today's session if it's later, then
+ * tick.
  */
 export const studyNowMutation = (options?: Partial<Options<StudyNowData>>): UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> => {
     const mutationOptions: UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> = {

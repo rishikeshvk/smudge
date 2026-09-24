@@ -105,6 +105,7 @@ def build_prompt(request: DraftRequest, context: PersonaContext) -> str:
         f"Where you both are: {_standing(context)}",
         f"Reply budget: {_budget(context.style)}",
         f"Your mood: {_mood(context.mood)}",
+        *_studying(context),
         f"What you remember about them:\n{facts or '(nothing yet)'}",
         f"Recent days together:\n{days or '(none yet)'}",
         f"Baseline card:\n{baseline}",
@@ -133,6 +134,17 @@ def _directive(request: DraftRequest) -> str:
             f"{t.title} (day {t.day})" for t in directive.deflect_topics
         )
     return text
+
+
+def _studying(context: PersonaContext) -> list[str]:
+    if context.studying is None:
+        return []
+    return [
+        f"Right now: you're mid-way through studying {context.studying.topic.title}, "
+        f"until {context.studying.until.astimezone(context.local_now.tzinfo):%H:%M}. "
+        "Reply briefly, like a quick text on a break. You have no note for it yet, so "
+        "say how it's going rather than explain it."
+    ]
 
 
 def _mood(mood: Mood) -> str:

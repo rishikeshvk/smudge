@@ -29,5 +29,6 @@ async def test_current_plan_carries_the_users_timezone(
         title="T",
         start_date=date(2026, 10, 1),
         study_time=time(19),
+        session_minutes=60,
         tz=ZoneInfo("Asia/Kolkata"),
     )

@@ -19,6 +19,7 @@ from kindred_contracts import (
     RoadmapEntry,
     Route,
     Speaker,
+    Studying,
     TopicRef,
 )
 from kindred_llm import LLMClient
@@ -41,6 +42,7 @@ CONTEXT = PersonaContext(
     gap=1,
     style=ReplyStyle(max_words=15, emoji=False),
     mood=Mood(kind=MoodKind.STEADY, reason=None),
+    studying=None,
 )
 
 
@@ -181,3 +183,15 @@ def test_a_mood_with_a_reason_colours_the_tone_without_being_announced() -> None
 
     assert "Your mood: fried, since IAM overview was a lot." in prompt
     assert "don't announce it" in prompt
+
+
+def test_mid_session_the_buddy_replies_briefly_without_a_note() -> None:
+    until = datetime(2026, 10, 5, 22, 0, tzinfo=ZoneInfo("Asia/Kolkata"))
+    context = CONTEXT.model_copy(
+        update={"studying": Studying(topic=POLICIES, until=until)}
+    )
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "mid-way through studying IAM policies, until 22:00" in prompt
+    assert "Right now" not in build_prompt(request(DEFLECT), CONTEXT)

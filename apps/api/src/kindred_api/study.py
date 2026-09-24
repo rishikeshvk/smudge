@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.embedding import DocumentEmbedder
 from kindred_api.ledger import append_note
+from kindred_api.plans import CurrentPlan
 from kindred_contracts import (
     AuditVerdict,
     EarlierNote,
@@ -61,13 +62,18 @@ class StudyOutcome:
 
 
 async def due_topics(
-    session: AsyncSession, plan_id: int, now: datetime
+    session: AsyncSession, plan: CurrentPlan, now: datetime
 ) -> list[TopicNode]:
-    """Unlocked topics the buddy hasn't sat down to study yet, in plan order."""
+    """Topics whose study session has ended with no note attempt yet, in plan order.
+    The note is written as the session ends, so mid-session the buddy has none."""
     studied = exists().where(StudySession.node_id == TopicNode.id)
     nodes = await session.scalars(
         select(TopicNode)
-        .where(TopicNode.plan_id == plan_id, TopicNode.unlock_at <= now, ~studied)
+        .where(
+            TopicNode.plan_id == plan.id,
+            TopicNode.unlock_at <= now - plan.session_length,
+            ~studied,
+        )
         .order_by(TopicNode.day)
     )
     return list(nodes)

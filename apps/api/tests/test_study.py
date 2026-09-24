@@ -5,6 +5,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from kindred_api.plans import load_current_plan
 from kindred_api.study import (
     StudyComponents,
     StudyStatus,
@@ -113,18 +114,25 @@ async def session_row(session: AsyncSession, node: TopicNode) -> StudySession | 
 
 
 @pytest.mark.anyio
-async def test_only_unlocked_unstudied_topics_are_due(
+async def test_a_topic_is_due_once_its_session_ends_and_only_once(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
     day_1, _ = await course(session, add_course)
+    plan = await load_current_plan(session)
+    assert plan is not None
+    session_end = DAY_1 + plan.session_length
 
-    assert [n.day for n in await due_topics(session, day_1.plan_id, NOW)] == [1]
+    assert await due_topics(session, plan, session_end - timedelta(minutes=1)) == []
+    assert [n.day for n in await due_topics(session, plan, session_end)] == [1]
 
     await study_topic(
-        session, day_1, NOW, components(FakeCurator(note("regions")), FakeAuditor(PASS))
+        session,
+        day_1,
+        session_end,
+        components(FakeCurator(note("regions")), FakeAuditor(PASS)),
     )
 
-    assert await due_topics(session, day_1.plan_id, NOW) == []
+    assert await due_topics(session, plan, session_end) == []
 
 
 @pytest.mark.anyio

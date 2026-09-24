@@ -43,7 +43,8 @@ export const changeClock = <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Study Now
  *
- * Run tonight's study: move to today's study time if it's earlier, then tick.
+ * Run tonight's study: move to the end of today's session if it's later, then
+ * tick.
  */
 export const studyNow = <ThrowOnError extends boolean = false>(options?: Options<StudyNowData, ThrowOnError>): RequestResult<StudyNowResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyNowResponses, unknown, ThrowOnError>({ url: '/dev/study-now', ...options });
 

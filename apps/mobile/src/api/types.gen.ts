@@ -74,14 +74,12 @@ export type BuddyStatus = {
      * Name
      */
     name: string;
+    mood: Mood;
     /**
      * Available
      */
     available: boolean;
-    /**
-     * Studying
-     */
-    studying: boolean;
+    studying: Studying | null;
 };
 
 /**
@@ -123,6 +121,10 @@ export type ChatMessage = {
     } & AskCard) | ({
         kind: 'night_review';
     } & NightReviewCard) | null;
+    /**
+     * Reaction
+     */
+    reaction: string | null;
 };
 
 /**
@@ -307,6 +309,24 @@ export type ModelsPerRole = {
      */
     curator: string;
 };
+
+/**
+ * Mood
+ *
+ * How the buddy feels, from events in its own day only.
+ */
+export type Mood = {
+    kind: MoodKind;
+    /**
+     * Reason
+     */
+    reason: string | null;
+};
+
+/**
+ * MoodKind
+ */
+export type MoodKind = 'steady' | 'focused' | 'tired' | 'flat' | 'fried';
 
 /**
  * MorningCard
@@ -681,6 +701,19 @@ export type StudyTimeChange = {
      * Study Time
      */
     study_time: string;
+};
+
+/**
+ * Studying
+ *
+ * The buddy's study session in progress.
+ */
+export type Studying = {
+    topic: TopicRef;
+    /**
+     * Until
+     */
+    until: string;
 };
 
 /**

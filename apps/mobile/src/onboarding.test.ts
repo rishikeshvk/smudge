@@ -20,6 +20,7 @@ function entry(id: number, withProposal: boolean): OnboardingEntry {
       at: "2026-10-01T09:00:00Z",
       stage: null,
       turn_id: null,
+      reaction: null,
       card: null,
     },
     proposal: withProposal ? proposal : null,

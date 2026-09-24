@@ -77,7 +77,7 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
 
 @pytest.mark.anyio
 async def test_buddy_reports_its_name_and_what_it_is_doing(
-    api: ApiClient, worker: TurnWorker, ticker: Ticker, add_course: AddCourse
+    api: ApiClient, worker: TurnWorker, add_course: AddCourse
 ) -> None:
     await add_course(1)
     client = api(FixedClock(NOW), worker)
@@ -86,14 +86,29 @@ async def test_buddy_reports_its_name_and_what_it_is_doing(
         "name": "Juno",
         "mood": {"kind": "steady", "reason": None},
         "available": True,
-        "studying": False,
+        "studying": None,
     }
 
     worker.available = False
-    ticker.studying = True
 
-    status = (await client.get("/buddy")).json()
-    assert (status["available"], status["studying"]) == (False, True)
+    assert (await client.get("/buddy")).json()["available"] is False
+
+
+@pytest.mark.anyio
+async def test_the_buddy_is_studying_during_its_session(
+    api: ApiClient, worker: TurnWorker, add_course: AddCourse
+) -> None:
+    await add_course(1)
+    # 19:30 in Kolkata on day 1: half an hour into the hour from 19:00.
+    during = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
+
+    status = (await api(FixedClock(during), worker).get("/buddy")).json()
+
+    assert status["studying"] == {
+        "topic": {"slug": "topic-1", "title": "Topic 1", "day": 1},
+        "until": "2026-10-01T14:30:00Z",
+    }
+    assert status["mood"] == {"kind": "focused", "reason": "mid-way through Topic 1"}
 
 
 @pytest.mark.anyio
