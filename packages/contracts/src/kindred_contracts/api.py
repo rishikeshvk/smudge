@@ -76,6 +76,10 @@ class RoadmapView(Contract):
     plan_title: str
     # Below 1 before the plan starts.
     day: int
+    # Days in a row the user has checked in.
+    streak: int = Field(ge=0)
+    # Topics the buddy is ahead of the user; negative when the user is ahead.
+    gap: int
     topics: list[RoadmapTopic]
 
 

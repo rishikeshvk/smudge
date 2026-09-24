@@ -26,6 +26,8 @@ function topic(
 const behind: RoadmapView = {
   plan_title: "Tiny",
   day: 3,
+  streak: 2,
+  gap: 1,
   topics: [
     topic(1, { unlocked: true, buddy: true, user: true }),
     topic(2, { unlocked: true, buddy: true, user: true }),

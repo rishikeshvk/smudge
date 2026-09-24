@@ -44,6 +44,7 @@ async def test_the_roadmap_shows_both_learners_on_every_topic(
     roadmap = (await api(FixedClock(DAY_2_EVENING), None).get("/roadmap")).json()
 
     assert (roadmap["plan_title"], roadmap["day"]) == ("T", 2)
+    assert (roadmap["streak"], roadmap["gap"]) == (1, 1)
     assert [
         (t["topic"]["day"], t["unlocked"], t["buddy_studied"], t["user_studied"])
         for t in roadmap["topics"]

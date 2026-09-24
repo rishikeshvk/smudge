@@ -34,6 +34,8 @@ CONTEXT = PersonaContext(
     local_now=datetime(2026, 10, 5, 21, 15, tzinfo=ZoneInfo("Asia/Kolkata")),
     facts=["Studies after work."],
     recent_days=[DaySummary(day=date(2026, 10, 4), summary="they were tired.")],
+    streak=3,
+    gap=1,
 )
 
 
@@ -120,3 +122,20 @@ def test_prompt_carries_relationship_memory() -> None:
 
     assert "What you remember about them:\n- Studies after work." in prompt
     assert "Recent days together:\n- Sunday: they were tired." in prompt
+
+
+def test_prompt_says_where_both_learners_stand() -> None:
+    prompt = build_prompt(request(DEFLECT), CONTEXT)
+
+    assert (
+        "Where you both are: you're 1 topic ahead of them. "
+        "They've studied 3 days in a row." in prompt
+    )
+
+
+def test_prompt_says_when_the_user_is_ahead() -> None:
+    context = CONTEXT.model_copy(update={"gap": -2, "streak": 1})
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "they're 2 topics ahead of you. They've studied 1 day in a row." in prompt

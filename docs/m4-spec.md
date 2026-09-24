@@ -46,7 +46,7 @@ Each step is built, tested and committed on its own.
 | Step | Delivers |
 | --- | --- |
 | 1 Spec | This document |
-| 2 Streak and gap | `streak.py`, `RoadmapView.streak` and `gap`, the Persona's context and prompt |
+| 2 Streak and gap | `standing.py` (streak and gap together, since the Roadmap and the Persona need both), `RoadmapView.streak` and `gap`, the Persona's context and prompt |
 | 3 Study share | `NoteDraft.share`, audited with the note and stored on the study session |
 | 4 Director | Ritual templates, the Director's windows, cap and idempotency, the ticker job, `POST /dev/next-ritual` |
 | 5 Replanning | Pull earlier, pause and study time; `RoadmapTopic.can_pull` |

@@ -468,6 +468,14 @@ export type RoadmapView = {
      */
     day: number;
     /**
+     * Streak
+     */
+    streak: number;
+    /**
+     * Gap
+     */
+    gap: number;
+    /**
      * Topics
      */
     topics: Array<RoadmapTopic>;
