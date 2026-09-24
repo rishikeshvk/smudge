@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
+import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -135,6 +135,20 @@ export const addCheckin = <ThrowOnError extends boolean = false>(options?: Optio
 export const readRoadmap = <ThrowOnError extends boolean = false>(options?: Options<ReadRoadmapData, ThrowOnError>): RequestResult<ReadRoadmapResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadRoadmapResponses, unknown, ThrowOnError>({ url: '/roadmap', ...options });
 
 /**
+ * Pull Topic
+ *
+ * Pull a locked topic into the next free study slot.
+ */
+export const pullTopic = <ThrowOnError extends boolean = false>(options: Options<PullTopicData, ThrowOnError>): RequestResult<PullTopicResponses, PullTopicErrors, ThrowOnError> => (options.client ?? client).post<PullTopicResponses, PullTopicErrors, ThrowOnError>({
+    url: '/roadmap/pull',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Read Notebook
  */
 export const readNotebook = <ThrowOnError extends boolean = false>(options?: Options<ReadNotebookData, ThrowOnError>): RequestResult<ReadNotebookResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadNotebookResponses, unknown, ThrowOnError>({ url: '/notebook', ...options });
@@ -143,6 +157,32 @@ export const readNotebook = <ThrowOnError extends boolean = false>(options?: Opt
  * Read Note
  */
 export const readNote = <ThrowOnError extends boolean = false>(options: Options<ReadNoteData, ThrowOnError>): RequestResult<ReadNoteResponses, ReadNoteErrors, ThrowOnError> => (options.client ?? client).get<ReadNoteResponses, ReadNoteErrors, ThrowOnError>({ url: '/notebook/{note_id}', ...options });
+
+/**
+ * Pause Plan
+ *
+ * Move every topic still ahead back some days.
+ */
+export const pausePlan = <ThrowOnError extends boolean = false>(options: Options<PausePlanData, ThrowOnError>): RequestResult<PausePlanResponses, PausePlanErrors, ThrowOnError> => (options.client ?? client).post<PausePlanResponses, PausePlanErrors, ThrowOnError>({
+    url: '/plan/pause',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Change Plan Study Time
+ */
+export const changePlanStudyTime = <ThrowOnError extends boolean = false>(options: Options<ChangePlanStudyTimeData, ThrowOnError>): RequestResult<ChangePlanStudyTimeResponses, ChangePlanStudyTimeErrors, ThrowOnError> => (options.client ?? client).put<ChangePlanStudyTimeResponses, ChangePlanStudyTimeErrors, ThrowOnError>({
+    url: '/plan/study-time',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Read Settings

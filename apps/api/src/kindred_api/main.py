@@ -19,6 +19,7 @@ from kindred_api.routes import (
     health,
     notebook,
     onboarding,
+    plan,
     progress,
     roadmap,
     settings,
@@ -70,6 +71,7 @@ for router in (
     progress,
     roadmap,
     notebook,
+    plan,
     settings,
 ):
     app.include_router(router.router)

@@ -63,3 +63,40 @@ async def test_no_roadmap_before_a_plan(api: ApiClient) -> None:
     response = await api(FixedClock(DAY_2_EVENING), None).get("/roadmap")
 
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_pulling_a_topic_earlier_reshapes_the_roadmap(
+    api: ApiClient, add_course: AddCourse
+) -> None:
+    await add_course(3)
+    # The morning of day 1: every topic is still ahead, so day 1 is the free slot.
+    client = api(FixedClock(DAY_2_EVENING - timedelta(days=1, hours=6)), None)
+
+    before = (await client.get("/roadmap")).json()
+    after = await client.post("/roadmap/pull", json={"slug": "topic-3"})
+    refused = await client.post("/roadmap/pull", json={"slug": "topic-3"})
+
+    assert [t["can_pull"] for t in before["topics"]] == [False, True, True]
+    assert [t["topic"]["slug"] for t in after.json()["topics"]] == [
+        "topic-3",
+        "topic-1",
+        "topic-2",
+    ]
+    # Topic 3 is in the slot itself now.
+    assert refused.status_code == 409
+
+
+@pytest.mark.anyio
+async def test_pausing_moves_the_plan_back(
+    api: ApiClient, add_course: AddCourse
+) -> None:
+    await add_course(2)
+    client = api(FixedClock(DAY_2_EVENING), None)
+
+    paused = await client.post("/plan/pause", json={"days": 3})
+    moved = await client.put("/plan/study-time", json={"study_time": "07:00:00"})
+
+    assert [t["topic"]["day"] for t in paused.json()["topics"]] == [1, 2]
+    assert moved.status_code == 200
+    assert (await client.post("/plan/pause", json={"days": 8})).status_code == 422

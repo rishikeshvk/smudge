@@ -19,6 +19,7 @@ function topic(
     unlocked,
     buddy_studied: buddy,
     user_studied: user,
+    can_pull: false,
   };
 }
 

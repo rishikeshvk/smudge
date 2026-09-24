@@ -432,6 +432,16 @@ export type OnboardingReply = {
 };
 
 /**
+ * PausePlan
+ */
+export type PausePlan = {
+    /**
+     * Days
+     */
+    days: number;
+};
+
+/**
  * PlanProposal
  */
 export type PlanProposal = {
@@ -459,6 +469,16 @@ export type PlanProposal = {
      * Topics
      */
     topics: Array<TopicRef>;
+};
+
+/**
+ * PullTopic
+ */
+export type PullTopic = {
+    /**
+     * Slug
+     */
+    slug: string;
 };
 
 /**
@@ -526,6 +546,10 @@ export type RoadmapTopic = {
      * User Studied
      */
     user_studied: boolean;
+    /**
+     * Can Pull
+     */
+    can_pull: boolean;
 };
 
 /**
@@ -625,6 +649,16 @@ export type StudyShareCard = {
      * Shaky
      */
     shaky: Array<string>;
+};
+
+/**
+ * StudyTimeChange
+ */
+export type StudyTimeChange = {
+    /**
+     * Study Time
+     */
+    study_time: string;
 };
 
 /**
@@ -1074,6 +1108,31 @@ export type ReadRoadmapResponses = {
 
 export type ReadRoadmapResponse = ReadRoadmapResponses[keyof ReadRoadmapResponses];
 
+export type PullTopicData = {
+    body: PullTopic;
+    path?: never;
+    query?: never;
+    url: '/roadmap/pull';
+};
+
+export type PullTopicErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PullTopicError = PullTopicErrors[keyof PullTopicErrors];
+
+export type PullTopicResponses = {
+    /**
+     * Successful Response
+     */
+    200: RoadmapView;
+};
+
+export type PullTopicResponse = PullTopicResponses[keyof PullTopicResponses];
+
 export type ReadNotebookData = {
     body?: never;
     path?: never;
@@ -1119,6 +1178,56 @@ export type ReadNoteResponses = {
 };
 
 export type ReadNoteResponse = ReadNoteResponses[keyof ReadNoteResponses];
+
+export type PausePlanData = {
+    body: PausePlan;
+    path?: never;
+    query?: never;
+    url: '/plan/pause';
+};
+
+export type PausePlanErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type PausePlanError = PausePlanErrors[keyof PausePlanErrors];
+
+export type PausePlanResponses = {
+    /**
+     * Successful Response
+     */
+    200: RoadmapView;
+};
+
+export type PausePlanResponse = PausePlanResponses[keyof PausePlanResponses];
+
+export type ChangePlanStudyTimeData = {
+    body: StudyTimeChange;
+    path?: never;
+    query?: never;
+    url: '/plan/study-time';
+};
+
+export type ChangePlanStudyTimeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChangePlanStudyTimeError = ChangePlanStudyTimeErrors[keyof ChangePlanStudyTimeErrors];
+
+export type ChangePlanStudyTimeResponses = {
+    /**
+     * Successful Response
+     */
+    200: RoadmapView;
+};
+
+export type ChangePlanStudyTimeResponse = ChangePlanStudyTimeResponses[keyof ChangePlanStudyTimeResponses];
 
 export type ReadSettingsData = {
     body?: never;

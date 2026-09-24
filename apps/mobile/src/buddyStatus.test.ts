@@ -8,6 +8,7 @@ function topic(day: number, unlocked: boolean, buddyStudied: boolean): RoadmapTo
     unlocked,
     buddy_studied: buddyStudied,
     user_studied: false,
+    can_pull: false,
   };
 }
 

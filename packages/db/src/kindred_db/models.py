@@ -60,7 +60,8 @@ class TopicNode(Base):
     __tablename__ = "topic_nodes"
     __table_args__ = (
         UniqueConstraint("plan_id", "slug"),
-        UniqueConstraint("plan_id", "day"),
+        # Checked at commit, so replanning can shift a run of days in one go.
+        UniqueConstraint("plan_id", "day", deferrable=True, initially="DEFERRED"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

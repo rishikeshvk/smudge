@@ -15,11 +15,14 @@ from kindred_contracts.api import (
     OnboardingEntry,
     OnboardingMessage,
     OnboardingReply,
+    PausePlan,
+    PullTopic,
     ResetClock,
     RoadmapTopic,
     RoadmapView,
     SealedDay,
     SendMessage,
+    StudyTimeChange,
 )
 from kindred_contracts.curriculum import (
     Curriculum,
@@ -80,6 +83,9 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "PausePlan",
+    "PullTopic",
+    "StudyTimeChange",
     "AskCard",
     "MorningCard",
     "NightReviewCard",

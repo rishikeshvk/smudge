@@ -1,3 +1,4 @@
+from datetime import time
 from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, Field, SecretStr
@@ -73,6 +74,8 @@ class RoadmapTopic(Contract):
     unlocked: bool
     buddy_studied: bool
     user_studied: bool
+    # Whether "Pull earlier" can move this topic into the next free study slot.
+    can_pull: bool
 
 
 class RoadmapView(Contract):
@@ -84,6 +87,18 @@ class RoadmapView(Contract):
     # Topics the buddy is ahead of the user; negative when the user is ahead.
     gap: int
     topics: list[RoadmapTopic]
+
+
+class PullTopic(Contract):
+    slug: str
+
+
+class PausePlan(Contract):
+    days: int = Field(ge=1, le=7)
+
+
+class StudyTimeChange(Contract):
+    study_time: time
 
 
 class SealedDay(Contract):

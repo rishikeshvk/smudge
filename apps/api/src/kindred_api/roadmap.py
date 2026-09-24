@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.plans import CurrentPlan
 from kindred_api.progress import studied_slugs
+from kindred_api.replan import load_movable
 from kindred_api.schedule import plan_day
 from kindred_api.standing import load_standing
 from kindred_contracts import RoadmapTopic, RoadmapView
@@ -19,6 +20,7 @@ async def build_roadmap(
     written = {note.topic.slug for note in notes}
     studied = await studied_slugs(session, plan.id, now)
     standing = await load_standing(session, plan.id, plan.tz, now)
+    pullable = {n.slug for n in (await load_movable(session, plan.id, now)).pullable()}
     return RoadmapView(
         plan_title=plan.title,
         day=plan_day(plan.start_date, now, plan.tz),
@@ -31,6 +33,7 @@ async def build_roadmap(
                 unlocked=topic.is_unlocked(now),
                 buddy_studied=topic.slug in written,
                 user_studied=topic.slug in studied,
+                can_pull=topic.slug in pullable,
             )
             for topic in topics.topics
         ],

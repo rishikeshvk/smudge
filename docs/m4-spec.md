@@ -54,6 +54,20 @@ All times are the user's local time. `day` is the plan day.
   session, so every unlocked topic still counts as due. Free checks of the Director use `FixedClock` tests, not a
   live server.
 
+## Replanning (step 5)
+
+| Endpoint | Returns | Notes |
+| --- | --- | --- |
+| `POST /roadmap/pull` `{slug}` | `RoadmapView` | `409` unless `can_pull` |
+| `POST /plan/pause` `{days}` | `RoadmapView` | 1–7 days |
+| `PUT /plan/study-time` `{study_time}` | `RoadmapView` | Also moves the time the buddy studies from tonight on |
+
+- A topic that moves always gets its unlock time from `plan_moment` and its new day, so every topic still ahead
+  unlocks at the plan's study time.
+- A topic that can move has no study session, but it can have a note on a `--reference-notes` database. That
+  note's `written_at` is its old unlock time, and the gate needs both times to have passed. So a replan can make a
+  note appear later than before, never earlier.
+
 ## Steps
 
 Each step is built, tested and committed on its own.

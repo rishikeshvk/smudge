@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { accept, addCheckin, changeClock, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
-import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
+import { accept, addCheckin, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
+import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -315,6 +315,25 @@ export const readRoadmapOptions = (options?: Options<ReadRoadmapData>) => queryO
     queryKey: readRoadmapQueryKey(options)
 });
 
+/**
+ * Pull Topic
+ *
+ * Pull a locked topic into the next free study slot.
+ */
+export const pullTopicMutation = (options?: Partial<Options<PullTopicData>>): UseMutationOptions<PullTopicResponse, PullTopicError, Options<PullTopicData>> => {
+    const mutationOptions: UseMutationOptions<PullTopicResponse, PullTopicError, Options<PullTopicData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await pullTopic({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const readNotebookQueryKey = (options?: Options<ReadNotebookData>) => createQueryKey('readNotebook', options);
 
 /**
@@ -350,6 +369,42 @@ export const readNoteOptions = (options: Options<ReadNoteData>) => queryOptions<
     },
     queryKey: readNoteQueryKey(options)
 });
+
+/**
+ * Pause Plan
+ *
+ * Move every topic still ahead back some days.
+ */
+export const pausePlanMutation = (options?: Partial<Options<PausePlanData>>): UseMutationOptions<PausePlanResponse, PausePlanError, Options<PausePlanData>> => {
+    const mutationOptions: UseMutationOptions<PausePlanResponse, PausePlanError, Options<PausePlanData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await pausePlan({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
+ * Change Plan Study Time
+ */
+export const changePlanStudyTimeMutation = (options?: Partial<Options<ChangePlanStudyTimeData>>): UseMutationOptions<ChangePlanStudyTimeResponse, ChangePlanStudyTimeError, Options<ChangePlanStudyTimeData>> => {
+    const mutationOptions: UseMutationOptions<ChangePlanStudyTimeResponse, ChangePlanStudyTimeError, Options<ChangePlanStudyTimeData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await changePlanStudyTime({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
 
 export const readSettingsQueryKey = (options?: Options<ReadSettingsData>) => createQueryKey('readSettings', options);
 
