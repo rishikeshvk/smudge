@@ -193,8 +193,8 @@ class StudyCheckin(Base):
     at: Mapped[datetime]
 
 
-# One night's study per topic: the note it wrote, or why it wrote nothing.
-# A topic's study, and one retry after a failed night.
+# A night's study of a topic: the note it wrote, or why it wrote nothing. A failed
+# night gets one retry.
 class StudySession(Base):
     __tablename__ = "study_sessions"
 
