@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
+import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -128,6 +128,20 @@ export const readBuddy = <ThrowOnError extends boolean = false>(options?: Option
  * "I studied today": marks the user's next topic done and returns it.
  */
 export const addCheckin = <ThrowOnError extends boolean = false>(options?: Options<AddCheckinData, ThrowOnError>): RequestResult<AddCheckinResponses, unknown, ThrowOnError> => (options?.client ?? client).post<AddCheckinResponses, unknown, ThrowOnError>({ url: '/progress/checkins', ...options });
+
+/**
+ * Add Push Token
+ *
+ * A phone that should get the buddy's rituals; registering again is harmless.
+ */
+export const addPushToken = <ThrowOnError extends boolean = false>(options: Options<AddPushTokenData, ThrowOnError>): RequestResult<AddPushTokenResponses, AddPushTokenErrors, ThrowOnError> => (options.client ?? client).post<AddPushTokenResponses, AddPushTokenErrors, ThrowOnError>({
+    url: '/push/tokens',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Read Roadmap

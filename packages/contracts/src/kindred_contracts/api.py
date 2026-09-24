@@ -101,6 +101,10 @@ class StudyTimeChange(Contract):
     study_time: time
 
 
+class PushRegistration(Contract):
+    token: str = Field(pattern=r"^Expo(nent)?PushToken\[.+\]$")
+
+
 class SealedDay(Contract):
     """A day whose note isn't written yet: only its day and date, never its content."""
 

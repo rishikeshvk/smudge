@@ -17,6 +17,7 @@ from kindred_contracts.api import (
     OnboardingReply,
     PausePlan,
     PullTopic,
+    PushRegistration,
     ResetClock,
     RoadmapTopic,
     RoadmapView,
@@ -85,6 +86,7 @@ from kindred_contracts.turn import (
 __all__ = [
     "PausePlan",
     "PullTopic",
+    "PushRegistration",
     "StudyTimeChange",
     "AskCard",
     "MorningCard",

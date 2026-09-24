@@ -219,6 +219,15 @@ class Ritual(Base):
     shaky: Mapped[str | None]
 
 
+# A phone that gets the buddy's rituals as push notifications, via Expo.
+class PushToken(Base):
+    __tablename__ = "push_tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    token: Mapped[str] = mapped_column(unique=True)
+    registered_at: Mapped[datetime]
+
+
 # Who the user is to the buddy: one snapshot per finished day, kept apart from the
 # ledger of what it knows. The latest snapshot is the current memory.
 class RelationshipMemory(Base):

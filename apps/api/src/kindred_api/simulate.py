@@ -20,6 +20,7 @@ from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.onboarding import accept_plan, ensure_user, onboarding_turn
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.progress import check_in, studied_slugs
+from kindred_api.push import Pusher
 from kindred_api.schedule import plan_moment
 from kindred_api.scratch_databases import recreate_database, sibling_url
 from kindred_api.ticker import Ticker
@@ -109,8 +110,15 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
     clock = FixedClock(START)
     llm = LLMRuntime(settings, settings)
     worker = TurnWorker(sessions, clock, llm.turn_components)
+    # The fresh database has no push tokens, so nothing reaches a phone.
+    push_client = httpx2.AsyncClient()
     ticker = Ticker(
-        sessions, clock, llm.study, llm.memory, RitualSchedule.from_settings(settings)
+        sessions,
+        clock,
+        llm.study,
+        llm.memory,
+        RitualSchedule.from_settings(settings),
+        Pusher(push_client, settings.expo_push_url),
     )
     try:
         onboarding = await _onboard(sessions, clock, llm)
@@ -123,6 +131,7 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
         await ticker.tick()
         report_days = await _days(sessions, plan, clock.now(), days)
     finally:
+        await push_client.aclose()
         await engine.dispose()
     return Report(
         started_at=started.isoformat(),

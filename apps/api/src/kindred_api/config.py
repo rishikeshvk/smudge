@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     night_review_time: time = time(21, 30)
     # Unprompted messages a day at most; replies don't count.
     ritual_daily_cap: int = Field(default=4, ge=1)
+    expo_push_url: str = "https://exp.host/--/api/v2/push/send"
 
     # Swaps real time for the persisted dev clock and enables /dev time controls.
     dev_mode: bool = False

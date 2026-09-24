@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from kindred_api.clock import Clock
 from kindred_api.director import RitualSchedule, send_due_rituals
 from kindred_api.plans import CurrentPlan, load_current_plan
+from kindred_api.push import Pusher
 from kindred_api.relationship import Rememberer, remember_day, unremembered_days
 from kindred_api.study import StudyComponents, due_topics, study_topic
 from kindred_llm import LLMUnavailableError
@@ -27,12 +28,14 @@ class Ticker:
         study: Callable[[], StudyComponents],
         memory: Callable[[], Rememberer],
         rituals: RitualSchedule,
+        pusher: Pusher,
     ) -> None:
         self._sessions = sessions
         self._clock = clock
         self._study = study
         self._memory = memory
         self.rituals = rituals
+        self._pusher = pusher
         self._lock = asyncio.Lock()
         self.studying = False
 
@@ -86,3 +89,4 @@ class Ticker:
         await session.commit()
         for message in sent:
             logger.info("sent a ritual: %s", message.text)
+        await self._pusher.push(session, sent)

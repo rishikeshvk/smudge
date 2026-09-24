@@ -482,6 +482,16 @@ export type PullTopic = {
 };
 
 /**
+ * PushRegistration
+ */
+export type PushRegistration = {
+    /**
+     * Token
+     */
+    token: string;
+};
+
+/**
  * ResetClock
  */
 export type ResetClock = {
@@ -1091,6 +1101,31 @@ export type AddCheckinResponses = {
 };
 
 export type AddCheckinResponse = AddCheckinResponses[keyof AddCheckinResponses];
+
+export type AddPushTokenData = {
+    body: PushRegistration;
+    path?: never;
+    query?: never;
+    url: '/push/tokens';
+};
+
+export type AddPushTokenErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddPushTokenError = AddPushTokenErrors[keyof AddPushTokenErrors];
+
+export type AddPushTokenResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type AddPushTokenResponse = AddPushTokenResponses[keyof AddPushTokenResponses];
 
 export type ReadRoadmapData = {
     body?: never;

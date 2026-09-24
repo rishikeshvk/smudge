@@ -1,6 +1,8 @@
+import json
 from collections.abc import Awaitable, Callable
 from datetime import UTC, date, datetime, time, timedelta
 
+import httpx2
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
@@ -8,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from kindred_api.chat import post_message
 from kindred_api.clock import FixedClock
 from kindred_api.director import RitualSchedule
+from kindred_api.push import Pusher, register_token
 from kindred_api.relationship import load_memory
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
@@ -30,6 +33,7 @@ from kindred_db import (
 from kindred_gate import TopicMap
 from kindred_llm import LLMUnavailableError
 
+NO_NETWORK = httpx2.MockTransport(lambda request: httpx2.Response(500))
 AddCourse = Callable[[int], Awaitable[Plan]]
 DAY_1 = datetime(2026, 10, 1, 13, 30, tzinfo=UTC)
 
@@ -83,7 +87,10 @@ async def sourced_course(
 
 
 def ticker_for(
-    sessions: async_sessionmaker[AsyncSession], clock: FixedClock, buddy: Buddy
+    sessions: async_sessionmaker[AsyncSession],
+    clock: FixedClock,
+    buddy: Buddy,
+    push: httpx2.MockTransport = NO_NETWORK,
 ) -> Ticker:
     ticker = Ticker(
         sessions,
@@ -91,6 +98,7 @@ def ticker_for(
         lambda: StudyComponents(curator=buddy, auditor=buddy, embedder=buddy),
         lambda: buddy,
         RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4),
+        Pusher(httpx2.AsyncClient(transport=push), "https://push.test"),
     )
     buddy.ticker = ticker
     return ticker
@@ -157,6 +165,29 @@ async def test_a_tick_shares_what_the_buddy_just_studied(
 
     texts = await session.scalars(select(Message.text).where(Message.card.is_not(None)))
     assert list(texts) == ["went ok"]
+
+
+@pytest.mark.anyio
+async def test_a_ritual_is_pushed_to_the_phone(
+    session: AsyncSession,
+    sessions: async_sessionmaker[AsyncSession],
+    add_course: AddCourse,
+) -> None:
+    await sourced_course(session, add_course, 2)
+    await register_token(session, "ExponentPushToken[phone]", DAY_1)
+    await session.commit()
+    pushed: list[str] = []
+
+    def expo(request: httpx2.Request) -> httpx2.Response:
+        pushed.extend(n["body"] for n in json.loads(request.content))
+        return httpx2.Response(200, json={"data": [{"status": "ok"}]})
+
+    ticker = ticker_for(
+        sessions, FixedClock(DAY_1), Buddy(), httpx2.MockTransport(expo)
+    )
+    await ticker.tick()
+
+    assert pushed == ["went ok"]
 
 
 @pytest.mark.anyio

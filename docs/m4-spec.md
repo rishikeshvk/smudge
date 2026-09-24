@@ -68,6 +68,15 @@ All times are the user's local time. `day` is the plan day.
   note's `written_at` is its old unlock time, and the gate needs both times to have passed. So a replan can make a
   note appear later than before, never earlier.
 
+## Push (step 6)
+
+- `POST /push/tokens` `{token}` → `204` stores an Expo push token. Registering the same token again is a no-op.
+- After the ticker commits a ritual, `Pusher` posts it to `EXPO_PUSH_URL`, one notification per phone. The title is
+  the buddy's name, the body is the ritual text, and `data.message_id` is the message.
+- Expo accepts push tokens without an access token, so the backend holds no new secret. A failed send is logged. A
+  `DeviceNotRegistered` ticket deletes that token.
+- The simulation's fresh database has no tokens, so it never pushes.
+
 ## Steps
 
 Each step is built, tested and committed on its own.

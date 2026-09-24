@@ -2,6 +2,7 @@ from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime, time
 
 import httpx
+import httpx2
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -9,6 +10,7 @@ from kindred_api.clock import Clock, FixedClock
 from kindred_api.dependencies import get_ticker
 from kindred_api.director import RitualSchedule
 from kindred_api.main import app
+from kindred_api.push import Pusher
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
@@ -23,6 +25,7 @@ from kindred_contracts import (
 from kindred_db import Plan
 from kindred_gate import TopicMap, TurnComponents
 
+NO_NETWORK = httpx2.MockTransport(lambda request: httpx2.Response(500))
 AddCourse = Callable[[int], Awaitable[Plan]]
 ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
 NOW = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
@@ -66,6 +69,7 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
         lambda: StudyComponents(curator=none, auditor=none, embedder=none),
         lambda: none,
         RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4),
+        Pusher(httpx2.AsyncClient(transport=NO_NETWORK), "https://push.test"),
     )
     app.dependency_overrides[get_ticker] = lambda: idle
     return idle
