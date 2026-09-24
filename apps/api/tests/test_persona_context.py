@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.persona_context import load_persona_context
-from kindred_contracts import PersonaContext
+from kindred_contracts import PersonaContext, ReplyStyle
 from kindred_db import Buddy, Plan
 
 AddPlan = Callable[[date, str], Awaitable[Plan]]
@@ -34,6 +34,7 @@ async def test_context_puts_the_buddy_in_the_users_day(
         recent_days=[],
         streak=0,
         gap=0,
+        style=ReplyStyle(max_words=40, emoji=False),
     )
     assert context.local_now.utcoffset() == ZoneInfo("Asia/Kolkata").utcoffset(
         context.local_now

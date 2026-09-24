@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.relationship import load_memory
+from kindred_api.reply_style import load_reply_style
 from kindred_api.schedule import plan_day
 from kindred_api.standing import load_standing
 from kindred_contracts import PersonaContext
@@ -33,4 +34,5 @@ async def load_persona_context(
         recent_days=recent_days,
         streak=standing.streak,
         gap=standing.gap,
+        style=await load_reply_style(session, user_id, now),
     )

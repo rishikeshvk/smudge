@@ -4,6 +4,14 @@ from kindred_contracts.curriculum import Contract
 from kindred_contracts.memory import DaySummary
 
 
+class ReplyStyle(Contract):
+    """How to text back, measured from the user's own recent messages."""
+
+    max_words: int = Field(ge=1)
+    # Only when they use emoji themselves.
+    emoji: bool
+
+
 class PersonaContext(Contract):
     """Who the buddy is and where it stands, rebuilt for every turn."""
 
@@ -20,3 +28,4 @@ class PersonaContext(Contract):
     streak: int = Field(ge=0)
     # Topics the buddy is ahead of the user; negative when the user is ahead.
     gap: int
+    style: ReplyStyle

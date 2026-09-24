@@ -12,6 +12,7 @@ from kindred_contracts import (
     Directive,
     DraftRequest,
     PersonaContext,
+    ReplyStyle,
     RetrievedNote,
     RoadmapEntry,
     Route,
@@ -36,6 +37,7 @@ CONTEXT = PersonaContext(
     recent_days=[DaySummary(day=date(2026, 10, 4), summary="they were tired.")],
     streak=3,
     gap=1,
+    style=ReplyStyle(max_words=15, emoji=False),
 )
 
 
@@ -147,3 +149,17 @@ def test_prompt_says_when_the_user_is_ahead() -> None:
     prompt = build_prompt(request(DEFLECT), context)
 
     assert "they're 2 topics ahead of you. They've studied 1 day in a row." in prompt
+
+
+def test_prompt_gives_a_reply_budget_matched_to_the_user() -> None:
+    prompt = build_prompt(request(DEFLECT), CONTEXT)
+
+    assert "Reply budget: at most 15 words; no emoji, they don't use them." in prompt
+
+
+def test_emoji_are_allowed_only_when_the_user_uses_them() -> None:
+    context = CONTEXT.model_copy(update={"style": ReplyStyle(max_words=30, emoji=True)})
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "Reply budget: at most 30 words; an emoji is fine." in prompt
