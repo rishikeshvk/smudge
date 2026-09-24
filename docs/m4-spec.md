@@ -138,8 +138,23 @@ All times are the user's local time. `day` is the plan day.
   infrastructure for me today"). The templates now give the title its own clause.
 - **Left open:** a full `make simulate ARGS='--days 7 --messages-per-day 1'` (about 50–60 calls) once the budget
   allows. It would cover the skipped day 4, where the gap and the broken streak show in the night reviews.
-- **Not yet checked on the phone:** the ritual cards, the sheets, and push in the development build. The build
-  needs the one-time setup under step 9.
+- **Phone check in Expo Go, 2026-09-24,** on `kindred_m4`, a copy of the simulation database, with the model
+  endpoint down.
+  - Checked and working:
+    - The streak chip, the study share ticket and the small ask.
+    - The night review. "I studied today" checked in, played the seal, raised the streak to 03, queued the message
+      and hid the buttons.
+    - The Roadmap hero streak and "Pull earlier" on only the topics that can move.
+    - The pull sheet, then the pull itself: EC2 fundamentals moved to tomorrow and IAM users moved back a day.
+    - Change plan with a 1-day pause, and "Open Juno's note" from the small ask.
+  - Fixed on the way:
+    - Importing `expo-notifications` crashed Expo Go.
+    - The seal's "See it on the roadmap" only closed the seal when opened from Chat.
+    - "TOMORROW" wrapped in the pull sheet.
+  - Noticed but not changed: a paused day doesn't appear on the list (it jumps 03 → 05), and the hero's "14 days"
+    counts topics, not the new finish day.
+- **Not yet checked:** push, which needs the development build and the one-time setup under step 9, and
+  Developer → "Next ritual" on the phone.
 
 ## Steps
 

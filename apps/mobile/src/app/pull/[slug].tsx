@@ -11,7 +11,7 @@ import { pullPreview } from "@/replanning";
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row gap-3">
-      <Text className="w-[72px] font-label text-label uppercase text-ink-muted">{label}</Text>
+      <Text className="min-w-[96px] font-label text-label uppercase text-ink-muted">{label}</Text>
       <Text className="flex-1 font-meta text-meta text-ink">{value}</Text>
     </View>
   );
