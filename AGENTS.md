@@ -71,7 +71,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make fmt` — ruff format and autofix
 - `make llm-ping` — one real call to the configured LLM endpoint
 - `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
-- `make mobile` — Expo dev server; scan the QR code with Expo Go
+- `make mobile-build` — build the Android development build (EAS) that push notifications need; install its APK
+- `make mobile` — Expo dev server for the development build (press `s` to switch to Expo Go, which has no push)
 - `make mobile-tunnel` — same over an ngrok tunnel, for networks where the phone can't reach the PC
 - `make mobile-usb` — same over USB (`adb reverse`), so the app also reaches the API on :8000
 

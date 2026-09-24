@@ -102,6 +102,22 @@ All times are the user's local time. `day` is the plan day.
 - The Roadmap's hero counter shows the streak ("09 together"), as the design does. `RoadmapView.study_time` was
   added so the sheet can show the current time.
 
+## App push (step 9)
+
+- `expo-notifications` and `expo-dev-client`. The app now runs as a development build (`make mobile-build`, EAS,
+  an APK), because Expo Go on Android has no remote push.
+- Once the buddy exists, `usePush` creates a "Rituals" channel, asks for permission, gets an Expo push token and
+  sends it to `POST /push/tokens`. Expo Go, emulators and a project without an EAS ID skip this with one log line.
+- A notification that arrives while the app is open refreshes the thread. Tapping one opens Chat.
+- The Android package is `dev.kindred.app`. `google-services.json` isn't committed. `app.config.ts` reads it from
+  the `GOOGLE_SERVICES_JSON` EAS file variable, or from `apps/mobile/` for local builds.
+- **One-time setup (the user):**
+  1. `npx eas-cli@latest init` in `apps/mobile`, which writes the EAS project ID.
+  2. Create a Firebase project with an Android app for `dev.kindred.app`, and download `google-services.json`.
+  3. Upload the file: `eas env:create --name GOOGLE_SERVICES_JSON --type file --value ./google-services.json`.
+  4. Upload the FCM V1 service-account key: `eas credentials`, then Android, then push notifications.
+  5. Run `make mobile-build` and install the APK.
+
 ## Steps
 
 Each step is built, tested and committed on its own.

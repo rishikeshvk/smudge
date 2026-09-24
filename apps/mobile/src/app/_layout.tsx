@@ -12,6 +12,7 @@ import { gateFor, useBuddy } from "@/buddy";
 import { Unreachable } from "@/components/Unreachable";
 import { queryClient, useRefetchOnAppFocus } from "@/queryClient";
 import { usePref } from "@/prefs";
+import { usePush } from "@/push";
 import { fonts } from "@/theme/fonts";
 import { colorSchemeFor } from "@/theme/preference";
 import { ThemeRoot } from "@/theme/ThemeRoot";
@@ -30,6 +31,7 @@ function AppStack() {
   useApplyThemePreference();
   const buddy = useBuddy();
   const gate = gateFor(buddy);
+  usePush(gate === "ready");
 
   useEffect(() => {
     if (gate !== "loading") SplashScreen.hideAsync();
