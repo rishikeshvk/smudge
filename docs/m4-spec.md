@@ -130,7 +130,7 @@ All times are the user's local time. `day` is the plan day.
   - The night reviews counted the streak correctly ("2 days in a row for us. we're level.").
 - **Day 3 stopped early.** The Curator's note failed closed after three leaking drafts: "IAM Identity Center",
   then STS, then a correct guess about groups. The honest failed-study share went out, and the small ask fell
-  back to day 2's note. Then the model endpoint became unavailable, most likely the OpenCode Go usage limit. The
+  back to day 2's note. Then the model endpoint became unavailable: the run hit the OpenCode Go weekly limit (100%, confirmed 2026-09-24). The
   simulation stopped before the night review and before writing its report file.
 - **Fixed after the run:** long topic titles read badly inside the morning template ("What AWS is & global
   infrastructure for me today"). The templates now give the title its own clause.
