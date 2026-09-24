@@ -67,7 +67,7 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make simulate ARGS='--days 14'` — onboard, then run simulated days end to end through the Clock on a fresh
   `kindred_sim` database; about 150 real LLM calls for 14 days, so ask first
 - `make test` — pytest and the app's jest tests
-- `make check` — ruff, mypy and expo lint
+- `make check` — ruff, mypy, expo lint and the app's TypeScript check
 - `make fmt` — ruff format and autofix
 - `make llm-ping` — one real call to the configured LLM endpoint
 - `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
