@@ -22,10 +22,11 @@ export function shareStub(card: StudyShareCard): string {
 }
 
 // A card's buttons only make sense while it's the latest thing said: once the user has
-// answered, they would answer twice.
-export function showsActions(card: Ritual, newest: boolean): boolean {
+// answered, they would answer twice. A night review's own flag is frozen when it's sent, so a
+// check-in from the Roadmap since then comes from the live roadmap.
+export function showsActions(card: Ritual, newest: boolean, checkedInToday: boolean): boolean {
   if (!newest) return false;
-  if (card.kind === "night_review") return !card.checked_in_today;
+  if (card.kind === "night_review") return !card.checked_in_today && !checkedInToday;
   return card.kind === "morning";
 }
 

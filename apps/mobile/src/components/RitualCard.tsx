@@ -23,6 +23,8 @@ type Props = {
   buddyName: string;
   // Only the newest message's buttons still make sense to press.
   newest: boolean;
+  // Live from the roadmap, since the night review's own flag is frozen when it's sent.
+  checkedInToday: boolean;
   onSend: (text: string) => void;
   onCheckIn: () => void;
   checkingIn: boolean;
@@ -52,14 +54,20 @@ function PlanRow({ who, topic }: { who: string; topic: TopicRef | null }) {
   );
 }
 
-function Morning({ card, buddyName, newest, onSend }: Props & { card: MorningCard }) {
+function Morning({
+  card,
+  buddyName,
+  newest,
+  checkedInToday,
+  onSend,
+}: Props & { card: MorningCard }) {
   return (
     <>
       <View className="gap-1 rounded-sm bg-surface-sunken p-3">
         <PlanRow who="You" topic={card.you} />
         <PlanRow who={buddyName} topic={card.buddy} />
       </View>
-      {showsActions(card, newest) && (
+      {showsActions(card, newest, checkedInToday) && (
         <View className="flex-row flex-wrap gap-2">
           {card.quick_replies.map((reply) => (
             <Button key={reply} label={reply} small onPress={() => onSend(reply)} />
@@ -125,11 +133,12 @@ function Ask({ card, messageId, buddyName }: Props & { card: AskCard }) {
 function NightReview({
   card,
   newest,
+  checkedInToday,
   onSend,
   onCheckIn,
   checkingIn,
 }: Props & { card: NightReviewCard }) {
-  if (!showsActions(card, newest)) return null;
+  if (!showsActions(card, newest, checkedInToday)) return null;
 
   return (
     <View className="flex-row flex-wrap gap-2">

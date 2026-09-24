@@ -18,7 +18,7 @@ export function pullPreview(view: RoadmapView, slug: string): PullPreview | null
     when: whenLabel(displaced.topic.day, view.day),
     pulled,
     displaced,
-    lastDay: Math.max(...view.topics.map((topic) => topic.topic.day)),
+    lastDay: view.last_day,
   };
 }
 

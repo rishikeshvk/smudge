@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { router } from "expo-router";
+import { useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 
 import { readNotebookOptions } from "@/api/@tanstack/react-query.gen";
@@ -14,33 +14,30 @@ import { Screen } from "@/components/Screen";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { SealedNote } from "@/components/SealedNote";
 import { useKindredNow } from "@/kindredNow";
-import { isNew, notebookCaption } from "@/noteFreshness";
+import { isFogged, notebookCaption } from "@/noteFreshness";
 import { usePref } from "@/prefs";
+import { useRefetchOnScreenFocus } from "@/queryClient";
 import { relativeDay, upcomingDay } from "@/time";
 
 export default function Notebook() {
   const notebook = useQuery(readNotebookOptions());
   const buddy = useBuddy();
   const now = useKindredNow();
-  const lastOpened = usePref("notebook.lastOpened");
-  const [lifted, setLifted] = useState<number[]>([]);
+  const firstOpened = usePref("notebook.firstOpened");
+  const lifted = usePref("notebook.lifted");
+  useRefetchOnScreenFocus(notebook.refetch);
 
-  // Leaving the notebook sets the baseline that decides which notes arrive fogged next time.
-  const nowRef = useRef(now);
+  // The first visit sets the baseline: notes the buddy writes after it arrive fogged.
+  const { loaded, value: baseline, set: setBaseline } = firstOpened;
   useEffect(() => {
-    nowRef.current = now;
-  }, [now]);
-  const saveVisit = lastOpened.set;
-  useFocusEffect(
-    useCallback(() => () => saveVisit(nowRef.current.toISOString()), [saveVisit]),
-  );
+    if (loaded && !baseline) setBaseline(now.toISOString());
+  }, [loaded, baseline, setBaseline, now]);
 
   const name = buddy.data?.name ?? "Your buddy";
   const notes = [...(notebook.data?.notes ?? [])].reverse();
   const sealed = notebook.data?.sealed ?? [];
   const open = (note: NotebookNote) => router.push(`/notebook/${note.note_id}`);
-  const fogged = (note: NotebookNote) =>
-    isNew(note, lastOpened.value) && !lifted.includes(note.note_id);
+  const fogged = (note: NotebookNote) => isFogged(note, baseline, lifted.value ?? []);
   const firstFogged = notes.find(fogged)?.note_id;
 
   return (
@@ -57,7 +54,7 @@ export default function Notebook() {
               <View key={note.note_id} className="gap-3">
                 <FogLift
                   label={`Day ${note.topic.day} · new since you last looked`}
-                  onLifted={() => setLifted((ids) => [...ids, note.note_id])}
+                  onLifted={() => lifted.set([...(lifted.value ?? []), note.note_id])}
                 >
                   <NoteRow note={note} when={relativeDay(note.written_at, now)} onOpen={() => open(note)} />
                 </FogLift>

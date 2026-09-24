@@ -43,14 +43,18 @@ export function useSendMessage({ onFailed }: { onFailed: (text: string) => void 
   });
 }
 
-// Follows the turn the worker is on (the oldest unanswered message) through its real stages,
-// and reloads the thread once the reply is in.
-export function useTurnStage(message: ChatMessage | undefined, available: boolean): TurnStage | null {
+// Follows the turn the worker is on (the oldest unanswered message) through its real stages
+// while Chat is on screen, and reloads the thread once the reply is in.
+export function useTurnStage(
+  message: ChatMessage | undefined,
+  available: boolean,
+  focused: boolean,
+): TurnStage | null {
   const queryClient = useQueryClient();
   const status = useQuery({
     ...messageStatusOptions({ path: { message_id: message?.id ?? 0 } }),
     enabled: message !== undefined,
-    refetchInterval: available ? POLL_MS.available : POLL_MS.away,
+    refetchInterval: focused && (available ? POLL_MS.available : POLL_MS.away),
   });
   const settled = status.data !== undefined && !isInFlight(status.data.message);
 
@@ -58,5 +62,8 @@ export function useTurnStage(message: ChatMessage | undefined, available: boolea
     if (settled) queryClient.invalidateQueries({ queryKey: pagesKey() });
   }, [settled, queryClient]);
 
+  // The last step stays up until the reloaded thread brings the reply, so the pill never
+  // vanishes before the reply appears.
+  if (settled) return "checking";
   return status.data?.message.stage ?? message?.stage ?? null;
 }

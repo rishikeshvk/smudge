@@ -23,6 +23,7 @@ import { XrayToggle } from "@/components/XrayToggle";
 import { draftSteps, isInFlight } from "@/draftStage";
 import { useKindredNow } from "@/kindredNow";
 import { usePref } from "@/prefs";
+import { useRefetchOnScreenFocus } from "@/queryClient";
 import { checkInMessage } from "@/rituals";
 import { ambientForHour } from "@/theme/ambient";
 import { chronological, threadRows } from "@/thread";
@@ -33,11 +34,20 @@ const BUDDY_POLL_MS = 60_000;
 export default function Chat() {
   const focused = useIsFocused();
   const buddy = useBuddy({ pollMs: focused ? BUDDY_POLL_MS : undefined });
-  const roadmap = useQuery(readRoadmapOptions());
+  // Its study time, the streak and today's check-in move with the buddy's day.
+  const roadmap = useQuery({
+    ...readRoadmapOptions(),
+    refetchInterval: focused ? BUDDY_POLL_MS : false,
+  });
   const pages = useChatPages({ pollMs: focused ? BUDDY_POLL_MS : undefined });
+  useRefetchOnScreenFocus(buddy.refetch);
+  useRefetchOnScreenFocus(roadmap.refetch);
   const now = useKindredNow();
   const [draft, setDraft] = useState("");
-  const send = useSendMessage({ onFailed: setDraft });
+  // A failed message comes back to the composer, unless something new is being typed there.
+  const send = useSendMessage({
+    onFailed: (text) => setDraft((current) => (current.trim() ? current : text)),
+  });
   const { checkIn, sealed, closeSeal } = useCheckIn({
     onCheckedIn: (topic) => send.mutate({ body: { text: checkInMessage(topic) } }),
   });
@@ -58,7 +68,7 @@ export default function Chat() {
   const available = buddy.data?.available ?? true;
   const messages = chronological(pages.data?.pages ?? []);
   const working = messages.find(isInFlight);
-  const stage = useTurnStage(working, available);
+  const stage = useTurnStage(working, available, focused);
 
   // The root gate only shows the tabs once there is a buddy.
   if (!buddy.data) return null;
@@ -86,7 +96,7 @@ export default function Chat() {
 
   return (
     <AmbientGround ambient={ambientForHour(localHour(now))}>
-      {studying && <LampGlow />}
+      <LampGlow on={studying} />
       <BuddyHeader name={name} status={status.text} avatar={status.avatar} lampStatus={status.lamp}>
         {roadmap.data && roadmap.data.day >= 1 && <StreakChip streak={roadmap.data.streak} />}
         <XrayToggle on={xray.value === true} onToggle={() => xray.set(!xray.value)} />
@@ -117,6 +127,7 @@ export default function Chat() {
                 xrayHint={item.message.id === newestReplyId}
                 onOpenTrace={(turnId) => router.push({ pathname: "/trace/[turnId]", params: { turnId } })}
                 newest={item.message.id === rows[0]?.message.id && !send.isPending}
+                checkedInToday={roadmap.data?.checked_in_today ?? false}
                 onCheckIn={() => checkIn.mutate({})}
                 checkingIn={checkIn.isPending}
               />
@@ -130,6 +141,11 @@ export default function Chat() {
         {send.isError && (
           <Text className="px-4 pb-2 font-meta text-meta text-leak">
             Couldn&apos;t send that. Check the connection and try again.
+          </Text>
+        )}
+        {checkIn.isError && (
+          <Text className="px-4 pb-2 font-meta text-meta text-leak">
+            Couldn&apos;t save that check-in. Try again.
           </Text>
         )}
         <Composer

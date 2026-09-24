@@ -575,6 +575,10 @@ export type RoadmapView = {
      */
     day: number;
     /**
+     * Last Day
+     */
+    last_day: number;
+    /**
      * Study Time
      */
     study_time: string;
@@ -586,6 +590,10 @@ export type RoadmapView = {
      * Gap
      */
     gap: number;
+    /**
+     * Checked In Today
+     */
+    checked_in_today: boolean;
     /**
      * Topics
      */

@@ -12,7 +12,7 @@ import { Rail } from "@/components/Rail";
 import { Screen } from "@/components/Screen";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { StudySeal } from "@/components/StudySeal";
-import { TopicRow } from "@/components/TopicRow";
+import { PausedRow, TopicRow } from "@/components/TopicRow";
 import {
   gapLine,
   headline,
@@ -22,6 +22,7 @@ import {
   topicMeta,
   weeks,
 } from "@/roadmapProgress";
+import { useRefetchOnScreenFocus } from "@/queryClient";
 import { streakNumber } from "@/rituals";
 
 function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
@@ -34,7 +35,7 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
       <View className="flex-row items-end justify-between">
         <View className="flex-1">
           <Text className="font-label text-label uppercase text-ink-muted">
-            {`${view.plan_title} · ${view.topics.length} days`}
+            {`${view.plan_title} · ${view.last_day} days`}
           </Text>
           <Text className="font-display-light text-display text-ink">
             {title.quiet}
@@ -85,6 +86,7 @@ export default function Roadmap() {
   const buddy = useBuddy();
   const roadmap = useQuery(readRoadmapOptions());
   const { checkIn, sealed, closeSeal } = useCheckIn();
+  useRefetchOnScreenFocus(roadmap.refetch);
 
   const view = roadmap.data;
   const buddyName = buddy.data?.name ?? "Your buddy";
@@ -112,25 +114,29 @@ export default function Roadmap() {
             </Text>
           )}
           <Button label="Change plan" variant="text" onPress={() => router.push("/change-plan")} />
-          {weeks(view.topics).map((group) => (
+          {weeks(view).map((group) => (
             <View key={group.week} className="gap-2">
               <Text className="py-1 font-label text-label uppercase text-ink-muted">
                 {`Week ${group.week}`}
               </Text>
-              {group.topics.map((topic) => (
-                <TopicRow
-                  key={topic.topic.slug}
-                  topic={topic}
-                  meta={topicMeta(view, topic, buddyName)}
-                  today={topic.topic.day === view.day}
-                  onPull={
-                    topic.can_pull
-                      ? () =>
-                          router.push({ pathname: "/pull/[slug]", params: { slug: topic.topic.slug } })
-                      : undefined
-                  }
-                />
-              ))}
+              {group.days.map(({ day, topic }) =>
+                topic ? (
+                  <TopicRow
+                    key={day}
+                    topic={topic}
+                    meta={topicMeta(view, topic, buddyName)}
+                    today={day === view.day}
+                    onPull={
+                      topic.can_pull
+                        ? () =>
+                            router.push({ pathname: "/pull/[slug]", params: { slug: topic.topic.slug } })
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <PausedRow key={day} day={day} />
+                ),
+              )}
             </View>
           ))}
         </ScrollView>

@@ -32,11 +32,15 @@ test("the stub counts shaky points, or says there's no note", () => {
 });
 
 test("only the newest morning or unanswered night review offers buttons", () => {
-  expect(showsActions(morning, true)).toBe(true);
-  expect(showsActions(morning, false)).toBe(false);
-  expect(showsActions(night, true)).toBe(true);
-  expect(showsActions({ ...night, checked_in_today: true }, true)).toBe(false);
-  expect(showsActions(share, true)).toBe(false);
+  expect(showsActions(morning, true, false)).toBe(true);
+  expect(showsActions(morning, false, false)).toBe(false);
+  expect(showsActions(night, true, false)).toBe(true);
+  expect(showsActions({ ...night, checked_in_today: true }, true, false)).toBe(false);
+  expect(showsActions(share, true, false)).toBe(false);
+});
+
+test("a check-in since the night review was sent hides its buttons", () => {
+  expect(showsActions(night, true, true)).toBe(false);
 });
 
 test("a check-in from the night review reads like the user wrote it", () => {

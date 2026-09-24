@@ -1,5 +1,5 @@
 import type { NotebookNote } from "./api/types.gen";
-import { isNew, notebookCaption } from "./noteFreshness";
+import { isFogged, notebookCaption } from "./noteFreshness";
 
 function note(writtenAt: string, shaky: string[] = ["not sure"]): NotebookNote {
   return {
@@ -12,15 +12,19 @@ function note(writtenAt: string, shaky: string[] = ["not sure"]): NotebookNote {
   };
 }
 
-describe("isNew", () => {
-  it("is new when written after the notebook was last opened", () => {
-    expect(isNew(note("2026-10-02T14:30:00Z"), "2026-10-02T09:00:00Z")).toBe(true);
-    expect(isNew(note("2026-10-02T14:30:00Z"), "2026-10-02T20:00:00Z")).toBe(false);
+describe("isFogged", () => {
+  it("fogs a note written after the first visit", () => {
+    expect(isFogged(note("2026-10-02T14:30:00Z"), "2026-10-02T09:00:00Z", [])).toBe(true);
+    expect(isFogged(note("2026-10-02T14:30:00Z"), "2026-10-02T20:00:00Z", [])).toBe(false);
   });
 
-  it("isn't new before the notebook has ever been opened", () => {
-    expect(isNew(note("2026-10-02T14:30:00Z"), null)).toBe(false);
-    expect(isNew(note("2026-10-02T14:30:00Z"), undefined)).toBe(false);
+  it("stays lifted once the user has lifted it", () => {
+    expect(isFogged(note("2026-10-02T14:30:00Z"), "2026-10-02T09:00:00Z", [1])).toBe(false);
+  });
+
+  it("fogs nothing before the notebook has ever been opened", () => {
+    expect(isFogged(note("2026-10-02T14:30:00Z"), null, [])).toBe(false);
+    expect(isFogged(note("2026-10-02T14:30:00Z"), undefined, [])).toBe(false);
   });
 });
 

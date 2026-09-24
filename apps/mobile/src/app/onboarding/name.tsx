@@ -15,6 +15,7 @@ import { Button } from "@/components/Button";
 import { CoachMark } from "@/components/CoachMark";
 import { ProgressBar } from "@/components/ProgressBar";
 import { TextField } from "@/components/TextField";
+import { useKindredNow } from "@/kindredNow";
 import { localDate, planDate, wallTime } from "@/time";
 
 const SUGGESTIONS = ["Juno", "Sol", "Kit", "Wren"];
@@ -23,6 +24,7 @@ const MAX_NAME = 40;
 export default function NameBuddy() {
   const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
+  const now = useKindredNow();
   const { proposal: proposalId } = useLocalSearchParams<{ proposal: string }>();
   const transcript = useQuery(listOnboardingMessagesOptions());
   const proposal = transcript.data?.find((entry) => entry.message.id === Number(proposalId))
@@ -40,7 +42,7 @@ export default function NameBuddy() {
 
   const chosen = name.trim();
   const when =
-    proposal && proposal.start_date === localDate(new Date())
+    proposal && proposal.start_date === localDate(now)
       ? "tonight"
       : proposal && `on ${planDate(proposal.start_date)}`;
 

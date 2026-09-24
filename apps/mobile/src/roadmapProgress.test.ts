@@ -28,9 +28,11 @@ function topic(
 const behind: RoadmapView = {
   plan_title: "Tiny",
   day: 3,
+  last_day: 5,
   study_time: "19:00:00",
   streak: 2,
   gap: 1,
+  checked_in_today: false,
   topics: [
     topic(1, { unlocked: true, buddy: true, user: true }),
     topic(2, { unlocked: true, buddy: true, user: true }),
@@ -99,6 +101,11 @@ describe("headline", () => {
   it("names the day and whether you're level", () => {
     expect(headline(behind)).toEqual({ quiet: "Day 3, ", loud: "together" });
   });
+
+  it("isn't complete until the finish day a pause moved", () => {
+    expect(headline({ ...behind, day: 6, last_day: 6 })).toEqual({ quiet: "Day 6, ", loud: "together" });
+    expect(headline({ ...behind, day: 7, last_day: 6 })).toEqual({ quiet: "Plan ", loud: "complete" });
+  });
 });
 
 describe("sightLine", () => {
@@ -119,11 +126,23 @@ describe("topicMeta", () => {
 });
 
 describe("weeks", () => {
-  it("groups topics into weeks of seven days", () => {
+  it("groups days into weeks of seven", () => {
     const fortnight = Array.from({ length: 14 }, (_, index) => topic(index + 1));
-    expect(weeks(fortnight).map((group) => [group.week, group.topics.length])).toEqual([
+    const view = { ...behind, last_day: 14, topics: fortnight };
+    expect(weeks(view).map((group) => [group.week, group.days.length])).toEqual([
       [1, 7],
       [2, 7],
+    ]);
+  });
+
+  it("shows a paused day as a day without a topic", () => {
+    const view = { ...behind, last_day: 4, topics: [topic(1), topic(2), topic(4)] };
+    const [week] = weeks(view);
+    expect(week.days.map((day) => [day.day, day.topic?.topic.day ?? null])).toEqual([
+      [1, 1],
+      [2, 2],
+      [3, null],
+      [4, 4],
     ]);
   });
 });

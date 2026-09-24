@@ -16,9 +16,11 @@ function view(day: number, unlockedThrough: number): RoadmapView {
   return {
     plan_title: "Tiny",
     day,
+    last_day: 4,
     study_time: "19:00:00",
     streak: 0,
     gap: 0,
+    checked_in_today: false,
     topics: [1, 2, 3, 4].map((d) => topic(d, d <= unlockedThrough, d > unlockedThrough + 1)),
   };
 }

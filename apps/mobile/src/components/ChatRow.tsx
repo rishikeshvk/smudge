@@ -20,6 +20,7 @@ type Props = {
   xrayHint: boolean;
   onOpenTrace: (turnId: number) => void;
   newest: boolean;
+  checkedInToday: boolean;
   onCheckIn: () => void;
   checkingIn: boolean;
 };
@@ -33,6 +34,7 @@ export function ChatRow({
   xrayHint,
   onOpenTrace,
   newest,
+  checkedInToday,
   onCheckIn,
   checkingIn,
 }: Props) {
@@ -54,6 +56,7 @@ export function ChatRow({
           messageId={message.id}
           buddyName={buddyName}
           newest={newest}
+          checkedInToday={checkedInToday}
           onSend={onResend}
           onCheckIn={onCheckIn}
           checkingIn={checkingIn}

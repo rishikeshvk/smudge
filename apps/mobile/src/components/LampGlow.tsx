@@ -10,21 +10,26 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
 import { useThemeColor } from "@/theme/useTheme";
 
 const FADE_IN_MS = 1200;
+const FADE_OUT_MS = 800;
 
 // "#RRGGBBAA" → an SVG colour and opacity, since stop colours don't take an alpha channel.
 function splitAlpha(hex: string): { color: string; opacity: number } {
   return { color: hex.slice(0, 7), opacity: parseInt(hex.slice(7, 9) || "ff", 16) / 255 };
 }
 
-// The only gradient in the system, and it always means the lamp is on.
-export function LampGlow() {
+// The only gradient in the system, and it always means the lamp is on. It stays mounted so
+// the lamp fades out as well as in.
+export function LampGlow({ on }: { on: boolean }) {
   const reduced = useReducedMotion();
   const glow = splitAlpha(useThemeColor("lamp-glow"));
-  const opacity = useSharedValue(reduced ? 1 : 0);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
-    if (!reduced) opacity.value = withTiming(1, { duration: FADE_IN_MS });
-  }, [opacity, reduced]);
+    const target = on ? 1 : 0;
+    opacity.value = reduced
+      ? target
+      : withTiming(target, { duration: on ? FADE_IN_MS : FADE_OUT_MS });
+  }, [on, opacity, reduced]);
 
   const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
