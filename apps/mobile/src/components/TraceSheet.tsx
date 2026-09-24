@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { Modal, Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { SlideInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -135,7 +135,7 @@ function Trace({ trace, buddyName }: { trace: TurnTrace; buddyName: string }) {
 }
 
 type Props = {
-  turnId: number | null;
+  turnId: number;
   buddyName: string;
   onClose: () => void;
 };
@@ -144,49 +144,35 @@ type Props = {
 export function TraceSheet({ turnId, buddyName, onClose }: Props) {
   const insets = useSafeAreaInsets();
   const theme = useThemeName();
-  const trace = useQuery({
-    ...readTurnOptions({ path: { turn_id: turnId ?? 0 } }),
-    enabled: turnId !== null,
-    // A finished turn never changes.
-    staleTime: Infinity,
-  });
+  // A finished turn never changes.
+  const trace = useQuery({ ...readTurnOptions({ path: { turn_id: turnId } }), staleTime: Infinity });
 
   return (
-    <Modal
-      visible={turnId !== null}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      navigationBarTranslucent
-      onRequestClose={onClose}
-    >
+    <View className="flex-1 justify-end">
       <Pressable
         onPress={onClose}
         accessibilityRole="button"
         accessibilityLabel="Close"
         className="absolute inset-0 bg-ink opacity-[0.32]"
       />
-      {/* Flex, not absolute positioning, puts the sheet flush with the bottom edge. */}
-      <View pointerEvents="box-none" className="flex-1 justify-end">
-        <Animated.View
-          entering={SlideInDown.duration(SLIDE_MS)}
-          accessibilityViewIsModal
-          className="max-h-[80%] gap-4 rounded-t-sheet bg-surface-raised px-4 pt-2"
-          style={{ boxShadow: shadowSheet[theme], paddingBottom: insets.bottom + 24 }}
-        >
-          <View className="h-[4px] w-[36px] self-center rounded-full bg-line-strong" />
-          <View className="flex-row flex-wrap items-baseline justify-between gap-3">
-            <Text accessibilityRole="header" className="font-title text-title text-ink">
-              {`Why ${buddyName} said that`}
-            </Text>
-            {trace.data && <XrayBadge parts={badgeParts(trace.data)} />}
-          </View>
-          <ScrollView contentContainerClassName="gap-4 pb-2">
-            <LoadState isPending={trace.isPending} error={trace.error} />
-            {trace.data && <Trace trace={trace.data} buddyName={buddyName} />}
-          </ScrollView>
-        </Animated.View>
-      </View>
-    </Modal>
+      <Animated.View
+        entering={SlideInDown.duration(SLIDE_MS)}
+        accessibilityViewIsModal
+        className="max-h-[80%] gap-4 rounded-t-sheet bg-surface-raised px-4 pt-2"
+        style={{ boxShadow: shadowSheet[theme], paddingBottom: insets.bottom + 24 }}
+      >
+        <View className="h-[4px] w-[36px] self-center rounded-full bg-line-strong" />
+        <View className="flex-row flex-wrap items-baseline justify-between gap-3">
+          <Text accessibilityRole="header" className="font-title text-title text-ink">
+            {`Why ${buddyName} said that`}
+          </Text>
+          {trace.data && <XrayBadge parts={badgeParts(trace.data)} />}
+        </View>
+        <ScrollView contentContainerClassName="gap-4 pb-2">
+          <LoadState isPending={trace.isPending} error={trace.error} />
+          {trace.data && <Trace trace={trace.data} buddyName={buddyName} />}
+        </ScrollView>
+      </Animated.View>
+    </View>
   );
 }

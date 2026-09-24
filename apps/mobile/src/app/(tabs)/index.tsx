@@ -16,7 +16,6 @@ import { DayChip } from "@/components/DayChip";
 import { DraftStatus } from "@/components/DraftStatus";
 import { LampGlow } from "@/components/LampGlow";
 import { LoadState } from "@/components/LoadState";
-import { TraceSheet } from "@/components/TraceSheet";
 import { UnavailableBanner } from "@/components/UnavailableBanner";
 import { XrayToggle } from "@/components/XrayToggle";
 import { draftSteps, isInFlight } from "@/draftStage";
@@ -49,7 +48,6 @@ export default function Chat() {
   }, [prefill]);
 
   const xray = usePref("xray");
-  const [openTurn, setOpenTurn] = useState<number | null>(null);
 
   const available = buddy.data?.available ?? true;
   const messages = chronological(pages.data?.pages ?? []);
@@ -111,7 +109,7 @@ export default function Chat() {
                 onResend={submit}
                 xray={xray.value === true}
                 xrayHint={item.message.id === newestReplyId}
-                onOpenTrace={setOpenTurn}
+                onOpenTrace={(turnId) => router.push({ pathname: "/trace/[turnId]", params: { turnId } })}
               />
             )}
             ListHeaderComponent={latest}
@@ -132,7 +130,6 @@ export default function Chat() {
           placeholder={available ? `Message ${name}` : `Messages wait until ${name}'s back`}
         />
       </KeyboardAvoidingView>
-      <TraceSheet turnId={openTurn} buddyName={name} onClose={() => setOpenTurn(null)} />
     </AmbientGround>
   );
 }
