@@ -1,6 +1,7 @@
-import type { ChatMessage, StudyShareCard, TopicRef } from "./api/types.gen";
+import type { ChatMessage, StudyShareCard, StudyTogetherCard, TopicRef } from "./api/types.gen";
 
-export type Ritual = NonNullable<ChatMessage["card"]>;
+// The buddy's rituals; a study-together card is the user's own.
+export type Ritual = Exclude<NonNullable<ChatMessage["card"]>, StudyTogetherCard>;
 
 export function ritualBand(card: Ritual): string {
   switch (card.kind) {

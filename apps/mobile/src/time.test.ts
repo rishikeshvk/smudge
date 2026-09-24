@@ -4,6 +4,8 @@ import {
   localDate,
   localHour,
   planDate,
+  dayLabel,
+  minutesUntil,
   relativeDay,
   upcomingDay,
   wallTime,
@@ -39,6 +41,17 @@ describe("relativeDay", () => {
   });
 });
 
+describe("dayLabel", () => {
+  const now = new Date("2026-10-05T05:00:00Z");
+  it.each([
+    ["2026-10-05T03:00:00Z", "Today"],
+    ["2026-10-04T14:30:00Z", "Yesterday"],
+    ["2026-10-02T14:30:00Z", "Fri 2 Oct"],
+  ])("labels %s %s", (instant, expected) => {
+    expect(dayLabel(instant, now, "Asia/Kolkata")).toBe(expected);
+  });
+});
+
 describe("upcomingDay", () => {
   const now = new Date("2026-10-05T05:00:00Z");
   it.each([
@@ -69,5 +82,14 @@ describe("localDate", () => {
 describe("wallTime", () => {
   it("drops the seconds from a plan's study time", () => {
     expect(wallTime("19:00:00")).toBe("19:00");
+  });
+});
+
+describe("minutesUntil", () => {
+  const now = new Date("2026-10-05T13:30:00Z");
+  it("rounds up what's left and stops at zero", () => {
+    expect(minutesUntil("2026-10-05T14:00:00Z", now)).toBe(30);
+    expect(minutesUntil("2026-10-05T13:30:20Z", now)).toBe(1);
+    expect(minutesUntil("2026-10-05T13:29:00Z", now)).toBe(0);
   });
 });

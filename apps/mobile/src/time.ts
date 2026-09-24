@@ -54,12 +54,26 @@ export function relativeDay(instant: string, now: Date, timeZone?: string): stri
   return ago < 7 ? day.split(" ")[0] : day.split(" ").slice(1).join(" ");
 }
 
+// A date separator in the chat: Today, Yesterday, or Tue 6 Oct.
+export function dayLabel(instant: string, now: Date, timeZone?: string): string {
+  const ago = daysBetween(new Date(instant), now, timeZone);
+  if (ago <= 0) return "Today";
+  if (ago === 1) return "Yesterday";
+  return instantDay(instant, timeZone);
+}
+
 // When something will happen: tonight at 19:00, tomorrow, or on Wed 24 Sep.
 export function upcomingDay(instant: string, now: Date, timeZone?: string): string {
   const ahead = daysBetween(now, new Date(instant), timeZone);
   if (ahead <= 0) return `tonight, around ${clockTime(instant, timeZone)}`;
   if (ahead === 1) return "tomorrow";
   return `on ${instantDay(instant, timeZone)}`;
+}
+
+// Whole minutes until an instant, rounded up; 0 once it has passed.
+export function minutesUntil(instant: string, now: Date): number {
+  const left = Date.parse(instant) - now.getTime();
+  return left <= 0 ? 0 : Math.ceil(left / 60_000);
 }
 
 export function localHour(instant: Date, timeZone?: string): number {

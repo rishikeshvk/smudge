@@ -120,7 +120,9 @@ export type ChatMessage = {
         kind: 'ask';
     } & AskCard) | ({
         kind: 'night_review';
-    } & NightReviewCard) | null;
+    } & NightReviewCard) | ({
+        kind: 'study_together';
+    } & StudyTogetherCard) | null;
     /**
      * Reaction
      */
@@ -704,6 +706,23 @@ export type StudyTimeChange = {
 };
 
 /**
+ * StudyTogetherCard
+ *
+ * The user joining the buddy's study session: both lamps on until it ends.
+ */
+export type StudyTogetherCard = {
+    /**
+     * Kind
+     */
+    kind: 'study_together';
+    topic: TopicRef;
+    /**
+     * Until
+     */
+    until: string;
+};
+
+/**
  * Studying
  *
  * The buddy's study session in progress.
@@ -1130,6 +1149,22 @@ export type ReadBuddyResponses = {
 };
 
 export type ReadBuddyResponse = ReadBuddyResponses[keyof ReadBuddyResponses];
+
+export type StudyTogetherData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/buddy/study-together';
+};
+
+export type StudyTogetherResponses = {
+    /**
+     * Successful Response
+     */
+    201: ChatMessage;
+};
+
+export type StudyTogetherResponse = StudyTogetherResponses[keyof StudyTogetherResponses];
 
 export type AddCheckinData = {
     body?: never;

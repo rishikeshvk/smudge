@@ -10,10 +10,12 @@ type Props = {
   avatar: AvatarState;
   // The status turns lamp-coloured only while the lamp is on.
   lampStatus?: boolean;
+  // How far through its study session the buddy is, as a ring around the lamp.
+  progress?: number | null;
   children?: ReactNode;
 };
 
-export function BuddyHeader({ name, status, avatar, lampStatus, children }: Props) {
+export function BuddyHeader({ name, status, avatar, lampStatus, progress, children }: Props) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -21,7 +23,7 @@ export function BuddyHeader({ name, status, avatar, lampStatus, children }: Prop
       className="flex-row items-center gap-3 border-b border-line bg-surface-raised px-4 pb-3"
       style={{ paddingTop: insets.top + 12 }}
     >
-      <Avatar state={avatar} />
+      <Avatar state={avatar} progress={progress} />
       <View className="min-w-0 flex-1">
         <Text accessibilityRole="header" className="font-name text-name text-ink">
           {name}

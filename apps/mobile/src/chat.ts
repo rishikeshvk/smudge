@@ -1,10 +1,11 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   listMessagesQueryKey,
   messageStatusOptions,
   sendMessageMutation,
+  studyTogetherMutation,
 } from "./api/@tanstack/react-query.gen";
 import { listMessages } from "./api/sdk.gen";
 import type { ChatMessage, TurnStage } from "./api/types.gen";
@@ -41,6 +42,23 @@ export function useSendMessage({ onFailed }: { onFailed: (text: string) => void 
     onSuccess: () => queryClient.invalidateQueries({ queryKey: pagesKey() }),
     onError: (_error, variables) => onFailed(variables.body.text),
   });
+}
+
+// Joins the buddy's study session; the thread shows it as the user's own message.
+export function useStudyTogether() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...studyTogetherMutation(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: pagesKey() }),
+  });
+}
+
+// The newest message id once the thread first loads: anything after it arrived while Chat
+// was open, so it gets the arrival animation. null until then, so history never animates.
+export function useArrivalBaseline(messages: ChatMessage[], loaded: boolean): number | null {
+  const [baseline, setBaseline] = useState<number | null>(null);
+  if (baseline === null && loaded) setBaseline(Math.max(0, ...messages.map((m) => m.id)));
+  return baseline;
 }
 
 // Follows the turn the worker is on (the oldest unanswered message) through its real stages

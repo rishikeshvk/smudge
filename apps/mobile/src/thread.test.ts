@@ -1,12 +1,16 @@
 import type { ChatMessage } from "./api/types.gen";
-import { chronological, olderPageFrom, PAGE_SIZE, threadRows } from "./thread";
+import { bubbles, chronological, olderPageFrom, PAGE_SIZE, threadRows } from "./thread";
 
-function message(id: number, speaker: ChatMessage["speaker"]): ChatMessage {
+function message(
+  id: number,
+  speaker: ChatMessage["speaker"],
+  at = "2026-10-05T03:31:00Z",
+): ChatMessage {
   return {
     id,
     speaker,
     text: `message ${id}`,
-    at: "2026-10-05T03:31:00Z",
+    at,
     stage: null,
     turn_id: null,
     card: null,
@@ -30,6 +34,32 @@ describe("threadRows", () => {
       [false, true],
       [true, true],
     ]);
+  });
+
+  it("marks the first message of each local day", () => {
+    const rows = threadRows(
+      [
+        message(1, "user", "2026-10-04T17:00:00Z"),
+        message(2, "buddy", "2026-10-04T18:00:00Z"),
+        message(3, "user", "2026-10-04T18:40:00Z"),
+      ],
+      "Asia/Kolkata",
+    );
+    // 22:30 and 23:30 on 4 Oct in Kolkata, then 00:10 on 5 Oct.
+    expect(rows.map((row) => row.startsDay)).toEqual([true, false, true]);
+  });
+});
+
+describe("bubbles", () => {
+  it("sends each line as its own text", () => {
+    expect(bubbles("yeah, same.\n\nwhich bit keeps slipping?")).toEqual([
+      "yeah, same.",
+      "which bit keeps slipping?",
+    ]);
+  });
+
+  it("keeps a one-line reply whole", () => {
+    expect(bubbles("ha")).toEqual(["ha"]);
   });
 });
 
