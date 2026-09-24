@@ -2,18 +2,15 @@ from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime, time, timedelta
 
 import pytest
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.director import RitualSchedule, next_ritual_at, send_due_rituals
-from kindred_api.ledger import append_note
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.progress import check_in
-from kindred_api.study import StudyStatus
-from kindred_contracts import NoteDraft
-from kindred_db import EMBEDDING_DIMENSIONS, Message, Plan, StudySession, TopicNode
+from kindred_db import Message, Plan
 
 AddCourse = Callable[[int], Awaitable[Plan]]
+AddStudy = Callable[..., Awaitable[None]]
 SCHEDULE = RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4)
 # Kolkata is UTC+05:30; the plan starts on 1 Oct and studies at 19:00.
 KOLKATA = timedelta(hours=5, minutes=30)
@@ -32,51 +29,14 @@ async def current(
     return plan
 
 
-async def study(
-    session: AsyncSession,
-    day: int,
-    at: datetime,
-    *,
-    failed: bool = False,
-    shaky: list[str] | None = None,
-) -> None:
-    node = await session.scalar(select(TopicNode).where(TopicNode.day == day))
-    assert node is not None
-    note_id = None
-    if not failed:
-        note_id = await append_note(
-            session,
-            node_id=node.id,
-            note=NoteDraft(
-                body=f"day {day}",
-                shaky=shaky or [f"shaky {day}"],
-                sources=["https://d.t"],
-                share=f"done with topic {day}!",
-            ),
-            written_at=at,
-            embedding=[0.5] * EMBEDDING_DIMENSIONS,
-            embedding_model="fake-embed",
-        )
-    session.add(
-        StudySession(
-            node_id=node.id,
-            status=(StudyStatus.FAILED if failed else StudyStatus.WRITTEN).value,
-            at=at,
-            note_id=note_id,
-            share=None if failed else f"done with topic {day}!",
-            attempts=[],
-        )
-    )
-    await session.flush()
-
-
 def kinds(messages: list[Message]) -> list[str | None]:
     return [None if m.card is None else str(m.card["kind"]) for m in messages]
 
 
 @pytest.mark.anyio
 async def test_the_morning_message_goes_out_once(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
 ) -> None:
     plan = await current(session, add_course, 3)
     await check_in(session, plan.id, local(1, 20))
@@ -93,7 +53,8 @@ async def test_the_morning_message_goes_out_once(
 
 @pytest.mark.anyio
 async def test_a_passed_window_is_skipped_not_sent_late(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
 ) -> None:
     plan = await current(session, add_course, 3)
 
@@ -105,10 +66,12 @@ async def test_a_passed_window_is_skipped_not_sent_late(
 
 @pytest.mark.anyio
 async def test_the_study_share_sends_the_curators_text_and_shaky_points(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
+    add_study: AddStudy,
 ) -> None:
     plan = await current(session, add_course, 2)
-    await study(session, 1, local(1, 19), shaky=["why regions?"])
+    await add_study(1, local(1, 19), shaky=["why regions?"])
 
     [share] = await send_due_rituals(session, plan, SCHEDULE, local(1, 19, 1))
 
@@ -122,10 +85,12 @@ async def test_the_study_share_sends_the_curators_text_and_shaky_points(
 
 @pytest.mark.anyio
 async def test_a_failed_study_is_shared_honestly(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
+    add_study: AddStudy,
 ) -> None:
     plan = await current(session, add_course, 2)
-    await study(session, 1, local(1, 19), failed=True)
+    await add_study(1, local(1, 19), failed=True)
 
     [share] = await send_due_rituals(session, plan, SCHEDULE, local(1, 19, 1))
 
@@ -135,15 +100,17 @@ async def test_a_failed_study_is_shared_honestly(
 
 @pytest.mark.anyio
 async def test_the_ask_is_about_a_topic_the_user_has_done_and_never_repeats(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
+    add_study: AddStudy,
 ) -> None:
     plan = await current(session, add_course, 3)
-    await study(session, 1, local(1, 19), shaky=["why regions?"])
+    await add_study(1, local(1, 19), shaky=["why regions?"])
     await check_in(session, plan.id, local(1, 20))
-    await study(session, 2, local(2, 19), shaky=["topic 2 gap"])
+    await add_study(2, local(2, 19), shaky=["topic 2 gap"])
 
     day_2 = await send_due_rituals(session, plan, SCHEDULE, local(2, 19, 1))
-    await study(session, 3, local(3, 19))
+    await add_study(3, local(3, 19))
     day_3 = await send_due_rituals(session, plan, SCHEDULE, local(3, 19, 1))
 
     assert kinds(day_2) == ["study_share", "ask"]
@@ -154,14 +121,16 @@ async def test_the_ask_is_about_a_topic_the_user_has_done_and_never_repeats(
 
 @pytest.mark.anyio
 async def test_the_cap_drops_the_ask_before_the_night_review(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
+    add_study: AddStudy,
 ) -> None:
     plan = await current(session, add_course, 2)
     await check_in(session, plan.id, local(1, 7))
     capped = RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=3)
 
     await send_due_rituals(session, plan, capped, local(1, 8))
-    await study(session, 1, local(1, 19))
+    await add_study(1, local(1, 19))
     evening = await send_due_rituals(session, plan, capped, local(1, 19, 1))
     night = await send_due_rituals(session, plan, capped, local(1, 21, 30))
 
@@ -171,12 +140,14 @@ async def test_the_cap_drops_the_ask_before_the_night_review(
 
 @pytest.mark.anyio
 async def test_the_night_review_says_where_both_stand(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
+    add_study: AddStudy,
 ) -> None:
     plan = await current(session, add_course, 3)
-    await study(session, 1, local(1, 19))
+    await add_study(1, local(1, 19))
     await check_in(session, plan.id, local(1, 20))
-    await study(session, 2, local(2, 19))
+    await add_study(2, local(2, 19))
     await check_in(session, plan.id, local(2, 20))
 
     sent = await send_due_rituals(session, plan, SCHEDULE, local(2, 21, 45))
@@ -192,7 +163,8 @@ async def test_the_night_review_says_where_both_stand(
 
 @pytest.mark.anyio
 async def test_no_rituals_outside_the_plan(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
 ) -> None:
     plan = await current(session, add_course, 2)
 
@@ -206,7 +178,8 @@ async def test_no_rituals_outside_the_plan(
 
 @pytest.mark.anyio
 async def test_the_next_ritual_is_the_next_morning_study_or_night(
-    session: AsyncSession, add_course: AddCourse
+    session: AsyncSession,
+    add_course: AddCourse,
 ) -> None:
     plan = await current(session, add_course, 2)
 
