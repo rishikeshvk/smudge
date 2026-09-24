@@ -24,6 +24,7 @@ async def build_roadmap(
     return RoadmapView(
         plan_title=plan.title,
         day=plan_day(plan.start_date, now, plan.tz),
+        study_time=plan.study_time,
         streak=standing.streak,
         gap=standing.gap,
         topics=[

@@ -92,6 +92,16 @@ All times are the user's local time. `day` is the plan day.
 - The thread polls every minute while Chat is on screen, so rituals appear without a push notification too.
 - Settings → Developer has a "Next ritual" button.
 
+## App replanning (step 8)
+
+- Roadmap rows with `can_pull` get a "Pull earlier" button. It opens the `pull/[slug]` sheet: when the buddy will
+  study the topic, the topic it replaces, and the unchanged finish. Its preview mirrors the API's slot rule.
+- "Change plan" opens a sheet with a new study time (a 24-hour time) and a pause of 1, 2, 3 or 7 days.
+- Both are Expo Router `transparentModal` routes. The sheet shell is now a shared `Sheet` component, which the
+  trace sheet uses too.
+- The Roadmap's hero counter shows the streak ("09 together"), as the design does. `RoadmapView.study_time` was
+  added so the sheet can show the current time.
+
 ## Steps
 
 Each step is built, tested and committed on its own.

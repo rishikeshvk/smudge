@@ -575,6 +575,10 @@ export type RoadmapView = {
      */
     day: number;
     /**
+     * Study Time
+     */
+    study_time: string;
+    /**
      * Streak
      */
     streak: number;

@@ -2,10 +2,13 @@ import { Text, View } from "react-native";
 
 import type { RoadmapTopic } from "@/api/types.gen";
 
+import { Button } from "./Button";
+
 type Props = {
   topic: RoadmapTopic;
   meta: string;
   today: boolean;
+  onPull?: () => void;
 };
 
 function Mark({ filled }: { filled: string | null }) {
@@ -17,7 +20,7 @@ function Mark({ filled }: { filled: string | null }) {
 }
 
 // Locked topics stay readable: it's the user's own plan. Only the buddy can't see them yet.
-export function TopicRow({ topic, meta, today }: Props) {
+export function TopicRow({ topic, meta, today, onPull }: Props) {
   const locked = !topic.unlocked;
   const frame = locked
     ? "border-transparent bg-fog"
@@ -40,6 +43,7 @@ export function TopicRow({ topic, meta, today }: Props) {
         <Text className="font-body-strong text-[15px] leading-[20px] text-ink">{topic.topic.title}</Text>
         <Text className={`font-meta text-meta ${locked ? "text-fog-ink" : "text-ink-muted"}`}>{meta}</Text>
       </View>
+      {locked && onPull && <Button label="Pull earlier" small onPress={onPull} />}
       {!locked && (
         <View className="flex-row gap-1">
           <Mark filled={topic.user_studied ? "bg-you" : null} />

@@ -28,6 +28,7 @@ function topic(
 const behind: RoadmapView = {
   plan_title: "Tiny",
   day: 3,
+  study_time: "19:00:00",
   streak: 2,
   gap: 1,
   topics: [

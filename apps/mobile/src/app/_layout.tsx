@@ -47,6 +47,8 @@ function AppStack() {
         <Stack.Screen name="notebook/[noteId]" />
         {/* A route, not an RN Modal: Expo Go's modal window clips the bottom 42 dp off a bottom sheet. */}
         <Stack.Screen name="trace/[turnId]" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="pull/[slug]" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="change-plan" options={{ presentation: "transparentModal", animation: "fade" }} />
       </Stack.Protected>
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />

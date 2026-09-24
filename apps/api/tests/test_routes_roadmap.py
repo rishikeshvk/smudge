@@ -50,6 +50,7 @@ async def test_the_roadmap_shows_both_learners_on_every_topic(
 
     assert (roadmap["plan_title"], roadmap["day"]) == ("T", 2)
     assert (roadmap["streak"], roadmap["gap"]) == (1, 1)
+    assert roadmap["study_time"] == "19:00:00"
     assert [
         (t["topic"]["day"], t["unlocked"], t["buddy_studied"], t["user_studied"])
         for t in roadmap["topics"]
@@ -98,5 +99,5 @@ async def test_pausing_moves_the_plan_back(
     moved = await client.put("/plan/study-time", json={"study_time": "07:00:00"})
 
     assert [t["topic"]["day"] for t in paused.json()["topics"]] == [1, 2]
-    assert moved.status_code == 200
+    assert moved.json()["study_time"] == "07:00:00"
     assert (await client.post("/plan/pause", json={"days": 8})).status_code == 422

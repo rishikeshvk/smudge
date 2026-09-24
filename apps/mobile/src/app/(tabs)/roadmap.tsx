@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { router } from "expo-router";
 import { ScrollView, Text, View } from "react-native";
 
 import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
@@ -21,6 +22,7 @@ import {
   topicMeta,
   weeks,
 } from "@/roadmapProgress";
+import { streakNumber } from "@/rituals";
 
 function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
   const title = headline(view);
@@ -45,9 +47,9 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
               className="font-counter text-counter text-ink"
               style={{ fontVariant: ["tabular-nums"] }}
             >
-              {String(Math.min(view.day, view.topics.length)).padStart(2, "0")}
+              {streakNumber(view.streak)}
             </Text>
-            <Text className="font-meta text-meta text-ink-muted">day</Text>
+            <Text className="font-meta text-meta text-ink-muted">together</Text>
           </View>
         )}
       </View>
@@ -109,6 +111,7 @@ export default function Roadmap() {
               Couldn&apos;t save that check-in. Try again.
             </Text>
           )}
+          <Button label="Change plan" variant="text" onPress={() => router.push("/change-plan")} />
           {weeks(view.topics).map((group) => (
             <View key={group.week} className="gap-2">
               <Text className="py-1 font-label text-label uppercase text-ink-muted">
@@ -120,6 +123,12 @@ export default function Roadmap() {
                   topic={topic}
                   meta={topicMeta(view, topic, buddyName)}
                   today={topic.topic.day === view.day}
+                  onPull={
+                    topic.can_pull
+                      ? () =>
+                          router.push({ pathname: "/pull/[slug]", params: { slug: topic.topic.slug } })
+                      : undefined
+                  }
                 />
               ))}
             </View>
