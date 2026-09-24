@@ -43,7 +43,7 @@ def morning(
     at = f"{study_time:%H:%M}"
     openers = [
         f"morning! tonight I'm studying {buddy.title}, around {at}. you?",
-        f"morning. my topic today: {buddy.title}. sitting down around {at}, when's yours?",
+        f"morning. my topic today: {buddy.title}. around {at}, when's yours?",
         f"hey, day {day}. I'm on {buddy.title} around {at}. what about you?",
     ]
     text = _variant(openers, day)
