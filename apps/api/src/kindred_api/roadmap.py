@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, time
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.plans import CurrentPlan
-from kindred_api.progress import studied_slugs
+from kindred_api.progress import checked_in_since, studied_slugs
 from kindred_api.replan import load_movable
-from kindred_api.schedule import plan_day
+from kindred_api.schedule import plan_day, plan_moment
 from kindred_api.standing import load_standing
 from kindred_contracts import RoadmapTopic, RoadmapView
 from kindred_gate import list_notes, load_topic_map
@@ -21,12 +21,17 @@ async def build_roadmap(
     studied = await studied_slugs(session, plan.id, now)
     standing = await load_standing(session, plan.id, plan.tz, now)
     pullable = {n.slug for n in (await load_movable(session, plan.id, now)).pullable()}
+    day = plan_day(plan.start_date, now, plan.tz)
+    midnight = plan_moment(plan.start_date, day, time(0), plan.tz)
+    today = await checked_in_since(session, plan.id, midnight, now)
     return RoadmapView(
         plan_title=plan.title,
-        day=plan_day(plan.start_date, now, plan.tz),
+        day=day,
+        last_day=max((topic.day for topic in topics.topics), default=0),
         study_time=plan.study_time,
         streak=standing.streak,
         gap=standing.gap,
+        checked_in_today=today is not None,
         topics=[
             RoadmapTopic(
                 topic=topic.ref,
