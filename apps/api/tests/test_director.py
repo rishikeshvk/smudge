@@ -129,7 +129,7 @@ async def test_a_failed_study_is_shared_honestly(
 
     [share] = await send_due_rituals(session, plan, SCHEDULE, local(1, 19, 1))
 
-    assert "couldn't write a note" in share.text
+    assert "note I'd trust" in share.text
     assert share.card is not None and share.card["shaky"] == []
 
 
@@ -183,8 +183,8 @@ async def test_the_night_review_says_where_both_stand(
 
     assert kinds(sent) == ["study_share", "ask", "night_review"]
     review = sent[-1]
-    assert "I finished Topic 2." in review.text
-    assert "you did Topic 2: 2 days in a row for us." in review.text
+    assert "Topic 2 is done on my side." in review.text
+    assert "you did it too. that's 2 days running." in review.text
     assert review.card is not None
     assert (review.card["streak"], review.card["gap"]) == (2, 0)
     assert review.card["checked_in_today"] is True
