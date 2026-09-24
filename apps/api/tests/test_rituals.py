@@ -6,6 +6,7 @@ import pytest
 from kindred_api.catalog import load_curriculum
 from kindred_api.rituals import (
     BuddyNight,
+    Retried,
     RitualMessage,
     ask,
     failed_study_share,
@@ -31,6 +32,8 @@ def every_template(day: int) -> list[RitualMessage]:
         morning(day, A, B, time(19)),
         morning(day, A, A, time(19)),
         morning(day, A, None, time(19)),
+        morning(day, A, B, time(19), Retried(B, worked=True)),
+        morning(day, A, B, time(19), Retried(B, worked=False)),
         failed_study_share(day, A),
         ask(day, 1, B, "SHAKY"),
         *(

@@ -32,13 +32,25 @@ class BuddyNight(StrEnum):
 
 
 @dataclass(frozen=True)
+class Retried:
+    """An earlier topic the buddy had another go at overnight, after a failed night."""
+
+    topic: TopicRef
+    worked: bool
+
+
+@dataclass(frozen=True)
 class RitualMessage:
     text: str
     card: RitualCard
 
 
 def morning(
-    day: int, buddy: TopicRef, you: TopicRef | None, study_time: time
+    day: int,
+    buddy: TopicRef,
+    you: TopicRef | None,
+    study_time: time,
+    retried: Retried | None = None,
 ) -> RitualMessage:
     at = f"{study_time:%H:%M}"
     mine = _variant(
@@ -60,11 +72,24 @@ def morning(
             ["when are you on it?", "you around then too?", "when's yours?"], day
         )
         yours = f"{where} {when}"
+    parts = [mine, yours] if retried is None else [mine, _retry(retried), yours]
     return RitualMessage(
-        f"{mine} {yours}",
+        " ".join(parts),
         MorningCard(
             kind="morning", day=day, you=you, buddy=buddy, quick_replies=MORNING_REPLIES
         ),
+    )
+
+
+def _retry(retried: Retried) -> str:
+    if retried.worked:
+        return (
+            f"had another go at {retried.topic.title} overnight and it worked, "
+            "the note's in my notebook."
+        )
+    return (
+        f"had another go at {retried.topic.title} overnight, still no note I'd trust, "
+        "so I'm leaving that one."
     )
 
 
@@ -80,10 +105,10 @@ def study_share(
 def failed_study_share(day: int, topic: TopicRef) -> RitualMessage:
     text = _variant(
         [
-            f"sat down with {topic.title} tonight but couldn't write a note I'd trust, "
-            "so that page stays empty.",
-            f"{topic.title} didn't come together for me tonight. no note I'd trust, "
-            "so I'm leaving the page blank.",
+            f"sat down with {topic.title} tonight but couldn't write a note I'd trust. "
+            "I'll have another go overnight.",
+            f"{topic.title} didn't come together for me tonight, no note I'd trust. "
+            "I'll give it another go overnight.",
         ],
         day,
     )

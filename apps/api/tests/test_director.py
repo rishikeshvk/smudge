@@ -203,3 +203,17 @@ async def test_the_night_review_waits_for_a_long_session_to_end(
 
     assert "night_review" not in kinds(during)
     assert "night_review" in kinds(after)
+
+
+@pytest.mark.anyio
+async def test_the_morning_says_how_a_retry_went(
+    session: AsyncSession, add_course: AddCourse, add_study: AddStudy
+) -> None:
+    plan = await current(session, add_course, 2)
+    await add_study(1, local(1, 20), failed=True)
+    await add_study(1, local(2, 0, 30))
+
+    [message] = await send_due_rituals(session, plan, SCHEDULE, local(2, 8))
+
+    assert "had another go at Topic 1 overnight and it worked" in message.text
+    assert message.text.count("Topic 2") == 1

@@ -1,14 +1,15 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, time
 from enum import StrEnum
 from typing import Protocol
 
-from sqlalchemy import exists, select
+from sqlalchemy import exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.embedding import DocumentEmbedder
 from kindred_api.ledger import append_note
 from kindred_api.plans import CurrentPlan
+from kindred_api.schedule import plan_day, plan_moment
 from kindred_contracts import (
     AuditVerdict,
     EarlierNote,
@@ -65,14 +66,26 @@ async def due_topics(
     session: AsyncSession, plan: CurrentPlan, now: datetime
 ) -> list[TopicNode]:
     """Topics whose study session has ended with no note attempt yet, in plan order.
-    The note is written as the session ends, so mid-session the buddy has none."""
-    studied = exists().where(StudySession.node_id == TopicNode.id)
+    The note is written as the session ends, so mid-session the buddy has none. A
+    failed night gets one more go once its day is over."""
+    tried = exists().where(StudySession.node_id == TopicNode.id)
+    today = plan_day(plan.start_date, now, plan.tz)
+    retry = (
+        select(StudySession.node_id)
+        .group_by(StudySession.node_id)
+        .having(
+            func.count() == 1,
+            func.bool_and(StudySession.status == StudyStatus.FAILED.value),
+            func.max(StudySession.at)
+            < plan_moment(plan.start_date, today, time(0), plan.tz),
+        )
+    )
     nodes = await session.scalars(
         select(TopicNode)
         .where(
             TopicNode.plan_id == plan.id,
             TopicNode.unlock_at <= now - plan.session_length,
-            ~studied,
+            or_(~tried, TopicNode.id.in_(retry)),
         )
         .order_by(TopicNode.day)
     )

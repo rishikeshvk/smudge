@@ -3,6 +3,7 @@ from datetime import datetime, time
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from kindred_api.chat import Thread
 from kindred_api.config import Settings
@@ -10,6 +11,7 @@ from kindred_api.plans import CurrentPlan
 from kindred_api.progress import checked_in_since, next_topic, studied_slugs
 from kindred_api.rituals import (
     BuddyNight,
+    Retried,
     RitualKind,
     RitualMessage,
     ask,
@@ -131,7 +133,37 @@ async def _morning(session: AsyncSession, today: Today) -> Composed | None:
     ):
         return None
     you = await next_topic(session, today.plan.id, today.now)
-    return Composed(morning(today.day, today.ref, you, today.plan.study_time))
+    retried = await _retried(session, today)
+    return Composed(morning(today.day, today.ref, you, today.plan.study_time, retried))
+
+
+async def _retried(session: AsyncSession, today: Today) -> Retried | None:
+    """An earlier topic studied again since midnight, after its night failed."""
+    midnight = today.at(time(0))
+    failed = aliased(StudySession)
+    row = (
+        await session.execute(
+            select(TopicNode, StudySession.status)
+            .join(StudySession, StudySession.node_id == TopicNode.id)
+            .join(failed, failed.node_id == TopicNode.id)
+            .where(
+                TopicNode.plan_id == today.plan.id,
+                StudySession.at >= midnight,
+                StudySession.at <= today.now,
+                failed.status == StudyStatus.FAILED.value,
+                failed.at < midnight,
+            )
+            .order_by(StudySession.at.desc())
+            .limit(1)
+        )
+    ).first()
+    if row is None:
+        return None
+    node, status = row
+    return Retried(
+        TopicRef(slug=node.slug, title=node.title, day=node.day),
+        worked=status == StudyStatus.WRITTEN.value,
+    )
 
 
 async def _study_share(session: AsyncSession, today: Today) -> Composed | None:
@@ -204,9 +236,10 @@ async def _night_review(session: AsyncSession, today: Today) -> Composed | None:
 
 async def _tonights_study(session: AsyncSession, today: Today) -> StudySession | None:
     study: StudySession | None = await session.scalar(
-        select(StudySession).where(
-            StudySession.node_id == today.topic.id, StudySession.at <= today.now
-        )
+        select(StudySession)
+        .where(StudySession.node_id == today.topic.id, StudySession.at <= today.now)
+        .order_by(StudySession.at)
+        .limit(1)
     )
     return study
 

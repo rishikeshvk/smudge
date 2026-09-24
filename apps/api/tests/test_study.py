@@ -136,6 +136,30 @@ async def test_a_topic_is_due_once_its_session_ends_and_only_once(
 
 
 @pytest.mark.anyio
+async def test_a_failed_night_is_retried_once_after_its_day(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    day_1, _ = await course(session, add_course)
+    plan = await load_current_plan(session)
+    assert plan is not None
+    failed_at = DAY_1 + plan.session_length
+    # Local midnight after day 1 in Kolkata.
+    after_midnight = datetime(2026, 10, 1, 18, 31, tzinfo=UTC)
+
+    async def fail(at: datetime) -> None:
+        curator = FakeCurator(StructuredOutputError("bad json"))
+        await study_topic(session, day_1, at, components(curator, FakeAuditor()))
+
+    await fail(failed_at)
+    assert await due_topics(session, plan, failed_at + timedelta(hours=1)) == []
+    assert [n.day for n in await due_topics(session, plan, after_midnight)] == [1]
+
+    await fail(after_midnight)
+    two_days_on = after_midnight + timedelta(days=2)
+    assert 1 not in [n.day for n in await due_topics(session, plan, two_days_on)]
+
+
+@pytest.mark.anyio
 async def test_an_audited_note_is_written_to_the_ledger(
     session: AsyncSession, add_course: AddCourse
 ) -> None:

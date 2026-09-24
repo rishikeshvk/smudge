@@ -290,7 +290,10 @@ async def _days(
             )
         }
         study = {
-            s.node_id: s.status for s in await session.scalars(select(StudySession))
+            s.node_id: s.status
+            for s in await session.scalars(
+                select(StudySession).order_by(StudySession.at)
+            )
         }
         notes = {
             n.topic.day: n for n in await list_notes(session, plan_id=plan.id, now=now)
