@@ -153,8 +153,13 @@ All times are the user's local time. `day` is the plan day.
     - "TOMORROW" wrapped in the pull sheet.
   - Noticed but not changed: a paused day doesn't appear on the list (it jumps 03 → 05), and the hero's "14 days"
     counts topics, not the new finish day.
-- **Not yet checked:** push, which needs the development build and the one-time setup under step 9, and
-  Developer → "Next ritual" on the phone.
+- **Push on the phone, 2026-09-24,** with the EAS development build:
+  - Registration: the permission prompt came up, and the token reached `push_tokens`.
+  - Delivery: `/dev/next-ritual` sent the day 5 morning message, and it arrived as a "Juno" notification while
+    the app was in the background.
+  - Tap: tapping the notification opened Chat on the morning card.
+- **Found:** a paused day breaks the streak. Day 4 was paused, had no topic and no check-in, so the streak dropped
+  to 00 on day 5. Not fixed yet.
 
 ## Steps
 
