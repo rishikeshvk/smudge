@@ -1,7 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { router } from "expo-router";
 import { useEffect } from "react";
 
@@ -9,32 +8,24 @@ import { listMessagesQueryKey } from "./api/@tanstack/react-query.gen";
 import { addPushToken } from "./api/sdk.gen";
 import { pushSupport } from "./pushSupport";
 
-// Rituals are texts from a friend: a banner, no sound.
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+type Notifications = typeof import("expo-notifications");
 
-async function register(projectId: string) {
+async function register(notifications: Notifications, projectId: string) {
   // Android 13 only asks for permission once a channel exists.
-  await Notifications.setNotificationChannelAsync("rituals", {
+  await notifications.setNotificationChannelAsync("rituals", {
     name: "Rituals",
-    importance: Notifications.AndroidImportance.DEFAULT,
+    importance: notifications.AndroidImportance.DEFAULT,
   });
-  const { granted } = await Notifications.requestPermissionsAsync();
+  const { granted } = await notifications.requestPermissionsAsync();
   if (!granted) return;
-  const { data } = await Notifications.getExpoPushTokenAsync({ projectId });
+  const { data } = await notifications.getExpoPushTokenAsync({ projectId });
   await addPushToken({ body: { token: data }, throwOnError: true });
 }
 
-// Registers this phone for the buddy's rituals, and opens Chat when one is tapped.
+// Registers this phone for the buddy's rituals, refreshes the thread when one arrives and
+// opens Chat when one is tapped.
 export function usePush(ready: boolean) {
   const queryClient = useQueryClient();
-  const tapped = Notifications.useLastNotificationResponse();
 
   useEffect(() => {
     if (!ready) return;
@@ -47,21 +38,41 @@ export function usePush(ready: boolean) {
       console.info(`No push notifications: ${support.reason}`);
       return;
     }
-    register(support.projectId).catch((error: unknown) =>
-      console.warn("Couldn't register for push notifications", error),
-    );
-  }, [ready]);
 
-  useEffect(() => {
-    if (!ready || !tapped) return;
-    queryClient.invalidateQueries({ queryKey: listMessagesQueryKey() });
-    router.navigate("/");
-  }, [ready, tapped, queryClient]);
+    const refresh = () => queryClient.invalidateQueries({ queryKey: listMessagesQueryKey() });
+    const openChat = () => {
+      refresh();
+      router.navigate("/");
+    };
+    let stopped = false;
+    const subscriptions: { remove: () => void }[] = [];
 
-  useEffect(() => {
-    const arrived = Notifications.addNotificationReceivedListener(() =>
-      queryClient.invalidateQueries({ queryKey: listMessagesQueryKey() }),
-    );
-    return () => arrived.remove();
-  }, [queryClient]);
+    // Imported only here: in Expo Go on Android, merely loading the module throws.
+    import("expo-notifications")
+      .then(async (notifications) => {
+        if (stopped) return;
+        // Rituals are texts from a friend: a banner, no sound.
+        notifications.setNotificationHandler({
+          handleNotification: async () => ({
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+            shouldShowBanner: true,
+            shouldShowList: true,
+          }),
+        });
+        subscriptions.push(
+          notifications.addNotificationReceivedListener(refresh),
+          notifications.addNotificationResponseReceivedListener(openChat),
+        );
+        // A tap that launched the app came before the listener existed.
+        if (await notifications.getLastNotificationResponseAsync()) openChat();
+        await register(notifications, support.projectId);
+      })
+      .catch((error: unknown) => console.warn("Couldn't set up push notifications", error));
+
+    return () => {
+      stopped = true;
+      subscriptions.forEach((subscription) => subscription.remove());
+    };
+  }, [ready, queryClient]);
 }

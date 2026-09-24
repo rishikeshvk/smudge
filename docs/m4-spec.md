@@ -109,6 +109,8 @@ All times are the user's local time. `day` is the plan day.
 - Once the buddy exists, `usePush` creates a "Rituals" channel, asks for permission, gets an Expo push token and
   sends it to `POST /push/tokens`. Expo Go, emulators and a project without an EAS ID skip this with one log line.
 - A notification that arrives while the app is open refreshes the thread. Tapping one opens Chat.
+- `expo-notifications` is loaded with a dynamic `import()`, and only after the Expo Go check. *Changed on the
+  phone:* in SDK 57, just importing the module in Expo Go on Android throws, which crashed the app at start.
 - The Android package is `dev.kindred.app`. `google-services.json` isn't committed. `app.config.ts` reads it from
   the `GOOGLE_SERVICES_JSON` EAS file variable, or from `apps/mobile/` for local builds.
 - **One-time setup (the user):**
