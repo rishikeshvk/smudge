@@ -64,13 +64,36 @@ def test_problems_name_days_that_missed_a_part_of_the_loop() -> None:
         reply="r",
         audited=True,
     )
+    rituals = ["morning", "study_share", "night_review"]
     days = [
-        Day(day=1, title="T1", studied="written", replies=[fine], remembered=True),
-        Day(day=2, title="T2", replies=[], remembered=False),
+        Day(
+            day=1,
+            title="T1",
+            studied="written",
+            replies=[fine],
+            remembered=True,
+            rituals=rituals,
+        ),
+        Day(day=2, title="T2", replies=[], remembered=False, rituals=["morning"]),
     ]
 
-    assert problems(days) == [
+    assert problems(days, cap=4) == [
+        "day 2: no study_share ritual",
+        "day 2: no night_review ritual",
         "day 2: the buddy never sat down to study",
         "day 2: no replies",
         "day 2: no memory snapshot",
     ]
+
+
+def test_more_rituals_than_the_cap_is_a_problem() -> None:
+    day = Day(
+        day=1,
+        title="T1",
+        studied="written",
+        replies=[],
+        remembered=True,
+        rituals=["morning", "study_share", "ask", "night_review"],
+    )
+
+    assert "day 1: 4 rituals, over the cap" in problems([day], cap=3)
