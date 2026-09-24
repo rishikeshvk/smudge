@@ -30,8 +30,10 @@ NOW = DAY_1 + timedelta(minutes=5)
 PASS = AuditVerdict(verdict=Verdict.PASS, rationale="fine")
 
 
-def note(body: str, shaky: str = "why regions?") -> NoteDraft:
-    return NoteDraft(body=body, shaky=[shaky], sources=["https://docs.test/1"])
+def note(body: str, shaky: str = "why regions?", share: str = "went ok") -> NoteDraft:
+    return NoteDraft(
+        body=body, shaky=[shaky], sources=["https://docs.test/1"], share=share
+    )
 
 
 class FakeCurator:
@@ -147,6 +149,39 @@ async def test_an_audited_note_is_written_to_the_ledger(
 
 
 @pytest.mark.anyio
+async def test_the_study_share_is_audited_and_kept_with_the_session(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    day_1, _ = await course(session, add_course)
+    auditor = FakeAuditor(PASS)
+
+    await study_topic(
+        session,
+        day_1,
+        NOW,
+        components(FakeCurator(note("b", share="regions done!")), auditor),
+    )
+
+    assert "regions done!" in auditor.notes[0]
+    row = await session_row(session, day_1)
+    assert row is not None and row.share == "regions done!"
+
+
+@pytest.mark.anyio
+async def test_locked_jargon_in_the_share_is_a_leak(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    day_1, _ = await course(session, add_course)
+    auditor = FakeAuditor(PASS)
+    curator = FakeCurator(note("b", share="next up is Glacier"), note("b"))
+
+    outcome = await study_topic(session, day_1, NOW, components(curator, auditor))
+
+    assert outcome.status is StudyStatus.WRITTEN
+    assert len(curator.briefs) == 2 and len(auditor.notes) == 1
+
+
+@pytest.mark.anyio
 async def test_later_topics_see_earlier_gaps(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
@@ -177,7 +212,7 @@ async def test_locked_jargon_is_redrafted_without_an_llm_audit(
     outcome = await study_topic(session, day_1, NOW, components(curator, auditor))
 
     assert outcome.status is StudyStatus.WRITTEN
-    assert auditor.notes == ["Regions.\nwhy regions?"]
+    assert auditor.notes == ["Regions.\nwhy regions?\nwent ok"]
     feedback = curator.briefs[1].feedback
     assert feedback is not None
     assert "Topic 2" in feedback

@@ -21,7 +21,9 @@ async def test_a_note_is_appended_with_its_embedding(
     plan = await add_course(1)
     node_id = await session.scalar(select(TopicNode.id))
     assert node_id is not None
-    note = NoteDraft(body="IAM is who", shaky=["roles?"], sources=["https://d.test"])
+    note = NoteDraft(
+        body="IAM is who", shaky=["roles?"], sources=["https://d.test"], share="went ok"
+    )
 
     note_id = await append_note(
         session,

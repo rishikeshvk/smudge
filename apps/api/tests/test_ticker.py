@@ -47,7 +47,9 @@ class Buddy:
             raise self.failure
         assert self.ticker is not None
         self.studying_seen.append(self.ticker.studying)
-        return NoteDraft(body=f"day {brief.topic.day}", shaky=["?"], sources=["u"])
+        return NoteDraft(
+            body=f"day {brief.topic.day}", shaky=["?"], sources=["u"], share="went ok"
+        )
 
     async def audit_note(
         self, note: str, topics: TopicMap, now: datetime, session_id: str

@@ -46,7 +46,9 @@ async def write_note(session: AsyncSession, day: int, at: datetime) -> None:
     await append_note(
         session,
         node_id=node_id,
-        note=NoteDraft(body=f"day {day}", shaky=["?"], sources=["https://d.t"]),
+        note=NoteDraft(
+            body=f"day {day}", shaky=["?"], sources=["https://d.t"], share="went ok"
+        ),
         written_at=at,
         embedding=[0.5] * EMBEDDING_DIMENSIONS,
         embedding_model="fake-embed",

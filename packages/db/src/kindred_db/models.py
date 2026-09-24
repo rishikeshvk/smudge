@@ -195,6 +195,8 @@ class StudySession(Base):
     status: Mapped[str]
     at: Mapped[datetime]
     note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
+    # The written note's study share, audited with it; the Director sends it.
+    share: Mapped[str | None]
     # Every draft and its audit, for debugging what the Curator tried.
     attempts: Mapped[list[dict[str, object]]] = mapped_column(JSONB)
 

@@ -47,6 +47,7 @@ from kindred_contracts.probes import (
 )
 from kindred_contracts.study import (
     MAX_NOTE_WORDS,
+    MAX_SHARE_WORDS,
     EarlierNote,
     NotebookNote,
     NoteDraft,
@@ -90,6 +91,7 @@ __all__ = [
     "MemoryBrief",
     "MemoryUpdate",
     "MAX_NOTE_WORDS",
+    "MAX_SHARE_WORDS",
     "EarlierNote",
     "NoteDraft",
     "NotebookNote",
