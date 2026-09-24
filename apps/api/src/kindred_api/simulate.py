@@ -4,6 +4,7 @@ import json
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, time, timedelta
 from pathlib import Path
+from statistics import mean
 from zoneinfo import ZoneInfo
 
 import httpx2
@@ -21,6 +22,7 @@ from kindred_api.onboarding import accept_plan, ensure_user, onboarding_turn
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.progress import check_in, studied_slugs
 from kindred_api.push import Pusher
+from kindred_api.reply_style import has_emoji
 from kindred_api.schedule import plan_moment
 from kindred_api.scratch_databases import recreate_database, sibling_url
 from kindred_api.ticker import Ticker
@@ -79,11 +81,23 @@ class Day:
 
 
 @dataclass
+class Style:
+    """How the chat replies read, so a change of voice is measured, not felt."""
+
+    replies: int
+    average_words: float
+    emoji_rate: float
+    question_rate: float
+    exclamation_rate: float
+
+
+@dataclass
 class Report:
     started_at: str
     wall_seconds: float
     onboarding: list[str]
     days: list[Day]
+    style: Style
     llm_calls_at_least: int
     problems: list[str]
 
@@ -142,6 +156,7 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
         wall_seconds=(SystemClock().now() - started).total_seconds(),
         onboarding=onboarding,
         days=report_days,
+        style=style_of([r.reply for d in report_days for r in d.replies]),
         llm_calls_at_least=_calls(onboarding, report_days),
         problems=problems(report_days, ticker.rituals.daily_cap),
     )
@@ -336,6 +351,19 @@ def audited(trace: TurnTrace) -> bool:
     return trace.fell_back or trace.final_reply in passed
 
 
+def style_of(replies: list[str]) -> Style:
+    def rate(matches: int) -> float:
+        return round(matches / len(replies), 2) if replies else 0.0
+
+    return Style(
+        replies=len(replies),
+        average_words=round(mean(len(r.split()) for r in replies), 1) if replies else 0,
+        emoji_rate=rate(sum(has_emoji(r) for r in replies)),
+        question_rate=rate(sum(r.rstrip().endswith("?") for r in replies)),
+        exclamation_rate=rate(sum("!" in r for r in replies)),
+    )
+
+
 # Every plan day should have these; the small ask depends on what the user has done.
 EXPECTED_RITUALS = ("morning", "study_share", "night_review")
 
@@ -402,6 +430,12 @@ def main() -> None:
             f"{day.note_words or 0:>3} words · user {user} · memory {memory} · {routes}"
             f" · rituals: {', '.join(day.rituals)}"
         )
+    style = report.style
+    print(
+        f"\nreplies: {style.average_words} words on average; emoji "
+        f"{style.emoji_rate:.0%}, ending in a question {style.question_rate:.0%}, "
+        f"with an exclamation {style.exclamation_rate:.0%}"
+    )
     print(
         f"\n{report.wall_seconds / 60:.1f} min, at least {report.llm_calls_at_least} "
         f"LLM calls. Log: {path}"
