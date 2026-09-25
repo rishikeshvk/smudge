@@ -1,4 +1,4 @@
-.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
+.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate replay test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -58,6 +58,13 @@ probe:
 simulate:
 	docker compose up -d --wait db ollama
 	uv run python -m kindred_api.simulate $(ARGS)
+
+# The landing page's replay, from kindred_demo: a copy of a finished simulation
+# (`createdb -T kindred_sim kindred_demo`), so the next run can't overwrite it.
+replay:
+	docker compose up -d --wait db
+	DATABASE_URL=postgresql+psycopg://kindred:kindred@localhost:5432/kindred_demo \
+		uv run python -m kindred_api.replay --out apps/site/replay.json $(ARGS)
 
 test:
 	docker compose up -d --wait db
