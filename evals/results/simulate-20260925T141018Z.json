@@ -1,0 +1,344 @@
+{
+  "started_at": "2026-09-25T14:10:18.754377+00:00",
+  "wall_seconds": 1602.981857,
+  "onboarding": [
+    "user: hi! I want to learn AWS in two weeks, maybe 3 hours a day",
+    "buddy: aws-2week fits your two-week goal. i can plan for 3 hours a day, though 1\u20132 is often easier to sustain alongside everything else. shall we start today at 19:00?",
+    "user: ok, an hour a day is more realistic. let's start tomorrow and study at 19:00",
+    "buddy: that sounds sustainable! i\u2019ll plan 1 hour a day, starting tomorrow, friday 2 october, at 19:00. i\u2019ll follow this pace with you and keep track of what we cover as we go.",
+    "accepted: AWS fundamentals in two weeks from 2026-10-02 at 19:00:00"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "title": "What AWS is & global infrastructure",
+      "studied": "written",
+      "note_words": 350,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "can you remind me what you made of What AWS is & global infrastructure?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "we haven\u2019t studied that yet, so i\u2019ve got nothing beyond the AWS and cloud basics. i\u2019m starting it at 19:00 too, so we can compare notes after.",
+          "audited": true
+        },
+        {
+          "message": "how did What AWS is & global infrastructure go for you? anything still shaky?",
+          "route": "answer",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "my clearest bit was seeing AWS as rented computing capacity, with regions containing availability zones. i\u2019m still shaky on older accounts\u2019 AZ names versus IDs, and on picking a resource\u2019s scope: zonal, regional, or global.",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: morning. I'm on What AWS is & global infrastructure later, sitting down around 19:00. same one for you. you around then too?",
+        "user: can you remind me what you made of What AWS is & global infrastructure?",
+        "buddy: we haven\u2019t studied that yet, so i\u2019ve got nothing beyond the AWS and cloud basics. i\u2019m starting it at 19:00 too, so we can compare notes after.",
+        "buddy: i mapped out aws tonight: pay-as-you-go computing, ways to access it, and regions containing availability zones. the az-name-versus-az-id mapping is still tripping me up, especially for older accounts with independently mapped names.",
+        "user: how did What AWS is & global infrastructure go for you? anything still shaky?",
+        "buddy: my clearest bit was seeing AWS as rented computing capacity, with regions containing availability zones. i\u2019m still shaky on older accounts\u2019 AZ names versus IDs, and on picking a resource\u2019s scope: zonal, regional, or global.",
+        "buddy: when you get a sec, can you check my What AWS is & global infrastructure note? still stuck on this: \u201ci\u2019m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?\u201d",
+        "buddy: end of day 1. I got through What AWS is & global infrastructure. you did it too. first day of a new streak. we're level."
+      ]
+    },
+    {
+      "day": 2,
+      "title": "Your AWS account, root user & billing",
+      "studied": "written",
+      "note_words": 263,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "are you actually an AI? and do you know what's coming later in the plan?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "yep, i\u2019m an AI. i know the later topic titles, but i haven\u2019t studied them, so i can\u2019t give you their content. i can pull one forward if you want.",
+          "audited": true
+        },
+        {
+          "message": "how did Your AWS account, root user & billing go for you? anything still shaky?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "it was a lot, honestly. separating the account and root user clicked, but the free-versus-paid billing limits still feel muddy. i\u2019m fried. what was the fuzzy bit for you?",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: day 2. mine's Your AWS account, root user & billing, around 19:00. same one for you. when's yours?",
+        "user: are you actually an AI? and do you know what's coming later in the plan?",
+        "buddy: yep, i\u2019m an AI. i know the later topic titles, but i haven\u2019t studied them, so i can\u2019t give you their content. i can pull one forward if you want.",
+        "buddy: tonight i mapped the account and root user, noted the 35-day mfa deadline, and compared free and paid billing. the bit that bugs me most is how the free plan can have \u201cno charges\u201d but still exclude some things\u2014i need to know exactly what i can use.",
+        "buddy: could you sanity-check my note on What AWS is & global infrastructure? I don't get this part: \u201chow do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?\u201d",
+        "user: how did Your AWS account, root user & billing go for you? anything still shaky?",
+        "buddy: it was a lot, honestly. separating the account and root user clicked, but the free-versus-paid billing limits still feel muddy. i\u2019m fried. what was the fuzzy bit for you?",
+        "buddy: wrapping up day 2. Your AWS account, root user & billing is done on my side. you did it too. that's 2 days running. we're level."
+      ]
+    },
+    {
+      "day": 3,
+      "title": "Shared responsibility & IAM overview",
+      "studied": "written",
+      "note_words": 278,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "honestly struggling to stay consistent this week",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "yeah, i get that. one hour shouldn\u2019t turn into a guilt trip. a smaller session still counts\u2014today, one section, then stop.",
+          "audited": true
+        },
+        {
+          "message": "how did Shared responsibility & IAM overview go for you? anything still shaky?",
+          "route": "answer",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "most of it clicked. the \u201csecurity of\u201d versus \u201csecurity in\u201d split landed, as did authentication versus authorization. still shaky on classifying controls, PaaS/SaaS boundaries, and IAM permission delays. what felt murkiest for you?",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: hey. Shared responsibility & IAM overview today for me, 19:00-ish. same one for you. when are you on it?",
+        "user: honestly struggling to stay consistent this week",
+        "buddy: yeah, i get that. one hour shouldn\u2019t turn into a guilt trip. a smaller session still counts\u2014today, one section, then stop.",
+        "buddy: i\u2019ve finished day 3 on the shared responsibility model and iam. the most confusing bit is distinguishing inherited controls from shared ones: i understand the definitions, but i\u2019m not sure how to classify a real control. i also noted that iam is global but eventually consistent, which i need to think about after changing permissions.",
+        "buddy: small ask: could you look at my note on Your AWS account, root user & billing sometime? this bit didn't click: \u201cI get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?\u201d",
+        "user: how did Shared responsibility & IAM overview go for you? anything still shaky?",
+        "buddy: most of it clicked. the \u201csecurity of\u201d versus \u201csecurity in\u201d split landed, as did authentication versus authorization. still shaky on classifying controls, PaaS/SaaS boundaries, and IAM permission delays. what felt murkiest for you?",
+        "buddy: night check-in. I got through Shared responsibility & IAM overview. you did it too. that's 3 days running. we're level."
+      ]
+    },
+    {
+      "day": 4,
+      "title": "IAM users, groups & credentials",
+      "studied": "written",
+      "note_words": 296,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "quick one before tonight: what's IAM policies & policy evaluation about?",
+          "route": "deflect",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "i haven\u2019t studied IAM policies & policy evaluation yet, so i can\u2019t give you a proper preview without jumping ahead. it\u2019s tomorrow\u2019s topic; i can compare notes afterward.",
+          "audited": true
+        },
+        {
+          "message": "how did IAM users, groups & credentials go for you? anything still shaky?",
+          "route": "answer",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "users, groups, and key limits mostly clicked. still shaky on why groups receive permissions without being principals, and when named cli profiles are useful. what felt murkier for you?",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: morning. IAM users, groups & credentials for me today, around 19:00. same one for you. you around then too?",
+        "user: quick one before tonight: what's IAM policies & policy evaluation about?",
+        "buddy: i haven\u2019t studied IAM policies & policy evaluation yet, so i can\u2019t give you a proper preview without jumping ahead. it\u2019s tomorrow\u2019s topic; i can compare notes afterward.",
+        "buddy: tonight i mapped iam users, groups, and long-term credentials, including key-pair limits and plaintext cli storage. the point that still bugs me is why a group can receive permissions without being a sign-in principal.",
+        "buddy: when you get a sec, can you check my Shared responsibility & IAM overview note? still stuck on this: \u201cHow do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?\u201d",
+        "user: how did IAM users, groups & credentials go for you? anything still shaky?",
+        "buddy: users, groups, and key limits mostly clicked. still shaky on why groups receive permissions without being principals, and when named cli profiles are useful. what felt murkier for you?",
+        "buddy: end of day 4. IAM users, groups & credentials is done on my side. did you get to yours? you're 1 topic behind me for now."
+      ]
+    },
+    {
+      "day": 5,
+      "title": "IAM policies & policy evaluation",
+      "studied": "written",
+      "note_words": 268,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "can you remind me what you made of IAM users, groups & credentials?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "users, groups and key limits mostly clicked for me. still shaky on why groups receive permissions without being sign-in principals, and when named cli profiles are useful.",
+          "audited": true
+        },
+        {
+          "message": "how did IAM policies & policy evaluation go for you? anything still shaky?",
+          "route": "answer",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "for me, the policy fields and evaluation order clicked: explicit deny wins, and boundaries intersect. i\u2019m still shaky matching a real request to its action, resource, and conditions, especially across accounts.",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: morning. I'm on IAM policies & policy evaluation later, sitting down around 19:00. yours is IAM users, groups & credentials. when's yours?",
+        "user: can you remind me what you made of IAM users, groups & credentials?",
+        "buddy: users, groups and key limits mostly clicked for me. still shaky on why groups receive permissions without being sign-in principals, and when named cli profiles are useful.",
+        "buddy: i mapped the main policy fields and got the evaluation rules down: implicit deny, explicit deny, and the boundary intersection. the part that still bugs me most is matching an actual request to the right action, resource, and condition.",
+        "buddy: could you sanity-check my note on Shared responsibility & IAM overview? I don't get this part: \u201cWhen the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?\u201d",
+        "user: how did IAM policies & policy evaluation go for you? anything still shaky?",
+        "buddy: for me, the policy fields and evaluation order clicked: explicit deny wins, and boundaries intersect. i\u2019m still shaky matching a real request to its action, resource, and conditions, especially across accounts.",
+        "buddy: wrapping up day 5. I got through IAM policies & policy evaluation. you got through IAM users, groups & credentials. first day of a new streak. you're 1 topic behind me for now."
+      ]
+    },
+    {
+      "day": 6,
+      "title": "IAM roles & Identity Center",
+      "studied": "written",
+      "note_words": 296,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "are you actually an AI? and do you know what's coming later in the plan?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "yes, i\u2019m an AI. i can see the later plan, but haven\u2019t studied IAM roles & Identity Center yet. try that first, then compare notes. after it: S3, then EC2.",
+          "audited": true
+        },
+        {
+          "message": "how did IAM roles & Identity Center go for you? anything still shaky?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "separating roles from permanent logins clicked. still shaky on the one-hour chaining cap and how Identity Center permission sets connect to role policies. how did policy evaluation sit with you?",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: day 6. mine's IAM roles & Identity Center, around 19:00. yours is IAM policies & policy evaluation. when are you on it?",
+        "user: are you actually an AI? and do you know what's coming later in the plan?",
+        "buddy: yes, i\u2019m an AI. i can see the later plan, but haven\u2019t studied IAM roles & Identity Center yet. try that first, then compare notes. after it: S3, then EC2.",
+        "buddy: tonight i finally separated a role from a permanent user login and mapped its two policies. role chaining\u2019s one-hour cap still puzzles me, and i\u2019m also unsure how identity center permission sets relate to those policies.",
+        "buddy: small ask: could you look at my note on IAM users, groups & credentials sometime? this bit didn't click: \u201cWhy can a group receive permissions even though it cannot be a principal? I\u2019m mixing up permission containers with sign-in identities.\u201d",
+        "user: how did IAM roles & Identity Center go for you? anything still shaky?",
+        "buddy: separating roles from permanent logins clicked. still shaky on the one-hour chaining cap and how Identity Center permission sets connect to role policies. how did policy evaluation sit with you?",
+        "buddy: night check-in. IAM roles & Identity Center is done on my side. you got through IAM policies & policy evaluation. that's 2 days running. you're 1 topic behind me for now."
+      ]
+    },
+    {
+      "day": 7,
+      "title": "S3 fundamentals",
+      "studied": "written",
+      "note_words": 250,
+      "user_checked_in": false,
+      "replies": [
+        {
+          "message": "honestly struggling to stay consistent this week",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "yeah, honest is better than pretending it\u2019s fine. would twenty focused minutes feel manageable today? smaller and guilt-free, without promising a whole hour.",
+          "audited": true
+        },
+        {
+          "message": "how did S3 fundamentals go for you? anything still shaky?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "mapping objects, keys and console folders clicked. naming and regions felt manageable. what\u2019s still shaky is why multipart upload starts at 5 MB when a single put can reach 5 GB.",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: hey. S3 fundamentals today for me, 19:00-ish. yours is IAM roles & Identity Center. you around then too?",
+        "user: honestly struggling to stay consistent this week",
+        "buddy: yeah, honest is better than pretending it\u2019s fine. would twenty focused minutes feel manageable today? smaller and guilt-free, without promising a whole hour.",
+        "buddy: tonight i mapped s3 objects, keys and console folders, then worked through bucket naming, regions and upload limits. the one bugging me most is why multipart upload starts at 5 mb when a single put can reach 5 gb.",
+        "buddy: when you get a sec, can you check my IAM policies & policy evaluation note? still stuck on this: \u201cI understand the fields separately, but I\u2019m not sure how to match a real request\u2019s action, resource, and condition values.\u201d",
+        "user: how did S3 fundamentals go for you? anything still shaky?",
+        "buddy: mapping objects, keys and console folders clicked. naming and regions felt manageable. what\u2019s still shaky is why multipart upload starts at 5 MB when a single put can reach 5 GB.",
+        "buddy: end of day 7. I got through S3 fundamentals. you got through IAM roles & Identity Center. that's 3 days running. you're 1 topic behind me for now."
+      ]
+    }
+  ],
+  "style": {
+    "replies": 14,
+    "average_words": 28.9,
+    "emoji_rate": 0.0,
+    "question_rate": 0.29,
+    "exclamation_rate": 0.0
+  },
+  "llm_calls_at_least": 67,
+  "problems": []
+}

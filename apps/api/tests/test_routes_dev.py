@@ -163,12 +163,12 @@ async def test_next_ritual_moves_to_the_next_ritual_moment_and_ticks(
 
 
 @pytest.mark.anyio
-async def test_a_friend_follows_the_clock_but_cannot_move_it(
+async def test_a_member_follows_the_clock_but_cannot_move_it(
     api: ApiClient, add_user: AddUser, add_plan: AddPlan
 ) -> None:
-    friend = await add_user()
-    await add_plan(date(2026, 10, 1), "Asia/Kolkata", friend.id)
-    client = api(OffsetClock(FixedClock(REAL_NOW), timedelta()), None, friend.id)
+    member = await add_user()
+    await add_plan(date(2026, 10, 1), "Asia/Kolkata", member.id)
+    client = api(OffsetClock(FixedClock(REAL_NOW), timedelta()), None, member.id)
 
     read = await client.get("/dev/clock")
     moved = await client.post("/dev/clock", json={"kind": "advance", "hours": 24})

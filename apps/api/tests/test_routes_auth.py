@@ -25,8 +25,8 @@ PUBLIC = {("GET", "/health"), ("POST", "/auth/redeem")}
 async def test_a_code_trades_for_a_token_that_says_who_you_are(
     api: ApiClient, session: AsyncSession, add_user: AddUser
 ) -> None:
-    friend = await add_user()
-    code = await create_invite(session, friend.id, NOW, WEEK)
+    member = await add_user()
+    code = await create_invite(session, member.id, NOW, WEEK)
     client = api(FixedClock(NOW), None, None)
 
     redeemed = await client.post("/auth/redeem", json={"code": code.lower()})

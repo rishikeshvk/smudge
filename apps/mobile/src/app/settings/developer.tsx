@@ -46,7 +46,7 @@ export default function Developer() {
     >
       <BackHeader
         title="Developer"
-        caption="Dev builds only. Moves Kindred's Clock, not your phone's."
+        caption="Dev builds only. Moves Smudge's clock, not your phone's."
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -66,7 +66,7 @@ export default function Developer() {
             <View className="gap-3 rounded-md border border-line bg-surface-raised p-4">
               <View className="flex-row items-center gap-2">
                 <Clock size={18} strokeWidth={1.75} color={inkMuted} />
-                <Text className="font-label text-label uppercase text-ink-muted">Kindred clock</Text>
+                <Text className="font-label text-label uppercase text-ink-muted">Smudge clock</Text>
               </View>
               <Text
                 className="font-counter text-counter text-ink"

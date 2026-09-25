@@ -87,12 +87,12 @@ async def test_an_unreachable_endpoint_fails_the_check_without_details(
     ("method", "path"),
     [("GET", "/settings"), ("PUT", "/settings"), ("POST", "/settings/test")],
 )
-async def test_a_friend_cannot_see_or_change_the_endpoint(
+async def test_a_member_cannot_see_or_change_the_endpoint(
     api: ApiClient, runtime: LLMRuntime, add_user: AddUser, method: str, path: str
 ) -> None:
-    friend = await add_user()
+    member = await add_user()
 
-    response = await api(FixedClock(NOW), None, friend.id).request(
+    response = await api(FixedClock(NOW), None, member.id).request(
         method, path, json={}
     )
 

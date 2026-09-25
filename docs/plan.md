@@ -117,7 +117,7 @@ The MVP is the full core idea as a working Android app; only infrastructure and 
 
 **Deferred:**
 
-- Full authentication and public sign-up. The multi-user pass adds invite codes for a few friends.
+- Full authentication and public sign-up. The multi-user pass adds invite codes for a few invited members.
 - Shared code sandbox, the one part of the original idea that isn't cheap.
 - iOS and web versions; Telegram/WhatsApp.
 - Non-tech domains.
@@ -162,7 +162,7 @@ Build the gate first because everything depends on it, but start the frontend ea
 | M4 Rituals | Director, push notifications, streaks, the catch-up gap, replanning on request, seeded-gap asks, message caps | A simulated week feels like a buddy, not a bot |
 | Buddy feel | Understated voice and mood, the buddy's study session, check-ins, the Reflector ([spec](buddy-feel-spec.md)) | A simulated day reads like texts from a peer |
 | Multi-user | Per-user data, invite-code login, an opening screen ([brief](multi-user-brief.md)) | Two users share one API and neither sees the other's |
-| M5 Portfolio | A private deploy and APK for a few friends first, then README with leak-rate chart, demo video, public backend demo on AWS | Someone else can install it or watch it |
+| M5 Portfolio | An always-on free host for the invite-only app, a landing page that replays a recorded run, a demo video, a README and a public repo ([spec](m5-spec.md)) | Someone else can install it or watch it |
 
 M3 can run in parallel with M1 and M2 once the typed contracts exist. Buddy feel and Multi-user are unnumbered passes added between M4 and M5. Set target numbers before M1, e.g. under 1% leaks and under 10% over-blocks.
 

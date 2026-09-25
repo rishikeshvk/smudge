@@ -227,9 +227,9 @@ async def test_without_reference_notes_the_ledger_starts_empty(
 async def test_seeding_makes_the_owner_or_seeds_for_them(
     session: AsyncSession, curriculum: Curriculum
 ) -> None:
-    friend = User(timezone="UTC")
+    member = User(timezone="UTC")
     owner = User(timezone="UTC", is_owner=True)
-    session.add_all([friend, owner])
+    session.add_all([member, owner])
     await session.flush()
 
     await seed_plan(

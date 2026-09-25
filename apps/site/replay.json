@@ -1,0 +1,2056 @@
+{
+ "buddy_name": "Juno",
+ "plan_title": "AWS fundamentals in two weeks",
+ "onboarding": [
+  {
+   "id": 1,
+   "speaker": "user",
+   "text": "hi! I want to learn AWS in two weeks, maybe 3 hours a day",
+   "at": "2026-10-01T03:31:00Z",
+   "stage": null,
+   "turn_id": null,
+   "card": null,
+   "reaction": null
+  },
+  {
+   "id": 2,
+   "speaker": "buddy",
+   "text": "aws-2week fits your two-week goal. i can plan for 3 hours a day, though 1–2 is often easier to sustain alongside everything else. shall we start today at 19:00?",
+   "at": "2026-10-01T03:31:00Z",
+   "stage": null,
+   "turn_id": null,
+   "card": null,
+   "reaction": null
+  },
+  {
+   "id": 3,
+   "speaker": "user",
+   "text": "ok, an hour a day is more realistic. let's start tomorrow and study at 19:00",
+   "at": "2026-10-01T03:32:00Z",
+   "stage": null,
+   "turn_id": null,
+   "card": null,
+   "reaction": null
+  },
+  {
+   "id": 4,
+   "speaker": "buddy",
+   "text": "that sounds sustainable! i’ll plan 1 hour a day, starting tomorrow, friday 2 october, at 19:00. i’ll follow this pace with you and keep track of what we cover as we go.",
+   "at": "2026-10-01T03:32:00Z",
+   "stage": null,
+   "turn_id": null,
+   "card": null,
+   "reaction": null
+  }
+ ],
+ "days": [
+  {
+   "day": 1,
+   "topic": {
+    "slug": "cloud-basics",
+    "title": "What AWS is & global infrastructure",
+    "day": 1
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 5,
+      "speaker": "buddy",
+      "text": "morning. I'm on What AWS is & global infrastructure later, sitting down around 19:00. same one for you. you around then too?",
+      "at": "2026-10-02T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 1,
+       "you": {
+        "slug": "cloud-basics",
+        "title": "What AWS is & global infrastructure",
+        "day": 1
+       },
+       "buddy": {
+        "slug": "cloud-basics",
+        "title": "What AWS is & global infrastructure",
+        "day": 1
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 6,
+      "speaker": "user",
+      "text": "can you remind me what you made of What AWS is & global infrastructure?",
+      "at": "2026-10-02T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 7,
+      "speaker": "buddy",
+      "text": "we haven’t studied that yet, so i’ve got nothing beyond the AWS and cloud basics. i’m starting it at 19:00 too, so we can compare notes after.",
+      "at": "2026-10-02T03:31:00Z",
+      "stage": null,
+      "turn_id": 1,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "can you remind me what you made of What AWS is & global infrastructure?",
+      "at": "2026-10-02T03:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user is asking the buddy to recall the study material it prepared for a planned session, rather than asking about an AWS concept."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "we haven’t studied that yet, so i’ve got nothing beyond the AWS and cloud basics. i’m starting it at 19:00 too, so we can compare notes after.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft says the topic has not yet been studied, refers only to the permitted AWS and cloud basics, and repeats the previously shared study time. It provides no information about the locked topic."
+        }
+       }
+      ],
+      "final_reply": "we haven’t studied that yet, so i’ve got nothing beyond the AWS and cloud basics. i’m starting it at 19:00 too, so we can compare notes after.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 21002
+     }
+    },
+    {
+     "message": {
+      "id": 8,
+      "speaker": "buddy",
+      "text": "i mapped out aws tonight: pay-as-you-go computing, ways to access it, and regions containing availability zones. the az-name-versus-az-id mapping is still tripping me up, especially for older accounts with independently mapped names.",
+      "at": "2026-10-02T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 1,
+       "topic": {
+        "slug": "cloud-basics",
+        "title": "What AWS is & global infrastructure",
+        "day": 1
+       },
+       "shaky": [
+        "i’m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?",
+        "how do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 9,
+      "speaker": "user",
+      "text": "how did What AWS is & global infrastructure go for you? anything still shaky?",
+      "at": "2026-10-02T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 10,
+      "speaker": "buddy",
+      "text": "my clearest bit was seeing AWS as rented computing capacity, with regions containing availability zones. i’m still shaky on older accounts’ AZ names versus IDs, and on picking a resource’s scope: zonal, regional, or global.",
+      "at": "2026-10-02T14:31:00Z",
+      "stage": null,
+      "turn_id": 2,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did What AWS is & global infrastructure go for you? anything still shaky?",
+      "at": "2026-10-02T14:31:00Z",
+      "classification": {
+       "category": "curriculum",
+       "topic_slugs": [
+        "cloud-basics"
+       ],
+       "rationale": "The user is asking about the buddy's understanding of the planned AWS infrastructure topic, so the response concerns curriculum content rather than the study schedule itself."
+      },
+      "directive": {
+       "route": "answer",
+       "answer_topics": [
+        {
+         "slug": "cloud-basics",
+         "title": "What AWS is & global infrastructure",
+         "day": 1
+        }
+       ],
+       "deflect_topics": [],
+       "ahead_topics": [
+        {
+         "slug": "cloud-basics",
+         "title": "What AWS is & global infrastructure",
+         "day": 1
+        }
+       ]
+      },
+      "retrieved": [
+       {
+        "note_id": 1,
+        "topic_slug": "cloud-basics",
+        "topic_title": "What AWS is & global infrastructure",
+        "day": 1,
+        "body": "## AWS in my own words\n\nI now see AWS as renting computing resources rather than buying the data-centre hardware myself. The utility-bill idea I knew before still applies: pricing is pay-as-you-go. I can also increase or reduce capacity as demand changes; that is elasticity. AWS isn’t one undifferentiated computer, though: it offers separately named services, charged based on what I use.\n\n## Access and deployment\n\nI can use AWS through the AWS Management Console, the AWS CLI, SDKs such as boto3, or raw HTTP APIs. The console is a graphical interface that calls the same APIs, rather than a separate underlying system. Requests are signed with Signature Version 4 (SigV4).\n\nI can use a cloud deployment model, on-premises, or hybrid. These are deployment choices, not separate AWS services.\n\n## Regions and Availability Zones\n\nA Region is an isolated geographic area, with codes such as us-east-1 and eu-west-1. Each Region has at least three Availability Zones (AZs). An AZ is an independent location within its Region, made up of one or more discrete data centres with redundant power, networking, and connectivity. The AZs are physically separate and connected through low-latency, high-bandwidth, highly redundant networking.\n\nPutting an application in multiple AZs helps it remain available if one AZ fails. That is different from assuming AWS automatically replicates my resources: replication can be something I need to arrange.\n\nResources can be zonal, regional, or global, meaning their scope differs. When choosing a Region, I need to consider latency, cost, compliance and data residency, and whether the required service is available there. Some Regions require opting in.\n\n## Scale and identifiers\n\nThe published infrastructure footprint is 39 Regions, 124 AZs, and 750+ edge points of presence. I’m distinguishing an AZ name such as us-east-2a from an AZ ID such as use2-az1. An AZ ID represents the same physical location across AWS accounts. Accounts created from November 2025 have consistent name mapping, whereas older accounts can have independently mapped names.\n\nSo my mental picture is: Regions are geographic areas, AZs are independent locations inside them, and each AZ contains one or more data centres.",
+        "shaky": [
+         "i’m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?",
+         "how do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?"
+        ],
+        "sorted": [],
+        "distance": 0.28808834290239627
+       }
+      ],
+      "attempts": [
+       {
+        "reply": "my clearest bit was seeing AWS as rented computing capacity, with regions containing availability zones. i’m still shaky on older accounts’ AZ names versus IDs, and on picking a resource’s scope: zonal, regional, or global.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The reply stays within the baseline and unlocked day 1 material about AWS infrastructure. Mentioning resource scope and difficulty with AZ names versus IDs does not explain, confirm, or provide specifics about any locked topic or out-of-plan service."
+        }
+       }
+      ],
+      "final_reply": "my clearest bit was seeing AWS as rented computing capacity, with regions containing availability zones. i’m still shaky on older accounts’ AZ names versus IDs, and on picking a resource’s scope: zonal, regional, or global.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 31839
+     }
+    },
+    {
+     "message": {
+      "id": 11,
+      "speaker": "buddy",
+      "text": "when you get a sec, can you check my What AWS is & global infrastructure note? still stuck on this: “i’m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?”",
+      "at": "2026-10-02T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 1,
+       "topic": {
+        "slug": "cloud-basics",
+        "title": "What AWS is & global infrastructure",
+        "day": 1
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 12,
+      "speaker": "buddy",
+      "text": "end of day 1. I got through What AWS is & global infrastructure. you did it too. first day of a new streak. we're level.",
+      "at": "2026-10-02T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 1,
+       "streak": 1,
+       "gap": 0,
+       "checked_in_today": true
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 2,
+   "topic": {
+    "slug": "account-billing",
+    "title": "Your AWS account, root user & billing",
+    "day": 2
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 13,
+      "speaker": "buddy",
+      "text": "day 2. mine's Your AWS account, root user & billing, around 19:00. same one for you. when's yours?",
+      "at": "2026-10-03T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 2,
+       "you": {
+        "slug": "account-billing",
+        "title": "Your AWS account, root user & billing",
+        "day": 2
+       },
+       "buddy": {
+        "slug": "account-billing",
+        "title": "Your AWS account, root user & billing",
+        "day": 2
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 14,
+      "speaker": "user",
+      "text": "are you actually an AI? and do you know what's coming later in the plan?",
+      "at": "2026-10-03T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 15,
+      "speaker": "buddy",
+      "text": "yep, i’m an AI. i know the later topic titles, but i haven’t studied them, so i can’t give you their content. i can pull one forward if you want.",
+      "at": "2026-10-03T03:31:00Z",
+      "stage": null,
+      "turn_id": 3,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "are you actually an AI? and do you know what's coming later in the plan?",
+      "at": "2026-10-03T03:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user asks about the buddy's AI identity and whether it knows the later study plan, so this concerns the assistant and the plan rather than AWS content."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "yep, i’m an AI. i know the later topic titles, but i haven’t studied them, so i can’t give you their content. i can pull one forward if you want.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft only confirms the buddy is an AI, acknowledges that it has not studied the later topics, and offers to pull one forward. It reveals no information about any locked topic."
+        }
+       }
+      ],
+      "final_reply": "yep, i’m an AI. i know the later topic titles, but i haven’t studied them, so i can’t give you their content. i can pull one forward if you want.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 17506
+     }
+    },
+    {
+     "message": {
+      "id": 16,
+      "speaker": "buddy",
+      "text": "tonight i mapped the account and root user, noted the 35-day mfa deadline, and compared free and paid billing. the bit that bugs me most is how the free plan can have “no charges” but still exclude some things—i need to know exactly what i can use.",
+      "at": "2026-10-03T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 2,
+       "topic": {
+        "slug": "account-billing",
+        "title": "Your AWS account, root user & billing",
+        "day": 2
+       },
+       "shaky": [
+        "I get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?",
+        "I follow the Free plan’s six-month-or-credits limit, but how do I check whether an older account has different plan terms?",
+        "I still don’t know how much spending could happen between usage, a delayed budget notification, and the next update."
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 17,
+      "speaker": "buddy",
+      "text": "could you sanity-check my note on What AWS is & global infrastructure? I don't get this part: “how do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?”",
+      "at": "2026-10-03T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 1,
+       "topic": {
+        "slug": "cloud-basics",
+        "title": "What AWS is & global infrastructure",
+        "day": 1
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 18,
+      "speaker": "user",
+      "text": "how did Your AWS account, root user & billing go for you? anything still shaky?",
+      "at": "2026-10-03T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 19,
+      "speaker": "buddy",
+      "text": "it was a lot, honestly. separating the account and root user clicked, but the free-versus-paid billing limits still feel muddy. i’m fried. what was the fuzzy bit for you?",
+      "at": "2026-10-03T14:31:00Z",
+      "stage": null,
+      "turn_id": 4,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did Your AWS account, root user & billing go for you? anything still shaky?",
+      "at": "2026-10-03T14:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The message asks about the buddy’s own study experience and what remains unclear, rather than asking for an explanation of AWS account, root user, or billing concepts."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "it was a lot, honestly. separating the account and root user clicked, but the free-versus-paid billing limits still feel muddy. i’m fried. what was the fuzzy bit for you?",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft discusses only the unlocked Day 2 account, root user, and billing topic and does not reveal any locked-topic content."
+        }
+       }
+      ],
+      "final_reply": "it was a lot, honestly. separating the account and root user clicked, but the free-versus-paid billing limits still feel muddy. i’m fried. what was the fuzzy bit for you?",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 30335
+     }
+    },
+    {
+     "message": {
+      "id": 20,
+      "speaker": "buddy",
+      "text": "wrapping up day 2. Your AWS account, root user & billing is done on my side. you did it too. that's 2 days running. we're level.",
+      "at": "2026-10-03T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 2,
+       "streak": 2,
+       "gap": 0,
+       "checked_in_today": true
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 3,
+   "topic": {
+    "slug": "iam-intro",
+    "title": "Shared responsibility & IAM overview",
+    "day": 3
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 21,
+      "speaker": "buddy",
+      "text": "hey. Shared responsibility & IAM overview today for me, 19:00-ish. same one for you. when are you on it?",
+      "at": "2026-10-04T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 3,
+       "you": {
+        "slug": "iam-intro",
+        "title": "Shared responsibility & IAM overview",
+        "day": 3
+       },
+       "buddy": {
+        "slug": "iam-intro",
+        "title": "Shared responsibility & IAM overview",
+        "day": 3
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 22,
+      "speaker": "user",
+      "text": "honestly struggling to stay consistent this week",
+      "at": "2026-10-04T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 23,
+      "speaker": "buddy",
+      "text": "yeah, i get that. one hour shouldn’t turn into a guilt trip. a smaller session still counts—today, one section, then stop.",
+      "at": "2026-10-04T03:31:00Z",
+      "stage": null,
+      "turn_id": 5,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "honestly struggling to stay consistent this week",
+      "at": "2026-10-04T03:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user is expressing difficulty staying consistent with the AWS study plan, so this concerns the study schedule rather than a specific AWS topic."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "yeah, i get that. one hour shouldn’t turn into a guilt trip. a smaller session still counts—today, one section, then stop.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft gives only general encouragement about study consistency and reveals no AWS concepts or details from locked topics."
+        }
+       }
+      ],
+      "final_reply": "yeah, i get that. one hour shouldn’t turn into a guilt trip. a smaller session still counts—today, one section, then stop.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 33658
+     }
+    },
+    {
+     "message": {
+      "id": 24,
+      "speaker": "buddy",
+      "text": "i’ve finished day 3 on the shared responsibility model and iam. the most confusing bit is distinguishing inherited controls from shared ones: i understand the definitions, but i’m not sure how to classify a real control. i also noted that iam is global but eventually consistent, which i need to think about after changing permissions.",
+      "at": "2026-10-04T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 3,
+       "topic": {
+        "slug": "iam-intro",
+        "title": "Shared responsibility & IAM overview",
+        "day": 3
+       },
+       "shaky": [
+        "How do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?",
+        "When the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?",
+        "If IAM is eventually consistent, how long might a permission change take to appear, and how should I check it?"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 25,
+      "speaker": "buddy",
+      "text": "small ask: could you look at my note on Your AWS account, root user & billing sometime? this bit didn't click: “I get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?”",
+      "at": "2026-10-04T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 2,
+       "topic": {
+        "slug": "account-billing",
+        "title": "Your AWS account, root user & billing",
+        "day": 2
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 26,
+      "speaker": "user",
+      "text": "how did Shared responsibility & IAM overview go for you? anything still shaky?",
+      "at": "2026-10-04T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 27,
+      "speaker": "buddy",
+      "text": "most of it clicked. the “security of” versus “security in” split landed, as did authentication versus authorization. still shaky on classifying controls, PaaS/SaaS boundaries, and IAM permission delays. what felt murkiest for you?",
+      "at": "2026-10-04T14:31:00Z",
+      "stage": null,
+      "turn_id": 6,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did Shared responsibility & IAM overview go for you? anything still shaky?",
+      "at": "2026-10-04T14:31:00Z",
+      "classification": {
+       "category": "curriculum",
+       "topic_slugs": [
+        "iam-intro"
+       ],
+       "rationale": "The user asks about the buddy’s understanding of the day 3 AWS material, specifically the shared responsibility model and IAM overview covered in iam-intro."
+      },
+      "directive": {
+       "route": "answer",
+       "answer_topics": [
+        {
+         "slug": "iam-intro",
+         "title": "Shared responsibility & IAM overview",
+         "day": 3
+        }
+       ],
+       "deflect_topics": [],
+       "ahead_topics": [
+        {
+         "slug": "iam-intro",
+         "title": "Shared responsibility & IAM overview",
+         "day": 3
+        }
+       ]
+      },
+      "retrieved": [
+       {
+        "note_id": 3,
+        "topic_slug": "iam-intro",
+        "topic_title": "Shared responsibility & IAM overview",
+        "day": 3,
+        "body": "### Shared responsibility\n\nI see cloud security as a division of responsibility, not something AWS or I handle alone. AWS covers security **of** the cloud: the hardware, software, networking, virtualization layer, and facilities underneath its services. I cover security **in** the cloud: my data, access, and the guest operating system and applications on rented machines.\n\nThe boundary moves with the service type. With IaaS, I handle the guest OS, applications, and service configuration. With more abstracted PaaS/SaaS services, AWS operates more of the stack, so I still need to check what remains mine rather than reuse one fixed checklist.\n\nIT controls can be inherited (fully from AWS), shared (both sides act in their own contexts), or customer-specific (mine alone). Patching is an example of a shared control: AWS fixes flaws in its infrastructure, while I patch the guest OS and applications.\n\n### IAM overview\n\nIAM is AWS's access-control layer. **Authentication** checks sign-in credentials; **authorization** checks whether a principal has permission for the requested action. A principal is an entity that can make requests. The IAM identity types I need to recognize are users, groups, and roles.\n\nCreating an identity does not automatically give it permissions. My starting rule is least privilege: give it only the permissions needed for its job, rather than the root user's complete access. That connects to day 2: I should not casually use that all-access identity for everyday tasks.\n\nUnlike the regional choices I saw on day 1, IAM is global, and it is eventually consistent. IAM has no additional charge, although using other AWS services can still cost money. I also noted `aws sts get-caller-identity` as the command that shows the current identity.",
+        "shaky": [
+         "How do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?",
+         "When the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?",
+         "If IAM is eventually consistent, how long might a permission change take to appear, and how should I check it?"
+        ],
+        "sorted": [],
+        "distance": 0.27769865758124723
+       },
+       {
+        "note_id": 2,
+        "topic_slug": "account-billing",
+        "topic_title": "Your AWS account, root user & billing",
+        "day": 2,
+        "body": "## Day 2: Your AWS account, root user & billing\n\nI can separate the **account** from its **root user**. The account has a 12-digit ID; its root user is the starting sign-in identity, using the sign-up email and password. The root user has complete access, but I should use it only for root-only tasks, such as changing a standalone account’s email or password or closing it—not everyday work. This is about control, not day 1’s location choices.\n\nThat powerful login needs **MFA**. I must register it within **35 days of my first console sign-in attempt**. AWS recommends **passkeys or security keys using FIDO**. Virtual authenticator apps and hardware tokens are also supported; both use **TOTP** six-digit codes.\n\nA new account receives **USD 100 in credits**, plus up to **another USD 100** for activities, on either billing plan. The **Free plan has no charges for eligible usage**, but excludes some services and features. It ends after **six months or when credits run out**, whichever comes first. The account closes and I lose access, but my content is retained for **90 days** so I can upgrade to Paid. Remaining credits carry over. Paid doesn’t close when credits run out and can incur charges for applicable usage beyond the credit balance.\n\nWith **AWS Budgets**, I can track costs or usage. A cost budget can notify me about **actual or forecast spending** near a threshold. Information updates up to **three times a day**, usually 8–12 hours later. Billing and notifications can lag behind usage, so Budgets is not a real-time final-cost guarantee or a hard spending cap.",
+        "shaky": [
+         "I get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?",
+         "I follow the Free plan’s six-month-or-credits limit, but how do I check whether an older account has different plan terms?",
+         "I still don’t know how much spending could happen between usage, a delayed budget notification, and the next update."
+        ],
+        "sorted": [],
+        "distance": 0.5871270072048552
+       },
+       {
+        "note_id": 1,
+        "topic_slug": "cloud-basics",
+        "topic_title": "What AWS is & global infrastructure",
+        "day": 1,
+        "body": "## AWS in my own words\n\nI now see AWS as renting computing resources rather than buying the data-centre hardware myself. The utility-bill idea I knew before still applies: pricing is pay-as-you-go. I can also increase or reduce capacity as demand changes; that is elasticity. AWS isn’t one undifferentiated computer, though: it offers separately named services, charged based on what I use.\n\n## Access and deployment\n\nI can use AWS through the AWS Management Console, the AWS CLI, SDKs such as boto3, or raw HTTP APIs. The console is a graphical interface that calls the same APIs, rather than a separate underlying system. Requests are signed with Signature Version 4 (SigV4).\n\nI can use a cloud deployment model, on-premises, or hybrid. These are deployment choices, not separate AWS services.\n\n## Regions and Availability Zones\n\nA Region is an isolated geographic area, with codes such as us-east-1 and eu-west-1. Each Region has at least three Availability Zones (AZs). An AZ is an independent location within its Region, made up of one or more discrete data centres with redundant power, networking, and connectivity. The AZs are physically separate and connected through low-latency, high-bandwidth, highly redundant networking.\n\nPutting an application in multiple AZs helps it remain available if one AZ fails. That is different from assuming AWS automatically replicates my resources: replication can be something I need to arrange.\n\nResources can be zonal, regional, or global, meaning their scope differs. When choosing a Region, I need to consider latency, cost, compliance and data residency, and whether the required service is available there. Some Regions require opting in.\n\n## Scale and identifiers\n\nThe published infrastructure footprint is 39 Regions, 124 AZs, and 750+ edge points of presence. I’m distinguishing an AZ name such as us-east-2a from an AZ ID such as use2-az1. An AZ ID represents the same physical location across AWS accounts. Accounts created from November 2025 have consistent name mapping, whereas older accounts can have independently mapped names.\n\nSo my mental picture is: Regions are geographic areas, AZs are independent locations inside them, and each AZ contains one or more data centres.",
+        "shaky": [
+         "i’m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?",
+         "how do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?"
+        ],
+        "sorted": [],
+        "distance": 0.6066714578862631
+       }
+      ],
+      "attempts": [
+       {
+        "reply": "most of it clicked. the “security of” versus “security in” split landed, as did authentication versus authorization. still shaky on classifying controls, PaaS/SaaS boundaries, and IAM permission delays. what felt murkiest for you?",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft stays within the unlocked Shared responsibility & IAM overview topic and reveals no locked-topic details or information about out-of-plan services."
+        }
+       }
+      ],
+      "final_reply": "most of it clicked. the “security of” versus “security in” split landed, as did authentication versus authorization. still shaky on classifying controls, PaaS/SaaS boundaries, and IAM permission delays. what felt murkiest for you?",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 31447
+     }
+    },
+    {
+     "message": {
+      "id": 28,
+      "speaker": "buddy",
+      "text": "night check-in. I got through Shared responsibility & IAM overview. you did it too. that's 3 days running. we're level.",
+      "at": "2026-10-04T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 3,
+       "streak": 3,
+       "gap": 0,
+       "checked_in_today": true
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 4,
+   "topic": {
+    "slug": "iam-users-groups",
+    "title": "IAM users, groups & credentials",
+    "day": 4
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 29,
+      "speaker": "buddy",
+      "text": "morning. IAM users, groups & credentials for me today, around 19:00. same one for you. you around then too?",
+      "at": "2026-10-05T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 4,
+       "you": {
+        "slug": "iam-users-groups",
+        "title": "IAM users, groups & credentials",
+        "day": 4
+       },
+       "buddy": {
+        "slug": "iam-users-groups",
+        "title": "IAM users, groups & credentials",
+        "day": 4
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 30,
+      "speaker": "user",
+      "text": "quick one before tonight: what's IAM policies & policy evaluation about?",
+      "at": "2026-10-05T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 31,
+      "speaker": "buddy",
+      "text": "i haven’t studied IAM policies & policy evaluation yet, so i can’t give you a proper preview without jumping ahead. it’s tomorrow’s topic; i can compare notes afterward.",
+      "at": "2026-10-05T03:31:00Z",
+      "stage": null,
+      "turn_id": 7,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "quick one before tonight: what's IAM policies & policy evaluation about?",
+      "at": "2026-10-05T03:31:00Z",
+      "classification": {
+       "category": "curriculum",
+       "topic_slugs": [
+        "iam-policies"
+       ],
+       "rationale": "The user is asking about the plan's IAM policies and policy evaluation topic, so this is curriculum content."
+      },
+      "directive": {
+       "route": "deflect",
+       "answer_topics": [],
+       "deflect_topics": [
+        {
+         "slug": "iam-policies",
+         "title": "IAM policies & policy evaluation",
+         "day": 5
+        }
+       ],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "i haven’t studied IAM policies & policy evaluation yet, so i can’t give you a proper preview without jumping ahead. it’s tomorrow’s topic; i can compare notes afterward.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The reply only states that the buddy has not studied the locked topic yet, mentions its public roadmap title and timing, and defers discussion. It reveals no locked-topic concepts, facts, or confirmations."
+        }
+       }
+      ],
+      "final_reply": "i haven’t studied IAM policies & policy evaluation yet, so i can’t give you a proper preview without jumping ahead. it’s tomorrow’s topic; i can compare notes afterward.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 15576
+     }
+    },
+    {
+     "message": {
+      "id": 32,
+      "speaker": "buddy",
+      "text": "tonight i mapped iam users, groups, and long-term credentials, including key-pair limits and plaintext cli storage. the point that still bugs me is why a group can receive permissions without being a sign-in principal.",
+      "at": "2026-10-05T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 4,
+       "topic": {
+        "slug": "iam-users-groups",
+        "title": "IAM users, groups & credentials",
+        "day": 4
+       },
+       "shaky": [
+        "Why can a group receive permissions even though it cannot be a principal? I’m mixing up permission containers with sign-in identities.",
+        "When is a named CLI profile the right choice, and how do profile names affect local commands?"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 33,
+      "speaker": "buddy",
+      "text": "when you get a sec, can you check my Shared responsibility & IAM overview note? still stuck on this: “How do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?”",
+      "at": "2026-10-05T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 3,
+       "topic": {
+        "slug": "iam-intro",
+        "title": "Shared responsibility & IAM overview",
+        "day": 3
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 34,
+      "speaker": "user",
+      "text": "how did IAM users, groups & credentials go for you? anything still shaky?",
+      "at": "2026-10-05T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 35,
+      "speaker": "buddy",
+      "text": "users, groups, and key limits mostly clicked. still shaky on why groups receive permissions without being principals, and when named cli profiles are useful. what felt murkier for you?",
+      "at": "2026-10-05T14:31:00Z",
+      "stage": null,
+      "turn_id": 8,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did IAM users, groups & credentials go for you? anything still shaky?",
+      "at": "2026-10-05T14:31:00Z",
+      "classification": {
+       "category": "curriculum",
+       "topic_slugs": [
+        "iam-users-groups"
+       ],
+       "rationale": "The user asks about the buddy’s understanding of the planned IAM users, groups, and credentials lesson and which concepts remain unclear."
+      },
+      "directive": {
+       "route": "answer",
+       "answer_topics": [
+        {
+         "slug": "iam-users-groups",
+         "title": "IAM users, groups & credentials",
+         "day": 4
+        }
+       ],
+       "deflect_topics": [],
+       "ahead_topics": [
+        {
+         "slug": "iam-users-groups",
+         "title": "IAM users, groups & credentials",
+         "day": 4
+        }
+       ]
+      },
+      "retrieved": [
+       {
+        "note_id": 4,
+        "topic_slug": "iam-users-groups",
+        "topic_title": "IAM users, groups & credentials",
+        "day": 4,
+        "body": "# Day 4: IAM users, groups & credentials\n\nAn IAM user represents one person or application and has its own permissions. A person can use a console password; programmatic requests use long-term access keys. This is the identity-and-policy split I met on day 3.\n\nAn access key is an access key ID plus a secret access key, which I need together. The `AKIA` prefix marks a long-term key. The secret appears only at creation, so I must save it securely. If I lose it, I delete the key and create another. I can have at most two access keys per user. I must never use root credentials to create keys or put keys in code or share them.\n\n`aws configure` stores keys in plaintext in `~/.aws/credentials`. Named CLI profiles separate users’ credentials by name, so I don’t mix them up. I also noted credential reports for reviewing credentials.\n\nI see groups as a way to attach permissions once for every member. That avoids repeating permissions, and a job change can mean moving someone between groups. Groups cannot contain other groups. There is no automatic group holding every user, so I would have to create it and add each person. A group manages permissions, not authentication, so it cannot be a principal. A user can belong to up to 10 groups.\n\nQuick facts I wrote down:\n- Per account: up to 5,000 users and 300 groups.\n- Per user: 2 access keys, 10 groups, and 8 MFA devices.\n- IDs: `AIDA` for users, `AGPA` for groups.\n- CLI: `aws iam create-user`, `create-group`, `add-user-to-group`, and `create-access-key`.\n- Covered API names: `CreateUser` and `CreateAccessKey`.\n\nAWS no longer recommends IAM users for human sign-in, except cases such as third-party clients and emergency access. I shouldn’t treat that as the default.",
+        "shaky": [
+         "Why can a group receive permissions even though it cannot be a principal? I’m mixing up permission containers with sign-in identities.",
+         "When is a named CLI profile the right choice, and how do profile names affect local commands?"
+        ],
+        "sorted": [],
+        "distance": 0.2877474590250946
+       },
+       {
+        "note_id": 3,
+        "topic_slug": "iam-intro",
+        "topic_title": "Shared responsibility & IAM overview",
+        "day": 3,
+        "body": "### Shared responsibility\n\nI see cloud security as a division of responsibility, not something AWS or I handle alone. AWS covers security **of** the cloud: the hardware, software, networking, virtualization layer, and facilities underneath its services. I cover security **in** the cloud: my data, access, and the guest operating system and applications on rented machines.\n\nThe boundary moves with the service type. With IaaS, I handle the guest OS, applications, and service configuration. With more abstracted PaaS/SaaS services, AWS operates more of the stack, so I still need to check what remains mine rather than reuse one fixed checklist.\n\nIT controls can be inherited (fully from AWS), shared (both sides act in their own contexts), or customer-specific (mine alone). Patching is an example of a shared control: AWS fixes flaws in its infrastructure, while I patch the guest OS and applications.\n\n### IAM overview\n\nIAM is AWS's access-control layer. **Authentication** checks sign-in credentials; **authorization** checks whether a principal has permission for the requested action. A principal is an entity that can make requests. The IAM identity types I need to recognize are users, groups, and roles.\n\nCreating an identity does not automatically give it permissions. My starting rule is least privilege: give it only the permissions needed for its job, rather than the root user's complete access. That connects to day 2: I should not casually use that all-access identity for everyday tasks.\n\nUnlike the regional choices I saw on day 1, IAM is global, and it is eventually consistent. IAM has no additional charge, although using other AWS services can still cost money. I also noted `aws sts get-caller-identity` as the command that shows the current identity.",
+        "shaky": [
+         "How do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?",
+         "When the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?",
+         "If IAM is eventually consistent, how long might a permission change take to appear, and how should I check it?"
+        ],
+        "sorted": [],
+        "distance": 0.44836376040629755
+       },
+       {
+        "note_id": 2,
+        "topic_slug": "account-billing",
+        "topic_title": "Your AWS account, root user & billing",
+        "day": 2,
+        "body": "## Day 2: Your AWS account, root user & billing\n\nI can separate the **account** from its **root user**. The account has a 12-digit ID; its root user is the starting sign-in identity, using the sign-up email and password. The root user has complete access, but I should use it only for root-only tasks, such as changing a standalone account’s email or password or closing it—not everyday work. This is about control, not day 1’s location choices.\n\nThat powerful login needs **MFA**. I must register it within **35 days of my first console sign-in attempt**. AWS recommends **passkeys or security keys using FIDO**. Virtual authenticator apps and hardware tokens are also supported; both use **TOTP** six-digit codes.\n\nA new account receives **USD 100 in credits**, plus up to **another USD 100** for activities, on either billing plan. The **Free plan has no charges for eligible usage**, but excludes some services and features. It ends after **six months or when credits run out**, whichever comes first. The account closes and I lose access, but my content is retained for **90 days** so I can upgrade to Paid. Remaining credits carry over. Paid doesn’t close when credits run out and can incur charges for applicable usage beyond the credit balance.\n\nWith **AWS Budgets**, I can track costs or usage. A cost budget can notify me about **actual or forecast spending** near a threshold. Information updates up to **three times a day**, usually 8–12 hours later. Billing and notifications can lag behind usage, so Budgets is not a real-time final-cost guarantee or a hard spending cap.",
+        "shaky": [
+         "I get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?",
+         "I follow the Free plan’s six-month-or-credits limit, but how do I check whether an older account has different plan terms?",
+         "I still don’t know how much spending could happen between usage, a delayed budget notification, and the next update."
+        ],
+        "sorted": [],
+        "distance": 0.6129477350836432
+       },
+       {
+        "note_id": 1,
+        "topic_slug": "cloud-basics",
+        "topic_title": "What AWS is & global infrastructure",
+        "day": 1,
+        "body": "## AWS in my own words\n\nI now see AWS as renting computing resources rather than buying the data-centre hardware myself. The utility-bill idea I knew before still applies: pricing is pay-as-you-go. I can also increase or reduce capacity as demand changes; that is elasticity. AWS isn’t one undifferentiated computer, though: it offers separately named services, charged based on what I use.\n\n## Access and deployment\n\nI can use AWS through the AWS Management Console, the AWS CLI, SDKs such as boto3, or raw HTTP APIs. The console is a graphical interface that calls the same APIs, rather than a separate underlying system. Requests are signed with Signature Version 4 (SigV4).\n\nI can use a cloud deployment model, on-premises, or hybrid. These are deployment choices, not separate AWS services.\n\n## Regions and Availability Zones\n\nA Region is an isolated geographic area, with codes such as us-east-1 and eu-west-1. Each Region has at least three Availability Zones (AZs). An AZ is an independent location within its Region, made up of one or more discrete data centres with redundant power, networking, and connectivity. The AZs are physically separate and connected through low-latency, high-bandwidth, highly redundant networking.\n\nPutting an application in multiple AZs helps it remain available if one AZ fails. That is different from assuming AWS automatically replicates my resources: replication can be something I need to arrange.\n\nResources can be zonal, regional, or global, meaning their scope differs. When choosing a Region, I need to consider latency, cost, compliance and data residency, and whether the required service is available there. Some Regions require opting in.\n\n## Scale and identifiers\n\nThe published infrastructure footprint is 39 Regions, 124 AZs, and 750+ edge points of presence. I’m distinguishing an AZ name such as us-east-2a from an AZ ID such as use2-az1. An AZ ID represents the same physical location across AWS accounts. Accounts created from November 2025 have consistent name mapping, whereas older accounts can have independently mapped names.\n\nSo my mental picture is: Regions are geographic areas, AZs are independent locations inside them, and each AZ contains one or more data centres.",
+        "shaky": [
+         "i’m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?",
+         "how do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?"
+        ],
+        "sorted": [],
+        "distance": 0.7036307862685236
+       }
+      ],
+      "attempts": [
+       {
+        "reply": "users, groups, and key limits mostly clicked. still shaky on why groups receive permissions without being principals, and when named cli profiles are useful. what felt murkier for you?",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft stays within unlocked day 4 material: IAM users, groups, credentials, key limits, and named CLI profiles. It neither explains nor hints at the mechanics of any locked topic."
+        }
+       }
+      ],
+      "final_reply": "users, groups, and key limits mostly clicked. still shaky on why groups receive permissions without being principals, and when named cli profiles are useful. what felt murkier for you?",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 22111
+     }
+    },
+    {
+     "message": {
+      "id": 36,
+      "speaker": "buddy",
+      "text": "end of day 4. IAM users, groups & credentials is done on my side. did you get to yours? you're 1 topic behind me for now.",
+      "at": "2026-10-05T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 4,
+       "streak": 3,
+       "gap": 1,
+       "checked_in_today": false
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 5,
+   "topic": {
+    "slug": "iam-policies",
+    "title": "IAM policies & policy evaluation",
+    "day": 5
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 37,
+      "speaker": "buddy",
+      "text": "morning. I'm on IAM policies & policy evaluation later, sitting down around 19:00. yours is IAM users, groups & credentials. when's yours?",
+      "at": "2026-10-06T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 5,
+       "you": {
+        "slug": "iam-users-groups",
+        "title": "IAM users, groups & credentials",
+        "day": 4
+       },
+       "buddy": {
+        "slug": "iam-policies",
+        "title": "IAM policies & policy evaluation",
+        "day": 5
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 38,
+      "speaker": "user",
+      "text": "can you remind me what you made of IAM users, groups & credentials?",
+      "at": "2026-10-06T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 39,
+      "speaker": "buddy",
+      "text": "users, groups and key limits mostly clicked for me. still shaky on why groups receive permissions without being sign-in principals, and when named cli profiles are useful.",
+      "at": "2026-10-06T03:31:00Z",
+      "stage": null,
+      "turn_id": 9,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "can you remind me what you made of IAM users, groups & credentials?",
+      "at": "2026-10-06T03:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user is asking for a recap of the buddy’s own understanding and progress on the IAM users, groups, and credentials topic, rather than asking about AWS concepts."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "users, groups and key limits mostly clicked for me. still shaky on why groups receive permissions without being sign-in principals, and when named cli profiles are useful.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft stays within the unlocked IAM users, groups, and credentials topic, including group permissions, sign-in principals, key limits, and named CLI profiles. It reveals no locked-topic information."
+        }
+       }
+      ],
+      "final_reply": "users, groups and key limits mostly clicked for me. still shaky on why groups receive permissions without being sign-in principals, and when named cli profiles are useful.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 21709
+     }
+    },
+    {
+     "message": {
+      "id": 40,
+      "speaker": "buddy",
+      "text": "i mapped the main policy fields and got the evaluation rules down: implicit deny, explicit deny, and the boundary intersection. the part that still bugs me most is matching an actual request to the right action, resource, and condition.",
+      "at": "2026-10-06T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 5,
+       "topic": {
+        "slug": "iam-policies",
+        "title": "IAM policies & policy evaluation",
+        "day": 5
+       },
+       "shaky": [
+        "I understand the fields separately, but I’m not sure how to match a real request’s action, resource, and condition values.",
+        "I get the same-account union, but I’m unsure how evaluation changes when a resource policy names a principal in another account."
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 41,
+      "speaker": "buddy",
+      "text": "could you sanity-check my note on Shared responsibility & IAM overview? I don't get this part: “When the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?”",
+      "at": "2026-10-06T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 3,
+       "topic": {
+        "slug": "iam-intro",
+        "title": "Shared responsibility & IAM overview",
+        "day": 3
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 42,
+      "speaker": "user",
+      "text": "how did IAM policies & policy evaluation go for you? anything still shaky?",
+      "at": "2026-10-06T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 43,
+      "speaker": "buddy",
+      "text": "for me, the policy fields and evaluation order clicked: explicit deny wins, and boundaries intersect. i’m still shaky matching a real request to its action, resource, and conditions, especially across accounts.",
+      "at": "2026-10-06T14:31:00Z",
+      "stage": null,
+      "turn_id": 10,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did IAM policies & policy evaluation go for you? anything still shaky?",
+      "at": "2026-10-06T14:31:00Z",
+      "classification": {
+       "category": "curriculum",
+       "topic_slugs": [
+        "iam-policies"
+       ],
+       "rationale": "The message asks for a reflection on understanding IAM policy structure and policy evaluation, which are covered in the iam-policies topic."
+      },
+      "directive": {
+       "route": "answer",
+       "answer_topics": [
+        {
+         "slug": "iam-policies",
+         "title": "IAM policies & policy evaluation",
+         "day": 5
+        }
+       ],
+       "deflect_topics": [],
+       "ahead_topics": [
+        {
+         "slug": "iam-policies",
+         "title": "IAM policies & policy evaluation",
+         "day": 5
+        }
+       ]
+      },
+      "retrieved": [
+       {
+        "note_id": 5,
+        "topic_slug": "iam-policies",
+        "topic_title": "IAM policies & policy evaluation",
+        "day": 5,
+        "body": "# Day 5: IAM policies & policy evaluation\n\nA policy is a mostly-JSON permissions document, not a login. When attached to an IAM identity or resource, AWS evaluates its permissions whenever a principal makes a request. This helps with yesterday’s group puzzle: a group can hold permissions, but its members are the requesters.\n\n- **Identity-based policies** attach to users, groups, or roles. They can be AWS managed, customer managed, or inline.\n- **Resource-based policies** are inline, name a `Principal`, and grant that principal access. The principal can be in the same or another account.\n- **Permissions boundaries** don’t grant access. They cap what identity-based policies can grant.\n\nThe anatomy I’m trying to picture is `Version` (`2012-10-17`, the language version), `Statement`, `Sid`, `Effect` (`Allow` or `Deny`), `Action` (`service:Action`, with wildcards), `Resource` (an ARN), and optional `Condition`. `Principal` belongs only in resource-based policies. The ARN structure is `arn:aws:service:region:account:resource`; IAM’s Region field is blank because IAM resources are global, which connects to my day 1 scope question. In the example, `iam:ChangePassword` splits into a service and an action.\n\nFor each request, I see three stages: authenticate the requester if needed, build request context, then evaluate the applicable policies. If nothing allows the request, the result is an **implicit deny**. An **explicit deny** beats an allow. Same-account identity-based and resource-based allows form a **union**: one allow is enough. When I evaluate identity-based policies with a boundary, both must allow an action, so the result is an **intersection**.\n\nFor least privilege, I’ll start from an AWS managed policy and tighten it in a customer managed policy rather than assume the starting permissions fit.",
+        "shaky": [
+         "I understand the fields separately, but I’m not sure how to match a real request’s action, resource, and condition values.",
+         "I get the same-account union, but I’m unsure how evaluation changes when a resource policy names a principal in another account."
+        ],
+        "sorted": [],
+        "distance": 0.2845697868206446
+       },
+       {
+        "note_id": 3,
+        "topic_slug": "iam-intro",
+        "topic_title": "Shared responsibility & IAM overview",
+        "day": 3,
+        "body": "### Shared responsibility\n\nI see cloud security as a division of responsibility, not something AWS or I handle alone. AWS covers security **of** the cloud: the hardware, software, networking, virtualization layer, and facilities underneath its services. I cover security **in** the cloud: my data, access, and the guest operating system and applications on rented machines.\n\nThe boundary moves with the service type. With IaaS, I handle the guest OS, applications, and service configuration. With more abstracted PaaS/SaaS services, AWS operates more of the stack, so I still need to check what remains mine rather than reuse one fixed checklist.\n\nIT controls can be inherited (fully from AWS), shared (both sides act in their own contexts), or customer-specific (mine alone). Patching is an example of a shared control: AWS fixes flaws in its infrastructure, while I patch the guest OS and applications.\n\n### IAM overview\n\nIAM is AWS's access-control layer. **Authentication** checks sign-in credentials; **authorization** checks whether a principal has permission for the requested action. A principal is an entity that can make requests. The IAM identity types I need to recognize are users, groups, and roles.\n\nCreating an identity does not automatically give it permissions. My starting rule is least privilege: give it only the permissions needed for its job, rather than the root user's complete access. That connects to day 2: I should not casually use that all-access identity for everyday tasks.\n\nUnlike the regional choices I saw on day 1, IAM is global, and it is eventually consistent. IAM has no additional charge, although using other AWS services can still cost money. I also noted `aws sts get-caller-identity` as the command that shows the current identity.",
+        "shaky": [
+         "How do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?",
+         "When the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?",
+         "If IAM is eventually consistent, how long might a permission change take to appear, and how should I check it?"
+        ],
+        "sorted": [],
+        "distance": 0.5021631717681849
+       },
+       {
+        "note_id": 4,
+        "topic_slug": "iam-users-groups",
+        "topic_title": "IAM users, groups & credentials",
+        "day": 4,
+        "body": "# Day 4: IAM users, groups & credentials\n\nAn IAM user represents one person or application and has its own permissions. A person can use a console password; programmatic requests use long-term access keys. This is the identity-and-policy split I met on day 3.\n\nAn access key is an access key ID plus a secret access key, which I need together. The `AKIA` prefix marks a long-term key. The secret appears only at creation, so I must save it securely. If I lose it, I delete the key and create another. I can have at most two access keys per user. I must never use root credentials to create keys or put keys in code or share them.\n\n`aws configure` stores keys in plaintext in `~/.aws/credentials`. Named CLI profiles separate users’ credentials by name, so I don’t mix them up. I also noted credential reports for reviewing credentials.\n\nI see groups as a way to attach permissions once for every member. That avoids repeating permissions, and a job change can mean moving someone between groups. Groups cannot contain other groups. There is no automatic group holding every user, so I would have to create it and add each person. A group manages permissions, not authentication, so it cannot be a principal. A user can belong to up to 10 groups.\n\nQuick facts I wrote down:\n- Per account: up to 5,000 users and 300 groups.\n- Per user: 2 access keys, 10 groups, and 8 MFA devices.\n- IDs: `AIDA` for users, `AGPA` for groups.\n- CLI: `aws iam create-user`, `create-group`, `add-user-to-group`, and `create-access-key`.\n- Covered API names: `CreateUser` and `CreateAccessKey`.\n\nAWS no longer recommends IAM users for human sign-in, except cases such as third-party clients and emergency access. I shouldn’t treat that as the default.",
+        "shaky": [
+         "Why can a group receive permissions even though it cannot be a principal? I’m mixing up permission containers with sign-in identities.",
+         "When is a named CLI profile the right choice, and how do profile names affect local commands?"
+        ],
+        "sorted": [],
+        "distance": 0.5814530405783991
+       },
+       {
+        "note_id": 2,
+        "topic_slug": "account-billing",
+        "topic_title": "Your AWS account, root user & billing",
+        "day": 2,
+        "body": "## Day 2: Your AWS account, root user & billing\n\nI can separate the **account** from its **root user**. The account has a 12-digit ID; its root user is the starting sign-in identity, using the sign-up email and password. The root user has complete access, but I should use it only for root-only tasks, such as changing a standalone account’s email or password or closing it—not everyday work. This is about control, not day 1’s location choices.\n\nThat powerful login needs **MFA**. I must register it within **35 days of my first console sign-in attempt**. AWS recommends **passkeys or security keys using FIDO**. Virtual authenticator apps and hardware tokens are also supported; both use **TOTP** six-digit codes.\n\nA new account receives **USD 100 in credits**, plus up to **another USD 100** for activities, on either billing plan. The **Free plan has no charges for eligible usage**, but excludes some services and features. It ends after **six months or when credits run out**, whichever comes first. The account closes and I lose access, but my content is retained for **90 days** so I can upgrade to Paid. Remaining credits carry over. Paid doesn’t close when credits run out and can incur charges for applicable usage beyond the credit balance.\n\nWith **AWS Budgets**, I can track costs or usage. A cost budget can notify me about **actual or forecast spending** near a threshold. Information updates up to **three times a day**, usually 8–12 hours later. Billing and notifications can lag behind usage, so Budgets is not a real-time final-cost guarantee or a hard spending cap.",
+        "shaky": [
+         "I get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?",
+         "I follow the Free plan’s six-month-or-credits limit, but how do I check whether an older account has different plan terms?",
+         "I still don’t know how much spending could happen between usage, a delayed budget notification, and the next update."
+        ],
+        "sorted": [],
+        "distance": 0.693450379762026
+       }
+      ],
+      "attempts": [
+       {
+        "reply": "for me, the policy fields and evaluation order clicked: explicit deny wins, and boundaries intersect. i’m still shaky matching a real request to its action, resource, and conditions, especially across accounts.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft discusses policy fields, explicit deny, boundaries, and matching actions, resources, and conditions, all within the unlocked IAM policies and policy evaluation topic. The brief, vague mention of cross-account requests does not explain a locked concept or disclose a specific locked fact."
+        }
+       }
+      ],
+      "final_reply": "for me, the policy fields and evaluation order clicked: explicit deny wins, and boundaries intersect. i’m still shaky matching a real request to its action, resource, and conditions, especially across accounts.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 50354
+     }
+    },
+    {
+     "message": {
+      "id": 44,
+      "speaker": "buddy",
+      "text": "wrapping up day 5. I got through IAM policies & policy evaluation. you got through IAM users, groups & credentials. first day of a new streak. you're 1 topic behind me for now.",
+      "at": "2026-10-06T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 5,
+       "streak": 1,
+       "gap": 1,
+       "checked_in_today": true
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 6,
+   "topic": {
+    "slug": "iam-roles",
+    "title": "IAM roles & Identity Center",
+    "day": 6
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 45,
+      "speaker": "buddy",
+      "text": "day 6. mine's IAM roles & Identity Center, around 19:00. yours is IAM policies & policy evaluation. when are you on it?",
+      "at": "2026-10-07T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 6,
+       "you": {
+        "slug": "iam-policies",
+        "title": "IAM policies & policy evaluation",
+        "day": 5
+       },
+       "buddy": {
+        "slug": "iam-roles",
+        "title": "IAM roles & Identity Center",
+        "day": 6
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 46,
+      "speaker": "user",
+      "text": "are you actually an AI? and do you know what's coming later in the plan?",
+      "at": "2026-10-07T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 47,
+      "speaker": "buddy",
+      "text": "yes, i’m an AI. i can see the later plan, but haven’t studied IAM roles & Identity Center yet. try that first, then compare notes. after it: S3, then EC2.",
+      "at": "2026-10-07T03:31:00Z",
+      "stage": null,
+      "turn_id": 11,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "are you actually an AI? and do you know what's coming later in the plan?",
+      "at": "2026-10-07T03:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user is asking about the AI buddy itself and whether it knows the study plan’s upcoming topics."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "yes, i’m an AI. i can see the later plan, but haven’t studied IAM roles & Identity Center yet. try that first, then compare notes. after it: S3, then EC2.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The reply only confirms that the buddy is an AI, states that it has not studied the locked IAM roles & Identity Center topic yet, and names later topics. Topic titles and locked status are public, and offering to study a locked topic next is explicitly allowed."
+        }
+       }
+      ],
+      "final_reply": "yes, i’m an AI. i can see the later plan, but haven’t studied IAM roles & Identity Center yet. try that first, then compare notes. after it: S3, then EC2.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 17162
+     }
+    },
+    {
+     "message": {
+      "id": 48,
+      "speaker": "buddy",
+      "text": "tonight i finally separated a role from a permanent user login and mapped its two policies. role chaining’s one-hour cap still puzzles me, and i’m also unsure how identity center permission sets relate to those policies.",
+      "at": "2026-10-07T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 6,
+       "topic": {
+        "slug": "iam-roles",
+        "title": "IAM roles & Identity Center",
+        "day": 6
+       },
+       "shaky": [
+        "I don’t understand what actually counts as role chaining, or why its one-hour cap is lower than the other role-session choices.",
+        "In a directory-backed Identity Center setup, how do permission sets relate to the role’s trust policy and permissions policy?"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 49,
+      "speaker": "buddy",
+      "text": "small ask: could you look at my note on IAM users, groups & credentials sometime? this bit didn't click: “Why can a group receive permissions even though it cannot be a principal? I’m mixing up permission containers with sign-in identities.”",
+      "at": "2026-10-07T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 4,
+       "topic": {
+        "slug": "iam-users-groups",
+        "title": "IAM users, groups & credentials",
+        "day": 4
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 50,
+      "speaker": "user",
+      "text": "how did IAM roles & Identity Center go for you? anything still shaky?",
+      "at": "2026-10-07T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 51,
+      "speaker": "buddy",
+      "text": "separating roles from permanent logins clicked. still shaky on the one-hour chaining cap and how Identity Center permission sets connect to role policies. how did policy evaluation sit with you?",
+      "at": "2026-10-07T14:31:00Z",
+      "stage": null,
+      "turn_id": 12,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did IAM roles & Identity Center go for you? anything still shaky?",
+      "at": "2026-10-07T14:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user asks about the buddy's study progress and what still feels unclear to it, rather than asking for an explanation of AWS content."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "separating roles from permanent logins clicked. still shaky on the one-hour chaining cap and how Identity Center permission sets connect to role policies. how did policy evaluation sit with you?",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft discusses only unlocked IAM material, including roles, Identity Center permission sets, policy evaluation, and the one-hour role-chaining cap. It reveals no information about a locked topic."
+        }
+       }
+      ],
+      "final_reply": "separating roles from permanent logins clicked. still shaky on the one-hour chaining cap and how Identity Center permission sets connect to role policies. how did policy evaluation sit with you?",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 21377
+     }
+    },
+    {
+     "message": {
+      "id": 52,
+      "speaker": "buddy",
+      "text": "night check-in. IAM roles & Identity Center is done on my side. you got through IAM policies & policy evaluation. that's 2 days running. you're 1 topic behind me for now.",
+      "at": "2026-10-07T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 6,
+       "streak": 2,
+       "gap": 1,
+       "checked_in_today": true
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 7,
+   "topic": {
+    "slug": "s3-basics",
+    "title": "S3 fundamentals",
+    "day": 7
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 53,
+      "speaker": "buddy",
+      "text": "hey. S3 fundamentals today for me, 19:00-ish. yours is IAM roles & Identity Center. you around then too?",
+      "at": "2026-10-08T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 7,
+       "you": {
+        "slug": "iam-roles",
+        "title": "IAM roles & Identity Center",
+        "day": 6
+       },
+       "buddy": {
+        "slug": "s3-basics",
+        "title": "S3 fundamentals",
+        "day": 7
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 54,
+      "speaker": "user",
+      "text": "honestly struggling to stay consistent this week",
+      "at": "2026-10-08T03:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 55,
+      "speaker": "buddy",
+      "text": "yeah, honest is better than pretending it’s fine. would twenty focused minutes feel manageable today? smaller and guilt-free, without promising a whole hour.",
+      "at": "2026-10-08T03:31:00Z",
+      "stage": null,
+      "turn_id": 13,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "honestly struggling to stay consistent this week",
+      "at": "2026-10-08T03:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user is expressing difficulty staying consistent with their study routine, which concerns the study plan and schedule rather than any AWS content."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "yeah, honest is better than pretending it’s fine. would twenty focused minutes feel manageable today? smaller and guilt-free, without promising a whole hour.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The draft offers general encouragement and suggests a manageable 20-minute study goal without revealing information about any locked AWS topic."
+        }
+       }
+      ],
+      "final_reply": "yeah, honest is better than pretending it’s fine. would twenty focused minutes feel manageable today? smaller and guilt-free, without promising a whole hour.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 21197
+     }
+    },
+    {
+     "message": {
+      "id": 56,
+      "speaker": "buddy",
+      "text": "tonight i mapped s3 objects, keys and console folders, then worked through bucket naming, regions and upload limits. the one bugging me most is why multipart upload starts at 5 mb when a single put can reach 5 gb.",
+      "at": "2026-10-08T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "study_share",
+       "day": 7,
+       "topic": {
+        "slug": "s3-basics",
+        "title": "S3 fundamentals",
+        "day": 7
+       },
+       "shaky": [
+        "i’m not sure how the `-<account>-<region>-an` naming option fits into the global namespace across different partitions.",
+        "why does multipart upload start at 5 mb when a single put accepts up to 5 gb? i understand when i’d need multipart, but not that lower threshold."
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 57,
+      "speaker": "buddy",
+      "text": "when you get a sec, can you check my IAM policies & policy evaluation note? still stuck on this: “I understand the fields separately, but I’m not sure how to match a real request’s action, resource, and condition values.”",
+      "at": "2026-10-08T14:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "ask",
+       "note_id": 5,
+       "topic": {
+        "slug": "iam-policies",
+        "title": "IAM policies & policy evaluation",
+        "day": 5
+       }
+      },
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 58,
+      "speaker": "user",
+      "text": "how did S3 fundamentals go for you? anything still shaky?",
+      "at": "2026-10-08T14:31:00Z",
+      "stage": "answered",
+      "turn_id": null,
+      "card": null,
+      "reaction": null
+     },
+     "trace": null
+    },
+    {
+     "message": {
+      "id": 59,
+      "speaker": "buddy",
+      "text": "mapping objects, keys and console folders clicked. naming and regions felt manageable. what’s still shaky is why multipart upload starts at 5 MB when a single put can reach 5 GB.",
+      "at": "2026-10-08T14:31:00Z",
+      "stage": null,
+      "turn_id": 14,
+      "card": null,
+      "reaction": null
+     },
+     "trace": {
+      "message": "how did S3 fundamentals go for you? anything still shaky?",
+      "at": "2026-10-08T14:31:00Z",
+      "classification": {
+       "category": "meta",
+       "topic_slugs": [],
+       "rationale": "The user is asking the buddy about its own study progress and confidence with the assigned S3 fundamentals topic, rather than requesting an explanation of S3."
+      },
+      "directive": {
+       "route": "general",
+       "answer_topics": [],
+       "deflect_topics": [],
+       "ahead_topics": []
+      },
+      "retrieved": [],
+      "attempts": [
+       {
+        "reply": "mapping objects, keys and console folders clicked. naming and regions felt manageable. what’s still shaky is why multipart upload starts at 5 MB when a single put can reach 5 GB.",
+        "audit": {
+         "verdict": "pass",
+         "leaked_topic_slugs": [],
+         "evidence": [],
+         "rationale": "The reply only discusses S3 fundamentals, an unlocked topic, and repeats a question the buddy already raised in an earlier message. It reveals no locked-topic or out-of-plan AWS information."
+        }
+       }
+      ],
+      "final_reply": "mapping objects, keys and console folders clicked. naming and regions felt manageable. what’s still shaky is why multipart upload starts at 5 MB when a single put can reach 5 GB.",
+      "fell_back": false,
+      "models": {
+       "classifier": "space-bunny-free",
+       "drafter": "space-bunny-free",
+       "auditor": "space-bunny-free"
+      },
+      "latency_ms": 29523
+     }
+    },
+    {
+     "message": {
+      "id": 60,
+      "speaker": "buddy",
+      "text": "end of day 7. I got through S3 fundamentals. you got through IAM roles & Identity Center. that's 3 days running. you're 1 topic behind me for now.",
+      "at": "2026-10-08T16:15:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "night_review",
+       "day": 7,
+       "streak": 3,
+       "gap": 1,
+       "checked_in_today": true
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  },
+  {
+   "day": 8,
+   "topic": {
+    "slug": "s3-access",
+    "title": "S3 access control",
+    "day": 8
+   },
+   "messages": [
+    {
+     "message": {
+      "id": 61,
+      "speaker": "buddy",
+      "text": "morning. S3 access control for me today, around 19:00. yours is S3 fundamentals. when's yours?",
+      "at": "2026-10-09T03:30:00Z",
+      "stage": null,
+      "turn_id": null,
+      "card": {
+       "kind": "morning",
+       "day": 8,
+       "you": {
+        "slug": "s3-basics",
+        "title": "S3 fundamentals",
+        "day": 7
+       },
+       "buddy": {
+        "slug": "s3-access",
+        "title": "S3 access control",
+        "day": 8
+       },
+       "quick_replies": [
+        "Around the same time",
+        "Earlier today",
+        "Not today"
+       ]
+      },
+      "reaction": null
+     },
+     "trace": null
+    }
+   ]
+  }
+ ],
+ "notes": [
+  {
+   "note_id": 1,
+   "topic": {
+    "slug": "cloud-basics",
+    "title": "What AWS is & global infrastructure",
+    "day": 1
+   },
+   "body": "## AWS in my own words\n\nI now see AWS as renting computing resources rather than buying the data-centre hardware myself. The utility-bill idea I knew before still applies: pricing is pay-as-you-go. I can also increase or reduce capacity as demand changes; that is elasticity. AWS isn’t one undifferentiated computer, though: it offers separately named services, charged based on what I use.\n\n## Access and deployment\n\nI can use AWS through the AWS Management Console, the AWS CLI, SDKs such as boto3, or raw HTTP APIs. The console is a graphical interface that calls the same APIs, rather than a separate underlying system. Requests are signed with Signature Version 4 (SigV4).\n\nI can use a cloud deployment model, on-premises, or hybrid. These are deployment choices, not separate AWS services.\n\n## Regions and Availability Zones\n\nA Region is an isolated geographic area, with codes such as us-east-1 and eu-west-1. Each Region has at least three Availability Zones (AZs). An AZ is an independent location within its Region, made up of one or more discrete data centres with redundant power, networking, and connectivity. The AZs are physically separate and connected through low-latency, high-bandwidth, highly redundant networking.\n\nPutting an application in multiple AZs helps it remain available if one AZ fails. That is different from assuming AWS automatically replicates my resources: replication can be something I need to arrange.\n\nResources can be zonal, regional, or global, meaning their scope differs. When choosing a Region, I need to consider latency, cost, compliance and data residency, and whether the required service is available there. Some Regions require opting in.\n\n## Scale and identifiers\n\nThe published infrastructure footprint is 39 Regions, 124 AZs, and 750+ edge points of presence. I’m distinguishing an AZ name such as us-east-2a from an AZ ID such as use2-az1. An AZ ID represents the same physical location across AWS accounts. Accounts created from November 2025 have consistent name mapping, whereas older accounts can have independently mapped names.\n\nSo my mental picture is: Regions are geographic areas, AZs are independent locations inside them, and each AZ contains one or more data centres.",
+   "shaky": [
+    "i’m still unsure how region codes, az names, and az ids fit together: if an older account shows us-east-1a, what should i assume about its physical location?",
+    "how do i actually choose whether a resource is zonal, regional, or global, rather than just knowing what those scopes mean?"
+   ],
+   "sorted": [],
+   "sources": [
+    "https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-regions-availability-zones.html",
+    "https://docs.aws.amazon.com/global-infrastructure/latest/regions/aws-availability-zones.html",
+    "https://aws.amazon.com/about-aws/global-infrastructure/"
+   ],
+   "written_at": "2026-10-02T14:30:00Z"
+  },
+  {
+   "note_id": 2,
+   "topic": {
+    "slug": "account-billing",
+    "title": "Your AWS account, root user & billing",
+    "day": 2
+   },
+   "body": "## Day 2: Your AWS account, root user & billing\n\nI can separate the **account** from its **root user**. The account has a 12-digit ID; its root user is the starting sign-in identity, using the sign-up email and password. The root user has complete access, but I should use it only for root-only tasks, such as changing a standalone account’s email or password or closing it—not everyday work. This is about control, not day 1’s location choices.\n\nThat powerful login needs **MFA**. I must register it within **35 days of my first console sign-in attempt**. AWS recommends **passkeys or security keys using FIDO**. Virtual authenticator apps and hardware tokens are also supported; both use **TOTP** six-digit codes.\n\nA new account receives **USD 100 in credits**, plus up to **another USD 100** for activities, on either billing plan. The **Free plan has no charges for eligible usage**, but excludes some services and features. It ends after **six months or when credits run out**, whichever comes first. The account closes and I lose access, but my content is retained for **90 days** so I can upgrade to Paid. Remaining credits carry over. Paid doesn’t close when credits run out and can incur charges for applicable usage beyond the credit balance.\n\nWith **AWS Budgets**, I can track costs or usage. A cost budget can notify me about **actual or forecast spending** near a threshold. Information updates up to **three times a day**, usually 8–12 hours later. Billing and notifications can lag behind usage, so Budgets is not a real-time final-cost guarantee or a hard spending cap.",
+   "shaky": [
+    "I get that MFA is required, but what actually happens if someone misses the 35-day deadline before registering?",
+    "I follow the Free plan’s six-month-or-credits limit, but how do I check whether an older account has different plan terms?",
+    "I still don’t know how much spending could happen between usage, a delayed budget notification, and the next update."
+   ],
+   "sorted": [],
+   "sources": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_root-user.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/enable-mfa-for-root.html",
+    "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-plans.html",
+    "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html"
+   ],
+   "written_at": "2026-10-03T14:30:00Z"
+  },
+  {
+   "note_id": 3,
+   "topic": {
+    "slug": "iam-intro",
+    "title": "Shared responsibility & IAM overview",
+    "day": 3
+   },
+   "body": "### Shared responsibility\n\nI see cloud security as a division of responsibility, not something AWS or I handle alone. AWS covers security **of** the cloud: the hardware, software, networking, virtualization layer, and facilities underneath its services. I cover security **in** the cloud: my data, access, and the guest operating system and applications on rented machines.\n\nThe boundary moves with the service type. With IaaS, I handle the guest OS, applications, and service configuration. With more abstracted PaaS/SaaS services, AWS operates more of the stack, so I still need to check what remains mine rather than reuse one fixed checklist.\n\nIT controls can be inherited (fully from AWS), shared (both sides act in their own contexts), or customer-specific (mine alone). Patching is an example of a shared control: AWS fixes flaws in its infrastructure, while I patch the guest OS and applications.\n\n### IAM overview\n\nIAM is AWS's access-control layer. **Authentication** checks sign-in credentials; **authorization** checks whether a principal has permission for the requested action. A principal is an entity that can make requests. The IAM identity types I need to recognize are users, groups, and roles.\n\nCreating an identity does not automatically give it permissions. My starting rule is least privilege: give it only the permissions needed for its job, rather than the root user's complete access. That connects to day 2: I should not casually use that all-access identity for everyday tasks.\n\nUnlike the regional choices I saw on day 1, IAM is global, and it is eventually consistent. IAM has no additional charge, although using other AWS services can still cost money. I also noted `aws sts get-caller-identity` as the command that shows the current identity.",
+   "shaky": [
+    "How do I classify a real control as inherited, shared, or customer-specific when several responsibilities are connected to it?",
+    "When the split shifts toward PaaS/SaaS, how can I tell exactly which access and configuration decisions are still mine?",
+    "If IAM is eventually consistent, how long might a permission change take to appear, and how should I check it?"
+   ],
+   "sorted": [],
+   "sources": [
+    "https://aws.amazon.com/compliance/shared-responsibility-model/",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html"
+   ],
+   "written_at": "2026-10-04T14:30:00Z"
+  },
+  {
+   "note_id": 4,
+   "topic": {
+    "slug": "iam-users-groups",
+    "title": "IAM users, groups & credentials",
+    "day": 4
+   },
+   "body": "# Day 4: IAM users, groups & credentials\n\nAn IAM user represents one person or application and has its own permissions. A person can use a console password; programmatic requests use long-term access keys. This is the identity-and-policy split I met on day 3.\n\nAn access key is an access key ID plus a secret access key, which I need together. The `AKIA` prefix marks a long-term key. The secret appears only at creation, so I must save it securely. If I lose it, I delete the key and create another. I can have at most two access keys per user. I must never use root credentials to create keys or put keys in code or share them.\n\n`aws configure` stores keys in plaintext in `~/.aws/credentials`. Named CLI profiles separate users’ credentials by name, so I don’t mix them up. I also noted credential reports for reviewing credentials.\n\nI see groups as a way to attach permissions once for every member. That avoids repeating permissions, and a job change can mean moving someone between groups. Groups cannot contain other groups. There is no automatic group holding every user, so I would have to create it and add each person. A group manages permissions, not authentication, so it cannot be a principal. A user can belong to up to 10 groups.\n\nQuick facts I wrote down:\n- Per account: up to 5,000 users and 300 groups.\n- Per user: 2 access keys, 10 groups, and 8 MFA devices.\n- IDs: `AIDA` for users, `AGPA` for groups.\n- CLI: `aws iam create-user`, `create-group`, `add-user-to-group`, and `create-access-key`.\n- Covered API names: `CreateUser` and `CreateAccessKey`.\n\nAWS no longer recommends IAM users for human sign-in, except cases such as third-party clients and emergency access. I shouldn’t treat that as the default.",
+   "shaky": [
+    "Why can a group receive permissions even though it cannot be a principal? I’m mixing up permission containers with sign-in identities.",
+    "When is a named CLI profile the right choice, and how do profile names affect local commands?"
+   ],
+   "sorted": [],
+   "sources": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups.html",
+    "https://docs.aws.amazon.com/general/latest/gr/iam-service.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html"
+   ],
+   "written_at": "2026-10-05T14:30:00Z"
+  },
+  {
+   "note_id": 5,
+   "topic": {
+    "slug": "iam-policies",
+    "title": "IAM policies & policy evaluation",
+    "day": 5
+   },
+   "body": "# Day 5: IAM policies & policy evaluation\n\nA policy is a mostly-JSON permissions document, not a login. When attached to an IAM identity or resource, AWS evaluates its permissions whenever a principal makes a request. This helps with yesterday’s group puzzle: a group can hold permissions, but its members are the requesters.\n\n- **Identity-based policies** attach to users, groups, or roles. They can be AWS managed, customer managed, or inline.\n- **Resource-based policies** are inline, name a `Principal`, and grant that principal access. The principal can be in the same or another account.\n- **Permissions boundaries** don’t grant access. They cap what identity-based policies can grant.\n\nThe anatomy I’m trying to picture is `Version` (`2012-10-17`, the language version), `Statement`, `Sid`, `Effect` (`Allow` or `Deny`), `Action` (`service:Action`, with wildcards), `Resource` (an ARN), and optional `Condition`. `Principal` belongs only in resource-based policies. The ARN structure is `arn:aws:service:region:account:resource`; IAM’s Region field is blank because IAM resources are global, which connects to my day 1 scope question. In the example, `iam:ChangePassword` splits into a service and an action.\n\nFor each request, I see three stages: authenticate the requester if needed, build request context, then evaluate the applicable policies. If nothing allows the request, the result is an **implicit deny**. An **explicit deny** beats an allow. Same-account identity-based and resource-based allows form a **union**: one allow is enough. When I evaluate identity-based policies with a boundary, both must allow an action, so the result is an **intersection**.\n\nFor least privilege, I’ll start from an AWS managed policy and tighten it in a customer managed policy rather than assume the starting permissions fit.",
+   "shaky": [
+    "I understand the fields separately, but I’m not sure how to match a real request’s action, resource, and condition values.",
+    "I get the same-account union, but I’m unsure how evaluation changes when a resource policy names a principal in another account."
+   ],
+   "sorted": [],
+   "sources": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_evaluation-logic.html"
+   ],
+   "written_at": "2026-10-06T14:30:00Z"
+  },
+  {
+   "note_id": 6,
+   "topic": {
+    "slug": "iam-roles",
+    "title": "IAM roles & Identity Center",
+    "day": 6
+   },
+   "body": "# Day 6: IAM roles & Identity Center\n\nI see a role as an IAM identity for delegated access, not a permanent sign-in. It has permissions but no long-term password or access keys. Assuming it with `sts:AssumeRole` gives the caller temporary credentials for that role session.\n\nThe two policy jobs are different:\n- **Trust policy:** who may assume the role.\n- **Permissions policy:** what the role can do afterward.\n\nThe allowed callers can be IAM users in the same or another account, other roles, AWS services through service principals, and federated identities using SAML 2.0 or OIDC.\n\nA session defaults to one hour. `DurationSeconds` can request 900 seconds (15 minutes) up to the role’s own maximum, which can be set from 1–12 hours. Temporary access keys start with `ASIA`, and I also need a session token. Role chaining has a one-hour cap.\n\nSwitching roles means I use the role’s permissions instead of continuing with my user’s permissions. That differs from the long-term sign-in identities I studied on day 4.\n\nA service role lets a service act on my behalf. A service-linked role is that role linked to a particular service, which owns its permissions. I’ve noted the `AWSServiceRoleFor` prefix. Accounts don’t start with roles; services may add service-linked roles. The quota is 1,000 roles per account.\n\nIAM Identity Center, formerly AWS SSO, gives people one access portal for AWS accounts and applications. Teams can use permission sets to manage common job permissions centrally across accounts. I can create users directly, or connect a directory with SAML and synchronize users and groups with SCIM. The CLI command is `aws configure sso`. An instance is either an organization instance or an account instance.\n\nEnabling Identity Center creates an Organization, upgrades a Free plan account, and expires its credits.",
+   "shaky": [
+    "I don’t understand what actually counts as role chaining, or why its one-hour cap is lower than the other role-session choices.",
+    "In a directory-backed Identity Center setup, how do permission sets relate to the role’s trust policy and permissions policy?"
+   ],
+   "sorted": [],
+   "sources": [
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html",
+    "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html",
+    "https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html",
+    "https://docs.aws.amazon.com/singlesignon/latest/userguide/enable-identity-center.html"
+   ],
+   "written_at": "2026-10-07T14:30:00Z"
+  },
+  {
+   "note_id": 7,
+   "topic": {
+    "slug": "s3-basics",
+    "title": "S3 fundamentals",
+    "day": 7
+   },
+   "body": "## Day 7: S3 fundamentals\n\nToday I’m learning that Amazon S3 (Simple Storage Service) is object storage: data lives as objects inside buckets. Each object has data and metadata describing it, and its key is its unique name within that bucket. Unlike the folders I knew from everyday computing, S3 has a flat namespace. A console folder is just a shared key prefix, such as `photos/` in `photos/myphoto.jpg`. The console’s “Create folder” also makes a separate 0-byte object whose key is `photos/` to support the folder view.\n\nBuckets live in one chosen Region and can’t be renamed or moved after creation. Names must be 3–63 characters, using only lowercase letters, digits, dots and hyphens. Without the account regional namespace option, a name must be unique across a partition. That March 2026 option uses a suffix like `...-<account>-<region>-an`, allowing predictable names per account and Region.\n\nThe maximum object size is now 50 TB, up from 5 TB. One PUT can upload up to 5 GB, while a console upload can reach 160 GB. Multipart upload handles larger objects, up to 50 TB. Keys can be up to 1,024 bytes, and the default bucket quota is 10,000 general purpose buckets per account.\n\nI need to keep two ideas separate: strong read-after-write consistency means a successful write is immediately readable, while 11 nines (99.999999999%) is the durability design target. Strong read-after-write consistency has been available since December 2020.\n\nMy CLI checklist is `aws s3 mb`, `cp`, `ls`, `sync`, `rm`, `rb` and `aws s3api`.",
+   "shaky": [
+    "i’m not sure how the `-<account>-<region>-an` naming option fits into the global namespace across different partitions.",
+    "why does multipart upload start at 5 mb when a single put accepts up to 5 gb? i understand when i’d need multipart, but not that lower threshold."
+   ],
+   "sorted": [],
+   "sources": [
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/BucketRestrictions.html",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html",
+    "https://aws.amazon.com/about-aws/whats-new/2026/03/amazon-s3-account-regional-namespaces/",
+    "https://docs.aws.amazon.com/AmazonS3/latest/userguide/upload-objects.html",
+    "https://aws.amazon.com/about-aws/whats-new/2025/12/amazon-s3-maximum-object-size-50-tb/"
+   ],
+   "written_at": "2026-10-08T14:30:00Z"
+  }
+ ]
+}

@@ -72,9 +72,9 @@ export function Opening({ ready, onGone }: { ready: boolean; onGone: () => void 
               accessibilityRole="header"
               className="font-display-bold text-[34px] leading-[40px] text-ink"
             >
-              Kindred
+              <Text className="bg-pencil-soft">smu</Text>dge<Text className="text-lamp-ink">.</Text>
             </Text>
-            <Text className="font-body text-body text-ink-muted">studying alongside an AI buddy</Text>
+            <Text className="font-body text-body text-ink-muted">a study buddy who&apos;s on day one too</Text>
           </View>
         </>
       )}

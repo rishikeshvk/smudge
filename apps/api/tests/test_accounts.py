@@ -9,7 +9,7 @@ from kindred_db import Buddy, Invite, Plan, User
 
 
 @pytest.mark.anyio
-async def test_an_invite_makes_a_new_friend(session: AsyncSession) -> None:
+async def test_an_invite_makes_a_new_member(session: AsyncSession) -> None:
     line = await invite(session, None, owner=False)
 
     user = await session.scalar(select(User))
@@ -61,4 +61,4 @@ async def test_the_list_shows_who_has_a_buddy_and_a_plan(
     lines = await list_users(session)
 
     assert "owner" in lines[0] and "Juno" in lines[0] and "2026-10-01" in lines[0]
-    assert "friend" in lines[1] and "no plan" in lines[1]
+    assert "member" in lines[1] and "no plan" in lines[1]
