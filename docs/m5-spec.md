@@ -28,7 +28,7 @@ Background: [plan.md](plan.md). Previous module: [multi-user-spec.md](multi-user
 | Leak rate | No new probe runs and no chart yet. The committed numbers are kept, and a way to present them is designed and parked | Leak fixes and a re-run on the Go models, deferred |
 | Replay data | A new 7-day `make simulate` on the free Space Bunny model, curated into `replay.json` | The Go models, which spend budget; the owner's real chat, which is private |
 | Video | 2–3 minutes of phone capture (scrcpy) edited in Kdenlive, with captions and no voiceover. The full cut goes on YouTube, and a 20–30 s muted loop plays on the landing page | Voiceover; Remotion |
-| Name | A new display name chosen on the design canvas. The package `dev.kindred.app` and the Funnel URL stay, so installed apps update in place | Renaming the package, which forces a reinstall |
+| Name | **Smudge** (`smudge.expo.app`): the pencil marks on the buddy's shaky notes, which you help it rub out. The display name only; the package `dev.kindred.app` and the Funnel URL stay, so installed apps update in place. A US filing for SMUDGE (2020, downloadable software, the word beside a circle) means a proper trademark search before any commercial launch, and our wordmark keeps the lamp disc as a full stop, not a circle beside the word | Kindred (`kindred.expo.app` is taken), Deskmate, Next Desk, Same Page, Two Lamps, Lamplit, Lampmate, Apace, Sofar, Smidge; renaming the package, which forces a reinstall |
 | Repo | Public at the end, after a secrets scan of the full history | Staying private |
 | Design | Claude Design canvas on the Kindred design system (Two Desks) | — |
 | Wording | Public and ops text says "invite-only" and "members". The buddy's peer voice keeps its own metaphors | — |
@@ -55,7 +55,7 @@ Canvas rows:
 
 1. This spec, the branch and the memories.
 2. Leak numbers from the committed probe runs, kept in memory.
-3. The design canvas with name candidates; the name is chosen.
+3. The design canvas with name candidates; Smudge is chosen.
 4. A 7-day simulation on the free model; the results are committed and copied to `kindred_demo`.
 5. `make replay`: a `Replay` contract and a module that exports a curated `apps/site/replay.json` from `kindred_demo`.
 6. Design the landing page, the replay states, the parked leak artboard and the video storyboard.
