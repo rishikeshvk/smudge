@@ -1,7 +1,7 @@
 # Multi-user spec
 
-2026-09-25 · Status: **in progress** on branch `multi-user`. Steps 1–9 and 11 are built; step 10 waits for the logo
-pick
+2026-09-25 · Status: **in progress** on branch `multi-user`. Steps 1–11 are built; step 12, the phone check, waits for
+the new development build
 
 A pass between buddy feel and M5, with no milestone number. Kindred is finished for one person. Before the public
 demo, a few friends get to use it. That means three things:
@@ -74,6 +74,23 @@ Each step is built, tested and committed on its own.
   with bearer security in its OpenAPI schema, so the header is sent exactly where it's needed. `queryClient.ts` now
   holds only the client (the refetch hooks moved to `refetch.ts`), which avoids an import cycle through the session.
 - The opening screen was built before the logo pick. It shows the lamp disc, which is also logo direction A.
+
+## Results
+
+**API smoke test** (local API on `kindred_mu`, a copy of `kindred_bf` migrated to the new schema, free model).
+- The existing user became the owner.
+- `make invite ARGS='--user 1'` minted a code for the owner and `make invite` one for a new friend.
+- Redeeming both worked, with the friend's code typed in lower case. A second use of the code returned 404.
+- Without a token, `/buddy` returned 401.
+- `/auth/me` said owner for one token and friend for the other.
+- With the friend's token:
+  - the owner's note, message and turn by id all returned 404 (200 for the owner);
+  - the chat list was empty;
+  - `/settings` and `/dev/clock` returned 403.
+- The friend onboarded through the API: one Planner exchange, then accept (201) with the buddy named Sol. Their plan's
+  82 source pages arrived in the background within seconds.
+
+**Phone check:** waits for the development build with expo-secure-store and the new icons.
 
 ## Carried over, not in this pass
 
