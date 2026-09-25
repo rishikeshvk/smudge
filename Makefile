@@ -1,4 +1,4 @@
-.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate replay test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
+.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate replay site site-deploy test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -65,6 +65,14 @@ replay:
 	docker compose up -d --wait db
 	DATABASE_URL=postgresql+psycopg://kindred:kindred@localhost:5432/kindred_demo \
 		uv run python -m kindred_api.replay --out apps/site/replay.json $(ARGS)
+
+# The landing page on http://localhost:8200; tests check its buddy lines against replay.json.
+site:
+	uv run python -m http.server 8200 --directory apps/site/public
+
+# Publishes apps/site/public to smudge.expo.app with EAS Hosting.
+site-deploy:
+	cd apps/mobile && npx eas-cli@latest deploy --export-dir ../site/public --prod
 
 test:
 	docker compose up -d --wait db

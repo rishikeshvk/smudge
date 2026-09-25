@@ -74,6 +74,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
   `kindred_sim` database; about 150 real LLM calls for 14 days, so ask first
 - `make replay` — export the landing page's replay (`apps/site/replay.json`) from `kindred_demo`, a copy of a
   finished simulation made with `createdb -T kindred_sim kindred_demo`
+- `make site` — the landing page (`apps/site/public`) on http://localhost:8200; `make site-deploy` publishes it to
+  smudge.expo.app. Every buddy line on it is tested against `apps/site/replay.json`
 - `make test` — pytest and the app's jest tests
 - `make check` — ruff, mypy, expo lint and the app's TypeScript check
 - `make fmt` — ruff format and autofix
