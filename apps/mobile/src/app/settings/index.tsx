@@ -48,7 +48,7 @@ function ConnectionTest({ dirty }: { dirty: boolean }) {
         />
         {result?.ok && <Pill tone="ok" text={`connected · ${result.models.length} models`} />}
         {result && !result.ok && <Pill tone="leak" text="can't connect" />}
-        {test.isError && <Pill tone="leak" text="couldn't reach Kindred" />}
+        {test.isError && <Pill tone="leak" text="couldn't reach Smudge" />}
       </View>
       {result && !result.ok && result.detail && (
         <Text className="font-meta text-meta text-ink-muted">{result.detail}</Text>
@@ -131,7 +131,7 @@ function AccountSection() {
       </View>
       <Text className="font-meta text-meta text-ink-muted">
         {out.isError
-          ? "Couldn't reach Kindred to sign out. Try again in a bit."
+          ? "Couldn't reach Smudge to sign out. Try again in a bit."
           : "Your buddy and notes stay here. To sign back in you'll need a new invite code."}
       </Text>
     </View>
@@ -152,7 +152,7 @@ function FriendSettings() {
       <View className="gap-2">
         <Eyebrow text="The model" />
         <Text className="font-body text-body text-ink-muted">
-          Your buddy runs on a free AI model, shared by everyone testing Kindred. It may keep what
+          Your buddy runs on a free AI model, shared by everyone testing Smudge. It may keep what
           you write, so leave out anything private. If it hits its limits, your buddy shows as away
           and answers once it&apos;s back.
         </Text>
@@ -219,7 +219,7 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
               autoCapitalize="none"
               autoCorrect={false}
               placeholder={saved.api_key_set ? "Paste the new key" : "Paste your key"}
-              helper="Stored on your server only. Kindred never shows it again."
+              helper="Stored on your server only. Smudge never shows it again."
             />
           ) : (
             // The key is write-only: the app is only ever told whether one is saved.
@@ -230,7 +230,7 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
                 <Button label="Replace" variant="text" small onPress={() => setReplacingKey(true)} />
               </View>
               <Text className="font-meta text-meta text-ink-muted">
-                Stored on your server only. Kindred never shows it again.
+                Stored on your server only. Smudge never shows it again.
               </Text>
             </View>
           )}

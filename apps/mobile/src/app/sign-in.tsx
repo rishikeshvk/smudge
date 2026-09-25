@@ -17,7 +17,7 @@ function problemWith(error: unknown): string {
   if (hasStatus(error, 404)) {
     return "That code doesn't work. It may be used or expired, so ask for a new one.";
   }
-  return "Couldn't reach Kindred. Check your connection and try again.";
+  return "Couldn't reach Smudge. Check your connection and try again.";
 }
 
 export default function SignIn() {
@@ -55,7 +55,7 @@ export default function SignIn() {
             <Text className="font-display-bold text-display">invite code?</Text>
           </Text>
           <Text className="text-center font-body text-body text-ink-muted">
-            Kindred is invite-only for now. Ask the person who sent you here for a code.
+            Smudge is invite-only for now. Ask the person who sent you here for a code.
           </Text>
         </View>
         <TextField

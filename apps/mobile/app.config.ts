@@ -8,7 +8,7 @@ const isDevelopmentBuild = process.env.APP_VARIANT === "development";
 // file variable; local builds read it from this folder.
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: isDevelopmentBuild ? "Kindred Dev" : (config.name ?? "Kindred"),
+  name: isDevelopmentBuild ? "Smudge Dev" : (config.name ?? "Smudge"),
   slug: config.slug ?? "kindred",
   scheme: isDevelopmentBuild ? "kindred-dev" : config.scheme,
   android: {

@@ -10,7 +10,7 @@ export function LoadState({ isPending, error }: Props) {
   if (error) {
     return (
       <Text className="font-body text-body text-ink-muted">
-        Can&apos;t reach Kindred right now.
+        Can&apos;t reach Smudge right now.
       </Text>
     );
   }
