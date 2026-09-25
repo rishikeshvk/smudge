@@ -239,8 +239,13 @@ def add_study(session: AsyncSession) -> Callable[..., Awaitable[None]]:
         *,
         failed: bool = False,
         shaky: list[str] | None = None,
+        plan_id: int | None = None,
     ) -> None:
-        node = await session.scalar(select(TopicNode).where(TopicNode.day == day))
+        # Without a plan, the day is looked up in the only plan there is.
+        days = select(TopicNode).where(TopicNode.day == day)
+        if plan_id is not None:
+            days = days.where(TopicNode.plan_id == plan_id)
+        [node] = await session.scalars(days)
         assert node is not None
         note_id = None
         if not failed:
