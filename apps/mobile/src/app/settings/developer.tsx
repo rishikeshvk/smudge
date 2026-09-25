@@ -34,7 +34,7 @@ export default function Developer() {
   const studyNow = useMutation({ ...studyNowMutation(), onSuccess: refreshAll });
   const nextRitual = useMutation({ ...nextRitualMutation(), onSuccess: refreshAll });
 
-  const planDays = roadmap.data?.topics.length ?? null;
+  const planDays = roadmap.data?.last_day ?? null;
   const target = planDays === null ? null : jumpTarget(jump, planDays);
   const busy = change.isPending || studyNow.isPending || nextRitual.isPending;
 
@@ -49,6 +49,7 @@ export default function Developer() {
         caption="Dev builds only. Moves Kindred's Clock, not your phone's."
       />
       <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-4 px-4"
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         keyboardShouldPersistTaps="handled"

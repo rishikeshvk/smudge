@@ -4,6 +4,7 @@ from pathlib import Path
 ROOT = Path(__file__).parents[3]
 GATED = re.compile(
     r"\bLedgerNote\b|\bledger_notes\b|\bSourceDocument\b|\bsource_documents\b"
+    r"|\bShakyResolution\b|\bshaky_resolutions\b"
 )
 
 # Invariant 2: gated knowledge is read in one module, through one unlock filter.

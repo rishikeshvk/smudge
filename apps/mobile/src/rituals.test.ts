@@ -1,5 +1,5 @@
 import type { AskCard, MorningCard, NightReviewCard, StudyShareCard } from "./api/types.gen";
-import { checkInMessage, ritualBand, shareStub, showsActions, streakNumber } from "./rituals";
+import { ritualBand, shareStub, showsActions, streakNumber } from "./rituals";
 
 const topic = { slug: "s3-encryption", title: "S3 encryption", day: 9 };
 const morning: MorningCard = {
@@ -32,15 +32,15 @@ test("the stub counts shaky points, or says there's no note", () => {
 });
 
 test("only the newest morning or unanswered night review offers buttons", () => {
-  expect(showsActions(morning, true)).toBe(true);
-  expect(showsActions(morning, false)).toBe(false);
-  expect(showsActions(night, true)).toBe(true);
-  expect(showsActions({ ...night, checked_in_today: true }, true)).toBe(false);
-  expect(showsActions(share, true)).toBe(false);
+  expect(showsActions(morning, true, false)).toBe(true);
+  expect(showsActions(morning, false, false)).toBe(false);
+  expect(showsActions(night, true, false)).toBe(true);
+  expect(showsActions({ ...night, checked_in_today: true }, true, false)).toBe(false);
+  expect(showsActions(share, true, false)).toBe(false);
 });
 
-test("a check-in from the night review reads like the user wrote it", () => {
-  expect(checkInMessage(topic)).toBe("I studied today · finished S3 encryption");
+test("a check-in since the night review was sent hides its buttons", () => {
+  expect(showsActions(night, true, true)).toBe(false);
 });
 
 test("the streak shows two digits", () => {

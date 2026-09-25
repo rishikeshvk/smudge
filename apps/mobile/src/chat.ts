@@ -1,10 +1,11 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   listMessagesQueryKey,
   messageStatusOptions,
   sendMessageMutation,
+  studyTogetherMutation,
 } from "./api/@tanstack/react-query.gen";
 import { listMessages } from "./api/sdk.gen";
 import type { ChatMessage, TurnStage } from "./api/types.gen";
@@ -43,14 +44,35 @@ export function useSendMessage({ onFailed }: { onFailed: (text: string) => void 
   });
 }
 
-// Follows the turn the worker is on (the oldest unanswered message) through its real stages,
-// and reloads the thread once the reply is in.
-export function useTurnStage(message: ChatMessage | undefined, available: boolean): TurnStage | null {
+// Joins the buddy's study session; the thread shows it as the user's own message.
+export function useStudyTogether() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    ...studyTogetherMutation(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: pagesKey() }),
+  });
+}
+
+// The newest message id once the thread first loads: anything after it arrived while Chat
+// was open, so it gets the arrival animation. null until then, so history never animates.
+export function useArrivalBaseline(messages: ChatMessage[], loaded: boolean): number | null {
+  const [baseline, setBaseline] = useState<number | null>(null);
+  if (baseline === null && loaded) setBaseline(Math.max(0, ...messages.map((m) => m.id)));
+  return baseline;
+}
+
+// Follows the turn the worker is on (the oldest unanswered message) through its real stages
+// while Chat is on screen, and reloads the thread once the reply is in.
+export function useTurnStage(
+  message: ChatMessage | undefined,
+  available: boolean,
+  focused: boolean,
+): TurnStage | null {
   const queryClient = useQueryClient();
   const status = useQuery({
     ...messageStatusOptions({ path: { message_id: message?.id ?? 0 } }),
     enabled: message !== undefined,
-    refetchInterval: available ? POLL_MS.available : POLL_MS.away,
+    refetchInterval: focused && (available ? POLL_MS.available : POLL_MS.away),
   });
   const settled = status.data !== undefined && !isInFlight(status.data.message);
 
@@ -58,5 +80,8 @@ export function useTurnStage(message: ChatMessage | undefined, available: boolea
     if (settled) queryClient.invalidateQueries({ queryKey: pagesKey() });
   }, [settled, queryClient]);
 
+  // The last step stays up until the reloaded thread brings the reply, so the pill never
+  // vanishes before the reply appears.
+  if (settled) return "checking";
   return status.data?.message.stage ?? message?.stage ?? null;
 }

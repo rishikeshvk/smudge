@@ -49,6 +49,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         clock,
         llm.study,
         llm.memory,
+        llm.reflection,
         RitualSchedule.from_settings(base),
         Pusher(push_client, base.expo_push_url),
     )

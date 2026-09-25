@@ -1,6 +1,14 @@
 from datetime import UTC, datetime
 
-from kindred_api.simulate import Day, Reply, audited, messages_for, problems
+from kindred_api.simulate import (
+    Day,
+    Reply,
+    Style,
+    audited,
+    messages_for,
+    problems,
+    style_of,
+)
 from kindred_contracts import (
     AuditVerdict,
     Category,
@@ -97,3 +105,19 @@ def test_more_rituals_than_the_cap_is_a_problem() -> None:
     )
 
     assert "day 1: 4 rituals, over the cap" in problems([day], cap=3)
+
+
+def test_style_measures_how_the_replies_read() -> None:
+    style = style_of(["yeah, same.", "nice! how did it go?", "ha 😄", "two words"])
+
+    assert style == Style(
+        replies=4,
+        average_words=2.8,
+        emoji_rate=0.25,
+        question_rate=0.25,
+        exclamation_rate=0.25,
+    )
+
+
+def test_style_of_no_replies_is_all_zero() -> None:
+    assert style_of([]) == Style(0, 0, 0.0, 0.0, 0.0)

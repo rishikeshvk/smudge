@@ -1,8 +1,8 @@
+from kindred_buddy.sources import excerpts
 from kindred_contracts import (
     MAX_NOTE_WORDS,
     MAX_SHARE_WORDS,
     NoteDraft,
-    SourceExcerpt,
     StudyBrief,
 )
 from kindred_llm import LLMClient
@@ -64,19 +64,11 @@ def build_prompt(brief: StudyBrief) -> str:
         f"What today's topic covers:\n{brief.focus}",
         f"What you knew before day 1:\n{baseline}",
         f"Your earlier notes:\n{earlier or '(none yet: this is your first day)'}",
-        f"Sources:\n\n{_excerpts(brief.sources)}",
+        f"Sources:\n\n{excerpts(brief.sources, SOURCE_BUDGET_CHARS)}",
     ]
     if brief.feedback:
         parts.append(f"Feedback on your last draft:\n{brief.feedback}")
     return "\n\n".join(parts)
-
-
-def _excerpts(sources: list[SourceExcerpt]) -> str:
-    # Split the budget evenly so one long page can't crowd out the rest.
-    share = SOURCE_BUDGET_CHARS // len(sources)
-    return "\n\n".join(
-        f"[{source.title}]({source.url})\n{source.text[:share]}" for source in sources
-    )
 
 
 def _cite_only_given_pages(draft: NoteDraft, brief: StudyBrief) -> NoteDraft:

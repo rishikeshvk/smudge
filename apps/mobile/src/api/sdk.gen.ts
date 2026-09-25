@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
+import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinErrors, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, StudyTogetherData, StudyTogetherResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -43,7 +43,8 @@ export const changeClock = <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Study Now
  *
- * Run tonight's study: move to today's study time if it's earlier, then tick.
+ * Run tonight's study: move to the end of today's session if it's later, then
+ * tick.
  */
 export const studyNow = <ThrowOnError extends boolean = false>(options?: Options<StudyNowData, ThrowOnError>): RequestResult<StudyNowResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyNowResponses, unknown, ThrowOnError>({ url: '/dev/study-now', ...options });
 
@@ -123,11 +124,26 @@ export const readTurn = <ThrowOnError extends boolean = false>(options: Options<
 export const readBuddy = <ThrowOnError extends boolean = false>(options?: Options<ReadBuddyData, ThrowOnError>): RequestResult<ReadBuddyResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadBuddyResponses, unknown, ThrowOnError>({ url: '/buddy', ...options });
 
 /**
+ * Study Together
+ *
+ * Join the buddy's study session in progress.
+ */
+export const studyTogether = <ThrowOnError extends boolean = false>(options?: Options<StudyTogetherData, ThrowOnError>): RequestResult<StudyTogetherResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyTogetherResponses, unknown, ThrowOnError>({ url: '/buddy/study-together', ...options });
+
+/**
  * Add Checkin
  *
- * "I studied today": marks the user's next topic done and returns it.
+ * "I studied today": marks the user's next topic done, and tells the buddy how it
+ * went so it can compare notes.
  */
-export const addCheckin = <ThrowOnError extends boolean = false>(options?: Options<AddCheckinData, ThrowOnError>): RequestResult<AddCheckinResponses, unknown, ThrowOnError> => (options?.client ?? client).post<AddCheckinResponses, unknown, ThrowOnError>({ url: '/progress/checkins', ...options });
+export const addCheckin = <ThrowOnError extends boolean = false>(options: Options<AddCheckinData, ThrowOnError>): RequestResult<AddCheckinResponses, AddCheckinErrors, ThrowOnError> => (options.client ?? client).post<AddCheckinResponses, AddCheckinErrors, ThrowOnError>({
+    url: '/progress/checkins',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Add Push Token

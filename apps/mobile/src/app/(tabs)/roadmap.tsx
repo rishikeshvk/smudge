@@ -5,14 +5,12 @@ import { ScrollView, Text, View } from "react-native";
 import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
 import type { RoadmapView } from "@/api/types.gen";
 import { useBuddy } from "@/buddy";
-import { useCheckIn } from "@/checkIn";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { Rail } from "@/components/Rail";
 import { Screen } from "@/components/Screen";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { StudySeal } from "@/components/StudySeal";
-import { TopicRow } from "@/components/TopicRow";
+import { PausedRow, TopicRow } from "@/components/TopicRow";
 import {
   gapLine,
   headline,
@@ -22,6 +20,7 @@ import {
   topicMeta,
   weeks,
 } from "@/roadmapProgress";
+import { useRefetchOnScreenFocus } from "@/queryClient";
 import { streakNumber } from "@/rituals";
 
 function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
@@ -34,7 +33,7 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
       <View className="flex-row items-end justify-between">
         <View className="flex-1">
           <Text className="font-label text-label uppercase text-ink-muted">
-            {`${view.plan_title} · ${view.topics.length} days`}
+            {`${view.plan_title} · ${view.last_day} days`}
           </Text>
           <Text className="font-display-light text-display text-ink">
             {title.quiet}
@@ -84,7 +83,7 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
 export default function Roadmap() {
   const buddy = useBuddy();
   const roadmap = useQuery(readRoadmapOptions());
-  const { checkIn, sealed, closeSeal } = useCheckIn();
+  useRefetchOnScreenFocus(roadmap.refetch);
 
   const view = roadmap.data;
   const buddyName = buddy.data?.name ?? "Your buddy";
@@ -95,51 +94,44 @@ export default function Roadmap() {
       <ScreenHeader title="Roadmap" />
       <LoadState isPending={roadmap.isPending} error={roadmap.error} />
       {view && (
-        <ScrollView contentContainerClassName="gap-2 pb-6">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-2 pb-6">
           <Hero view={view} buddyName={buddyName} />
           {next && (
             // Named, because a check-in can't be undone and marks topics in plan order.
             <Button
-              label={checkIn.isPending ? "Sealing…" : `I studied: ${next.topic.title}`}
+              label={`I studied: ${next.topic.title}`}
               variant="primary"
-              disabled={checkIn.isPending}
-              onPress={() => checkIn.mutate({})}
+              onPress={() => router.push("/check-in")}
             />
           )}
-          {checkIn.isError && (
-            <Text className="font-meta text-meta text-leak">
-              Couldn&apos;t save that check-in. Try again.
-            </Text>
-          )}
           <Button label="Change plan" variant="text" onPress={() => router.push("/change-plan")} />
-          {weeks(view.topics).map((group) => (
+          {weeks(view).map((group) => (
             <View key={group.week} className="gap-2">
               <Text className="py-1 font-label text-label uppercase text-ink-muted">
                 {`Week ${group.week}`}
               </Text>
-              {group.topics.map((topic) => (
-                <TopicRow
-                  key={topic.topic.slug}
-                  topic={topic}
-                  meta={topicMeta(view, topic, buddyName)}
-                  today={topic.topic.day === view.day}
-                  onPull={
-                    topic.can_pull
-                      ? () =>
-                          router.push({ pathname: "/pull/[slug]", params: { slug: topic.topic.slug } })
-                      : undefined
-                  }
-                />
-              ))}
+              {group.days.map(({ day, topic }) =>
+                topic ? (
+                  <TopicRow
+                    key={day}
+                    topic={topic}
+                    meta={topicMeta(view, topic, buddyName)}
+                    today={day === view.day}
+                    onPull={
+                      topic.can_pull
+                        ? () =>
+                            router.push({ pathname: "/pull/[slug]", params: { slug: topic.topic.slug } })
+                        : undefined
+                    }
+                  />
+                ) : (
+                  <PausedRow key={day} day={day} />
+                ),
+              )}
             </View>
           ))}
         </ScrollView>
       )}
-      <StudySeal
-        topic={sealed?.topic ?? null}
-        caption={sealed?.caption ?? ""}
-        onClose={closeSeal}
-      />
     </Screen>
   );
 }

@@ -100,7 +100,7 @@ class CountingTicker(Ticker):
 
 
 @pytest.mark.anyio
-async def test_study_now_moves_to_tonight_and_ticks(
+async def test_study_now_moves_to_the_end_of_tonights_session_and_ticks(
     client: httpx.AsyncClient, add_plan: AddPlan
 ) -> None:
     await add_plan(date(2026, 10, 1), "Asia/Kolkata")
@@ -109,8 +109,8 @@ async def test_study_now_moves_to_tonight_and_ticks(
 
     response = await client.post("/dev/study-now")
 
-    # 19:00 in Kolkata on day 1.
-    assert response.json()["now"] == "2026-10-01T13:30:00Z"
+    # 20:00 in Kolkata on day 1: the hour from 19:00 is over.
+    assert response.json()["now"] == "2026-10-01T14:30:00Z"
     assert ticker.ticks == 1
 
 
@@ -142,13 +142,13 @@ async def test_next_ritual_moves_to_the_next_ritual_moment_and_ticks(
     app.dependency_overrides[get_ticker] = lambda: ticker
     client = api(OffsetClock(FixedClock(morning), timedelta()), None)
 
-    study = (await client.post("/dev/next-ritual")).json()["now"]
-    night = (await client.post("/dev/next-ritual")).json()["now"]
-    tomorrow = (await client.post("/dev/next-ritual")).json()["now"]
+    moments = [(await client.post("/dev/next-ritual")).json()["now"] for _ in range(4)]
 
-    assert [study, night, tomorrow] == [
+    # The session starts, it ends with the share, the night review, then a morning.
+    assert moments == [
         "2026-10-01T13:30:00Z",
+        "2026-10-01T14:30:00Z",
         "2026-10-01T16:00:00Z",
         "2026-10-02T02:30:00Z",
     ]
-    assert ticker.ticks == 3
+    assert ticker.ticks == 4

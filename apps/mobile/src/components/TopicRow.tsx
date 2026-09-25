@@ -19,6 +19,23 @@ function Mark({ filled }: { filled: string | null }) {
   );
 }
 
+export function PausedRow({ day }: { day: number }) {
+  return (
+    <View
+      accessibilityLabel={`Day ${day}, paused`}
+      className="flex-row items-center gap-3 rounded-sm border border-dashed border-line p-3"
+    >
+      <Text
+        className="w-[40px] text-center font-counter text-counter-sm text-ink-muted"
+        style={{ fontVariant: ["tabular-nums"] }}
+      >
+        {String(day).padStart(2, "0")}
+      </Text>
+      <Text className="font-meta text-meta text-ink-muted">paused · no topic, no streak lost</Text>
+    </View>
+  );
+}
+
 // Locked topics stay readable: it's the user's own plan. Only the buddy can't see them yet.
 export function TopicRow({ topic, meta, today, onPull }: Props) {
   const locked = !topic.unlocked;

@@ -73,7 +73,7 @@ export function headline(view: RoadmapView): { quiet: string; loud: string } {
     const wait = 1 - view.day;
     return { quiet: "Starts in ", loud: `${wait} ${wait === 1 ? "day" : "days"}` };
   }
-  if (view.day > view.topics.length) return { quiet: "Plan ", loud: "complete" };
+  if (view.day > view.last_day) return { quiet: "Plan ", loud: "complete" };
   return { quiet: `Day ${view.day}, `, loud: gap(view) === 0 ? "level" : "together" };
 }
 
@@ -89,13 +89,18 @@ export function topicMeta(view: RoadmapView, topic: RoadmapTopic, buddyName: str
   return `${buddyName} hasn't seen this yet${tomorrow}`;
 }
 
-export function weeks(topics: RoadmapTopic[]): { week: number; topics: RoadmapTopic[] }[] {
-  const byWeek = new Map<number, RoadmapTopic[]>();
-  for (const topic of topics) {
-    const week = Math.ceil(topic.topic.day / 7);
-    byWeek.set(week, [...(byWeek.get(week) ?? []), topic]);
+// A day with no topic is a paused one.
+export type PlanDay = { day: number; topic: RoadmapTopic | null };
+
+// Every day up to the finish, so a pause shows as paused days rather than a jump in numbers.
+export function weeks(view: RoadmapView): { week: number; days: PlanDay[] }[] {
+  const byDay = new Map(view.topics.map((topic) => [topic.topic.day, topic]));
+  const byWeek = new Map<number, PlanDay[]>();
+  for (let day = 1; day <= view.last_day; day++) {
+    const week = Math.ceil(day / 7);
+    byWeek.set(week, [...(byWeek.get(week) ?? []), { day, topic: byDay.get(day) ?? null }]);
   }
-  return [...byWeek].map(([week, group]) => ({ week, topics: group }));
+  return [...byWeek].map(([week, days]) => ({ week, days }));
 }
 
 // The topic a check-in would mark: the user's next, in plan order.

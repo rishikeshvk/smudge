@@ -3,6 +3,7 @@ from kindred_contracts.api import (
     AdvanceClock,
     BuddyStatus,
     ChatMessage,
+    CheckIn,
     ClockChange,
     ClockView,
     ConnectionCheck,
@@ -25,6 +26,12 @@ from kindred_contracts.api import (
     SendMessage,
     StudyTimeChange,
 )
+from kindred_contracts.cards import (
+    CheckinCard,
+    Feeling,
+    MessageCard,
+    StudyTogetherCard,
+)
 from kindred_contracts.curriculum import (
     Curriculum,
     StudyNote,
@@ -32,9 +39,26 @@ from kindred_contracts.curriculum import (
     VocabularyKind,
     VocabularyTerm,
 )
-from kindred_contracts.knowledge import RetrievedNote, SourceExcerpt
-from kindred_contracts.memory import MAX_FACTS, DaySummary, MemoryBrief, MemoryUpdate
-from kindred_contracts.persona import PersonaContext
+from kindred_contracts.knowledge import (
+    RetrievedNote,
+    SortedPoint,
+    SourceExcerpt,
+    still_shaky,
+)
+from kindred_contracts.memory import (
+    MAX_FACTS,
+    DayMessage,
+    DaySummary,
+    MemoryBrief,
+    MemoryUpdate,
+)
+from kindred_contracts.persona import (
+    Mood,
+    MoodKind,
+    PersonaContext,
+    ReplyStyle,
+    Studying,
+)
 from kindred_contracts.planning import (
     Course,
     PlanChoice,
@@ -48,6 +72,12 @@ from kindred_contracts.probes import (
     Probe,
     ProbeCategory,
     ProbeTime,
+)
+from kindred_contracts.reflection import (
+    MAX_INSIGHT_WORDS,
+    ReflectedPoint,
+    Reflection,
+    ReflectionBrief,
 )
 from kindred_contracts.rituals import (
     AskCard,
@@ -92,6 +122,10 @@ __all__ = [
     "MorningCard",
     "NightReviewCard",
     "RitualCard",
+    "MessageCard",
+    "StudyTogetherCard",
+    "CheckinCard",
+    "Feeling",
     "StudyShareCard",
     "ConnectionCheck",
     "LLMSettingsUpdate",
@@ -107,6 +141,7 @@ __all__ = [
     "PlannerBrief",
     "PlannerDraft",
     "MAX_FACTS",
+    "DayMessage",
     "DaySummary",
     "MemoryBrief",
     "MemoryUpdate",
@@ -118,6 +153,7 @@ __all__ = [
     "StudyBrief",
     "AdvanceClock",
     "BuddyStatus",
+    "CheckIn",
     "ChatMessage",
     "ClockChange",
     "ClockView",
@@ -127,7 +163,11 @@ __all__ = [
     "RoadmapTopic",
     "RoadmapView",
     "SealedDay",
+    "Mood",
+    "MoodKind",
     "PersonaContext",
+    "ReplyStyle",
+    "Studying",
     "ResetClock",
     "SendMessage",
     "AuditVerdict",
@@ -145,6 +185,12 @@ __all__ = [
     "ProbeCategory",
     "ProbeTime",
     "RetrievedNote",
+    "SortedPoint",
+    "still_shaky",
+    "MAX_INSIGHT_WORDS",
+    "ReflectedPoint",
+    "Reflection",
+    "ReflectionBrief",
     "RoadmapEntry",
     "RoleModels",
     "SourceExcerpt",

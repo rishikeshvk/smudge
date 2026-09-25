@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.chat import post_message
 from kindred_api.relationship import load_memory, remember_day, unremembered_days
-from kindred_contracts import MemoryBrief, MemoryUpdate
-from kindred_db import Plan, RelationshipMemory
+from kindred_contracts import MemoryBrief, MemoryUpdate, Speaker
+from kindred_db import Message, Plan, RelationshipMemory
 
 AddCourse = Callable[[int], Awaitable[Plan]]
 KOLKATA = ZoneInfo("Asia/Kolkata")
@@ -66,6 +66,39 @@ async def test_a_day_is_remembered_from_its_own_messages(
     assert first.buddy_name == "Juno"
     assert second.facts == ["new"]
     assert await unremembered_days(session, plan.user_id, KOLKATA, now) == []
+
+
+@pytest.mark.anyio
+async def test_a_ritual_is_remembered_as_the_buddys_scheduled_message(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    plan = await add_course(1)
+    session.add(
+        Message(
+            user_id=plan.user_id,
+            speaker=Speaker.BUDDY.value,
+            text="morning. topic 1 tonight, you?",
+            at=LATE,
+            card={"kind": "morning"},
+        )
+    )
+    await post_message(session, plan.user_id, "tonight works", LATE)
+    writer = Writer()
+
+    await remember_day(
+        session,
+        plan.user_id,
+        date(2026, 10, 1),
+        KOLKATA,
+        AFTER_MIDNIGHT + timedelta(days=1),
+        writer,
+    )
+
+    [brief] = writer.briefs
+    assert [(m.speaker, m.scheduled) for m in brief.conversation] == [
+        (Speaker.BUDDY, True),
+        (Speaker.USER, False),
+    ]
 
 
 @pytest.mark.anyio

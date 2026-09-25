@@ -5,7 +5,8 @@ from pydantic import TypeAdapter
 from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_contracts import ChatMessage, ChatTurn, RitualCard, Speaker, TurnStage
+from kindred_api.acknowledgement import reaction_to
+from kindred_contracts import ChatMessage, ChatTurn, MessageCard, Speaker, TurnStage
 from kindred_db import Message
 
 HISTORY_LIMIT = 12
@@ -18,7 +19,7 @@ class Thread(StrEnum):
 
 IN_FLIGHT = [TurnStage.CLASSIFYING, TurnStage.WRITING, TurnStage.CHECKING]
 
-CARD: TypeAdapter[RitualCard] = TypeAdapter(RitualCard)
+CARD: TypeAdapter[MessageCard] = TypeAdapter(MessageCard)
 
 
 def to_contract(message: Message) -> ChatMessage:
@@ -30,19 +31,39 @@ def to_contract(message: Message) -> ChatMessage:
         stage=TurnStage(message.stage) if message.stage is not None else None,
         turn_id=message.turn_id,
         card=CARD.validate_python(message.card) if message.card is not None else None,
+        reaction=message.reaction,
     )
 
 
 async def post_message(
-    session: AsyncSession, user_id: int, text: str, now: datetime
+    session: AsyncSession,
+    user_id: int,
+    text: str,
+    now: datetime,
+    card: MessageCard | None = None,
 ) -> Message:
+    """Queue a message for a turn, unless it's an "ok" the buddy only reacts to."""
+    last = await session.scalar(
+        select(Message.text)
+        .where(
+            Message.user_id == user_id,
+            Message.thread == Thread.CHAT.value,
+            Message.speaker == Speaker.BUDDY.value,
+            Message.at <= now,
+        )
+        .order_by(Message.id.desc())
+        .limit(1)
+    )
+    reaction = reaction_to(text, last)
     message = Message(
         user_id=user_id,
         thread=Thread.CHAT.value,
         speaker=Speaker.USER.value,
         text=text,
         at=now,
-        stage=TurnStage.QUEUED.value,
+        stage=(TurnStage.QUEUED if reaction is None else TurnStage.ANSWERED).value,
+        reaction=reaction,
+        card=CARD.dump_python(card, mode="json") if card is not None else None,
     )
     session.add(message)
     await session.flush()

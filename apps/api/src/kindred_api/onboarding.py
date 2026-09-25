@@ -184,6 +184,7 @@ async def accept_plan(
         curriculum,
         proposal.start_date,
         proposal.study_time,
+        round(proposal.hours_per_day * 60),
         ZoneInfo(user.timezone),
     )
     buddy = await session.scalar(select(Buddy).where(Buddy.user_id == user.id))

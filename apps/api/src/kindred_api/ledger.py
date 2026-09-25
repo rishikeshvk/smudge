@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_contracts import NoteDraft
-from kindred_db import LedgerNote, NoteEmbedding
+from kindred_db import LedgerNote, NoteEmbedding, ShakyResolution
 
 
 async def append_note(
@@ -30,3 +30,20 @@ async def append_note(
     )
     await session.flush()
     return row.id
+
+
+async def append_resolution(
+    session: AsyncSession,
+    *,
+    note_id: int,
+    shaky: str,
+    insight: str,
+    written_at: datetime,
+) -> None:
+    """A shaky point the user helped sort out; append-only, like the notes."""
+    session.add(
+        ShakyResolution(
+            note_id=note_id, shaky=shaky, insight=insight, written_at=written_at
+        )
+    )
+    await session.flush()

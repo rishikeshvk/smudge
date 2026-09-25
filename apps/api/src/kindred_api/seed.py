@@ -26,6 +26,9 @@ from kindred_db import (
     session_factory,
 )
 
+# The hand-written curricula are paced for an hour a day.
+SESSION_MINUTES = 60
+
 
 class AlreadySeededError(Exception):
     pass
@@ -51,7 +54,13 @@ async def seed_plan(
     await session.flush()
     session.add(Buddy(user_id=user.id, name=buddy_name))
     plan = await create_plan(
-        session, user.id, curriculum, start_date, curriculum.study_time, tz
+        session,
+        user.id,
+        curriculum,
+        start_date,
+        curriculum.study_time,
+        SESSION_MINUTES,
+        tz,
     )
     if reference_embedder is not None:
         await _store_reference_notes(session, plan.id, curriculum, reference_embedder)

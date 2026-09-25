@@ -11,11 +11,16 @@ from kindred_contracts import (
     DaySummary,
     Directive,
     DraftRequest,
+    Mood,
+    MoodKind,
     PersonaContext,
+    ReplyStyle,
     RetrievedNote,
     RoadmapEntry,
     Route,
+    SortedPoint,
     Speaker,
+    Studying,
     TopicRef,
 )
 from kindred_llm import LLMClient
@@ -36,6 +41,9 @@ CONTEXT = PersonaContext(
     recent_days=[DaySummary(day=date(2026, 10, 4), summary="they were tired.")],
     streak=3,
     gap=1,
+    style=ReplyStyle(max_words=15, emoji=False),
+    mood=Mood(kind=MoodKind.STEADY, reason=None),
+    studying=None,
 )
 
 
@@ -45,8 +53,9 @@ def request(directive: Directive, feedback: str | None = None) -> DraftRequest:
         history=[ChatTurn(speaker=Speaker.USER, text="hi")],
         baseline_card=["AWS is Amazon's cloud."],
         roadmap=[
-            RoadmapEntry(topic=IAM, unlocked=True),
-            RoadmapEntry(topic=S3, unlocked=False),
+            RoadmapEntry(topic=IAM, unlocked=True, has_note=True),
+            RoadmapEntry(topic=POLICIES, unlocked=True, has_note=False),
+            RoadmapEntry(topic=S3, unlocked=False, has_note=False),
         ],
         notes=[
             RetrievedNote(
@@ -56,6 +65,7 @@ def request(directive: Directive, feedback: str | None = None) -> DraftRequest:
                 day=3,
                 body="IAM decides who can do what.",
                 shaky=["authN vs authZ"],
+                sorted=[],
                 distance=0.2,
             )
         ],
@@ -72,11 +82,18 @@ def test_prompt_carries_notes_roadmap_and_the_directive() -> None:
 
     assert "IAM decides who can do what." in prompt
     assert "Still shaky on: authN vs authZ" in prompt
+    assert "- day 3: IAM overview (studied)" in prompt
     assert "- day 7: S3 fundamentals (not studied yet)" in prompt
     assert "answer about: IAM overview" in prompt
     assert "not studied yet: S3 fundamentals (day 7)" in prompt
     assert "user: hi" in prompt
     assert "Feedback" not in prompt
+
+
+def test_prompt_never_calls_an_unlocked_topic_without_a_note_studied() -> None:
+    prompt = build_prompt(request(DEFLECT), CONTEXT)
+
+    assert "- day 5: IAM policies (unlocked, but you have no note for it yet)" in prompt
 
 
 def test_prompt_places_the_buddy_in_the_users_day() -> None:
@@ -139,3 +156,69 @@ def test_prompt_says_when_the_user_is_ahead() -> None:
     prompt = build_prompt(request(DEFLECT), context)
 
     assert "they're 2 topics ahead of you. They've studied 1 day in a row." in prompt
+
+
+def test_prompt_gives_a_reply_budget_matched_to_the_user() -> None:
+    prompt = build_prompt(request(DEFLECT), CONTEXT)
+
+    assert "Reply budget: at most 15 words; no emoji, they don't use them." in prompt
+
+
+def test_emoji_are_allowed_only_when_the_user_uses_them() -> None:
+    context = CONTEXT.model_copy(update={"style": ReplyStyle(max_words=30, emoji=True)})
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "Reply budget: at most 30 words; an emoji is fine." in prompt
+
+
+def test_a_steady_mood_is_just_named() -> None:
+    assert "Your mood: steady." in build_prompt(request(DEFLECT), CONTEXT)
+
+
+def test_a_mood_with_a_reason_colours_the_tone_without_being_announced() -> None:
+    context = CONTEXT.model_copy(
+        update={"mood": Mood(kind=MoodKind.FRIED, reason="IAM overview was a lot")}
+    )
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "Your mood: fried, since IAM overview was a lot." in prompt
+    assert "don't announce it" in prompt
+
+
+def test_mid_session_the_buddy_replies_briefly_without_a_note() -> None:
+    until = datetime(2026, 10, 5, 22, 0, tzinfo=ZoneInfo("Asia/Kolkata"))
+    context = CONTEXT.model_copy(
+        update={"studying": Studying(topic=POLICIES, until=until)}
+    )
+
+    prompt = build_prompt(request(DEFLECT), context)
+
+    assert "mid-way through studying IAM policies, until 22:00" in prompt
+    assert "Right now" not in build_prompt(request(DEFLECT), CONTEXT)
+
+
+def test_a_point_they_helped_sort_out_is_no_longer_shaky() -> None:
+    [note] = request(DEFLECT).notes
+    sorted_note = note.model_copy(
+        update={
+            "shaky": ["authN vs authZ", "what's a role?"],
+            "sorted": [
+                SortedPoint(
+                    shaky="authN vs authZ",
+                    insight="authN is who you are, authZ is what you may do",
+                    sorted_at=datetime(2026, 10, 5, 0, 5, tzinfo=ZoneInfo("UTC")),
+                )
+            ],
+        }
+    )
+    context_request = request(DEFLECT).model_copy(update={"notes": [sorted_note]})
+
+    prompt = build_prompt(context_request, CONTEXT)
+
+    assert "Still shaky on: what's a role?" in prompt
+    assert (
+        "Sorted with their help: authN vs authZ -> authN is who you are, authZ is "
+        "what you may do" in prompt
+    )

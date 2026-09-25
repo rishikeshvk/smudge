@@ -1,5 +1,5 @@
 from collections.abc import Awaitable, Callable
-from datetime import UTC, datetime, time
+from datetime import UTC, datetime, time, timedelta
 
 import httpx
 import httpx2
@@ -11,6 +11,7 @@ from kindred_api.dependencies import get_ticker
 from kindred_api.director import RitualSchedule
 from kindred_api.main import app
 from kindred_api.push import Pusher
+from kindred_api.reflection import ReflectionComponents
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
@@ -20,6 +21,8 @@ from kindred_contracts import (
     MemoryUpdate,
     NoteDraft,
     PersonaContext,
+    Reflection,
+    ReflectionBrief,
     StudyBrief,
 )
 from kindred_db import Plan
@@ -48,6 +51,9 @@ class NoStudy:
     async def remember(self, brief: MemoryBrief, session_id: str) -> MemoryUpdate:
         raise AssertionError("nothing should be remembered")
 
+    async def reflect(self, brief: ReflectionBrief, session_id: str) -> Reflection:
+        raise AssertionError("nothing should be reflected on")
+
 
 def unused(
     session: AsyncSession, plan_id: int, persona: PersonaContext
@@ -68,6 +74,7 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
         FixedClock(NOW),
         lambda: StudyComponents(curator=none, auditor=none, embedder=none),
         lambda: none,
+        lambda: ReflectionComponents(reflector=none, auditor=none),
         RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4),
         Pusher(httpx2.AsyncClient(transport=NO_NETWORK), "https://push.test"),
     )
@@ -77,22 +84,38 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
 
 @pytest.mark.anyio
 async def test_buddy_reports_its_name_and_what_it_is_doing(
-    api: ApiClient, worker: TurnWorker, ticker: Ticker, add_course: AddCourse
+    api: ApiClient, worker: TurnWorker, add_course: AddCourse
 ) -> None:
     await add_course(1)
     client = api(FixedClock(NOW), worker)
 
     assert (await client.get("/buddy")).json() == {
         "name": "Juno",
+        "mood": {"kind": "steady", "reason": None},
         "available": True,
-        "studying": False,
+        "studying": None,
     }
 
     worker.available = False
-    ticker.studying = True
 
-    status = (await client.get("/buddy")).json()
-    assert (status["available"], status["studying"]) == (False, True)
+    assert (await client.get("/buddy")).json()["available"] is False
+
+
+@pytest.mark.anyio
+async def test_the_buddy_is_studying_during_its_session(
+    api: ApiClient, worker: TurnWorker, add_course: AddCourse
+) -> None:
+    await add_course(1)
+    # 19:30 in Kolkata on day 1: half an hour into the hour from 19:00.
+    during = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
+
+    status = (await api(FixedClock(during), worker).get("/buddy")).json()
+
+    assert status["studying"] == {
+        "topic": {"slug": "topic-1", "title": "Topic 1", "day": 1},
+        "until": "2026-10-01T14:30:00Z",
+    }
+    assert status["mood"] == {"kind": "focused", "reason": "mid-way through Topic 1"}
 
 
 @pytest.mark.anyio
@@ -102,3 +125,29 @@ async def test_no_buddy_before_onboarding(
     response = await api(FixedClock(NOW), worker).get("/buddy")
 
     assert response.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_the_user_can_study_along_only_during_a_session(
+    api: ApiClient, worker: TurnWorker, add_course: AddCourse
+) -> None:
+    await add_course(1)
+    during = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
+
+    refused = await api(FixedClock(during - timedelta(hours=1)), worker).post(
+        "/buddy/study-together"
+    )
+    joined = await api(FixedClock(during), worker).post("/buddy/study-together")
+
+    assert refused.status_code == 409
+    message = joined.json()
+    assert (message["speaker"], message["stage"], message["reaction"]) == (
+        "user",
+        "answered",
+        "📚",
+    )
+    assert message["card"] == {
+        "kind": "study_together",
+        "topic": {"slug": "topic-1", "title": "Topic 1", "day": 1},
+        "until": "2026-10-01T14:30:00Z",
+    }

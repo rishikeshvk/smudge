@@ -74,14 +74,12 @@ export type BuddyStatus = {
      * Name
      */
     name: string;
+    mood: Mood;
     /**
      * Available
      */
     available: boolean;
-    /**
-     * Studying
-     */
-    studying: boolean;
+    studying: Studying | null;
 };
 
 /**
@@ -122,7 +120,44 @@ export type ChatMessage = {
         kind: 'ask';
     } & AskCard) | ({
         kind: 'night_review';
-    } & NightReviewCard) | null;
+    } & NightReviewCard) | ({
+        kind: 'study_together';
+    } & StudyTogetherCard) | ({
+        kind: 'checkin';
+    } & CheckinCard) | null;
+    /**
+     * Reaction
+     */
+    reaction: string | null;
+};
+
+/**
+ * CheckIn
+ */
+export type CheckIn = {
+    feeling: Feeling;
+    /**
+     * Fuzzy
+     */
+    fuzzy?: string | null;
+};
+
+/**
+ * CheckinCard
+ *
+ * The user's "I studied today", with how it went, so both can compare notes.
+ */
+export type CheckinCard = {
+    /**
+     * Kind
+     */
+    kind: 'checkin';
+    topic: TopicRef;
+    feeling: Feeling;
+    /**
+     * Fuzzy
+     */
+    fuzzy: string | null;
 };
 
 /**
@@ -205,6 +240,11 @@ export type DraftAttempt = {
     reply: string;
     audit: AuditVerdict;
 };
+
+/**
+ * Feeling
+ */
+export type Feeling = 'solid' | 'okay' | 'rough';
 
 /**
  * HTTPValidationError
@@ -309,6 +349,24 @@ export type ModelsPerRole = {
 };
 
 /**
+ * Mood
+ *
+ * How the buddy feels, from events in its own day only.
+ */
+export type Mood = {
+    kind: MoodKind;
+    /**
+     * Reason
+     */
+    reason: string | null;
+};
+
+/**
+ * MoodKind
+ */
+export type MoodKind = 'steady' | 'focused' | 'upbeat' | 'tired' | 'flat' | 'fried';
+
+/**
  * MorningCard
  */
 export type MorningCard = {
@@ -371,6 +429,10 @@ export type NotebookNote = {
      * Shaky
      */
     shaky: Array<string>;
+    /**
+     * Sorted
+     */
+    sorted: Array<SortedPoint>;
     /**
      * Sources
      */
@@ -530,6 +592,10 @@ export type RetrievedNote = {
      */
     shaky: Array<string>;
     /**
+     * Sorted
+     */
+    sorted: Array<SortedPoint>;
+    /**
      * Distance
      */
     distance: number;
@@ -575,6 +641,10 @@ export type RoadmapView = {
      */
     day: number;
     /**
+     * Last Day
+     */
+    last_day: number;
+    /**
      * Study Time
      */
     study_time: string;
@@ -586,6 +656,10 @@ export type RoadmapView = {
      * Gap
      */
     gap: number;
+    /**
+     * Checked In Today
+     */
+    checked_in_today: boolean;
     /**
      * Topics
      */
@@ -642,6 +716,26 @@ export type SendMessage = {
 };
 
 /**
+ * SortedPoint
+ *
+ * A shaky point the user helped the buddy sort out, and what it gets now.
+ */
+export type SortedPoint = {
+    /**
+     * Shaky
+     */
+    shaky: string;
+    /**
+     * Insight
+     */
+    insight: string;
+    /**
+     * Sorted At
+     */
+    sorted_at: string;
+};
+
+/**
  * Speaker
  */
 export type Speaker = 'user' | 'buddy';
@@ -673,6 +767,36 @@ export type StudyTimeChange = {
      * Study Time
      */
     study_time: string;
+};
+
+/**
+ * StudyTogetherCard
+ *
+ * The user joining the buddy's study session: both lamps on until it ends.
+ */
+export type StudyTogetherCard = {
+    /**
+     * Kind
+     */
+    kind: 'study_together';
+    topic: TopicRef;
+    /**
+     * Until
+     */
+    until: string;
+};
+
+/**
+ * Studying
+ *
+ * The buddy's study session in progress.
+ */
+export type Studying = {
+    topic: TopicRef;
+    /**
+     * Until
+     */
+    until: string;
 };
 
 /**
@@ -1090,12 +1214,37 @@ export type ReadBuddyResponses = {
 
 export type ReadBuddyResponse = ReadBuddyResponses[keyof ReadBuddyResponses];
 
-export type AddCheckinData = {
+export type StudyTogetherData = {
     body?: never;
+    path?: never;
+    query?: never;
+    url: '/buddy/study-together';
+};
+
+export type StudyTogetherResponses = {
+    /**
+     * Successful Response
+     */
+    201: ChatMessage;
+};
+
+export type StudyTogetherResponse = StudyTogetherResponses[keyof StudyTogetherResponses];
+
+export type AddCheckinData = {
+    body: CheckIn;
     path?: never;
     query?: never;
     url: '/progress/checkins';
 };
+
+export type AddCheckinErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddCheckinError = AddCheckinErrors[keyof AddCheckinErrors];
 
 export type AddCheckinResponses = {
     /**

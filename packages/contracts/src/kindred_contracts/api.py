@@ -3,9 +3,10 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, Field, SecretStr
 
+from kindred_contracts.cards import Feeling, MessageCard
 from kindred_contracts.curriculum import Contract
+from kindred_contracts.persona import Mood, Studying
 from kindred_contracts.planning import PlanProposal
-from kindred_contracts.rituals import RitualCard
 from kindred_contracts.study import NotebookNote
 from kindred_contracts.turn import Speaker, TopicRef, TurnStage
 
@@ -47,8 +48,10 @@ class ChatMessage(Contract):
     stage: TurnStage | None
     # A buddy reply links to its turn for the X-ray view.
     turn_id: int | None
-    # Set on the buddy's rituals: messages it sends unprompted.
-    card: RitualCard | None
+    # Set on the buddy's rituals and on the user's own moments, like joining a session.
+    card: MessageCard | None
+    # The buddy's emoji on a user message it acknowledged without a reply.
+    reaction: str | None
 
 
 class SendMessage(Contract):
@@ -62,10 +65,10 @@ class MessageStatus(Contract):
 
 class BuddyStatus(Contract):
     name: str
+    mood: Mood
     # False while the model endpoint fails; messages wait in the queue meanwhile.
     available: bool
-    # True while the Curator is writing tonight's note.
-    studying: bool
+    studying: Studying | None
 
 
 class RoadmapTopic(Contract):
@@ -82,13 +85,21 @@ class RoadmapView(Contract):
     plan_title: str
     # Below 1 before the plan starts.
     day: int
+    # The plan's finish day, which a pause moves later.
+    last_day: int
     # When the buddy studies each day, in the user's local time.
     study_time: time
     # Days in a row the user has checked in.
     streak: int = Field(ge=0)
     # Topics the buddy is ahead of the user; negative when the user is ahead.
     gap: int
+    checked_in_today: bool
     topics: list[RoadmapTopic]
+
+
+class CheckIn(Contract):
+    feeling: Feeling
+    fuzzy: str | None = Field(default=None, min_length=1, max_length=280)
 
 
 class PullTopic(Contract):

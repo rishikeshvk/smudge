@@ -56,4 +56,6 @@ async def test_topic_map_holds_plan_topics_in_day_order(session: AsyncSession) -
     assert [t.slug for t in topics.topics] == ["first", "later"]
     assert topics.topics[0].vocabulary[0].kind is VocabularyKind.ABBREVIATION
     assert [t.slug for t in topics.unlocked(UNLOCK)] == ["first"]
-    assert [e.unlocked for e in topics.roadmap(UNLOCK)] == [True, False]
+    assert [
+        (e.unlocked, e.has_note) for e in topics.roadmap(UNLOCK, frozenset(["first"]))
+    ] == [(True, True), (False, False)]

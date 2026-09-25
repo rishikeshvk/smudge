@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { accept, addCheckin, addPushToken, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, testConnection, updateSettings } from '../sdk.gen';
-import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinResponse, AddPushTokenData, AddPushTokenError, AddPushTokenResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
+import { accept, addCheckin, addPushToken, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, studyTogether, testConnection, updateSettings } from '../sdk.gen';
+import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinError, AddCheckinResponse, AddPushTokenData, AddPushTokenError, AddPushTokenResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, StudyTogetherData, StudyTogetherResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -95,7 +95,8 @@ export const changeClockMutation = (options?: Partial<Options<ChangeClockData>>)
 /**
  * Study Now
  *
- * Run tonight's study: move to today's study time if it's earlier, then tick.
+ * Run tonight's study: move to the end of today's session if it's later, then
+ * tick.
  */
 export const studyNowMutation = (options?: Partial<Options<StudyNowData>>): UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> => {
     const mutationOptions: UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> = {
@@ -279,12 +280,32 @@ export const readBuddyOptions = (options?: Options<ReadBuddyData>) => queryOptio
 });
 
 /**
+ * Study Together
+ *
+ * Join the buddy's study session in progress.
+ */
+export const studyTogetherMutation = (options?: Partial<Options<StudyTogetherData>>): UseMutationOptions<StudyTogetherResponse, DefaultError, Options<StudyTogetherData>> => {
+    const mutationOptions: UseMutationOptions<StudyTogetherResponse, DefaultError, Options<StudyTogetherData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await studyTogether({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+/**
  * Add Checkin
  *
- * "I studied today": marks the user's next topic done and returns it.
+ * "I studied today": marks the user's next topic done, and tells the buddy how it
+ * went so it can compare notes.
  */
-export const addCheckinMutation = (options?: Partial<Options<AddCheckinData>>): UseMutationOptions<AddCheckinResponse, DefaultError, Options<AddCheckinData>> => {
-    const mutationOptions: UseMutationOptions<AddCheckinResponse, DefaultError, Options<AddCheckinData>> = {
+export const addCheckinMutation = (options?: Partial<Options<AddCheckinData>>): UseMutationOptions<AddCheckinResponse, AddCheckinError, Options<AddCheckinData>> => {
+    const mutationOptions: UseMutationOptions<AddCheckinResponse, AddCheckinError, Options<AddCheckinData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await addCheckin({
                 ...options,

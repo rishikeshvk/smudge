@@ -10,7 +10,7 @@ import { Appearance } from "react-native";
 
 import { gateFor, useBuddy } from "@/buddy";
 import { Unreachable } from "@/components/Unreachable";
-import { queryClient, useRefetchOnAppFocus } from "@/queryClient";
+import { queryClient, useRefetchOnAppFocus, useRefetchOnNewDay } from "@/queryClient";
 import { usePref } from "@/prefs";
 import { usePush } from "@/push";
 import { fonts } from "@/theme/fonts";
@@ -32,6 +32,7 @@ function AppStack() {
   const buddy = useBuddy();
   const gate = gateFor(buddy);
   usePush(gate === "ready");
+  useRefetchOnNewDay();
 
   useEffect(() => {
     if (gate !== "loading") SplashScreen.hideAsync();
@@ -51,6 +52,7 @@ function AppStack() {
         <Stack.Screen name="trace/[turnId]" options={{ presentation: "transparentModal", animation: "fade" }} />
         <Stack.Screen name="pull/[slug]" options={{ presentation: "transparentModal", animation: "fade" }} />
         <Stack.Screen name="change-plan" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="check-in" options={{ presentation: "transparentModal", animation: "fade" }} />
       </Stack.Protected>
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />

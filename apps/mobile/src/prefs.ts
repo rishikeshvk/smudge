@@ -10,8 +10,10 @@ export type CoachId = "onboarding-name" | "xray-badge" | "fog-lift";
 type Prefs = Record<`coach.${CoachId}`, boolean> & {
   xray: boolean;
   theme: ThemePreference;
-  // An instant on the Kindred Clock, compared with when notes were written.
-  "notebook.lastOpened": string;
+  // The first visit on the Kindred Clock: notes written after it arrive fogged.
+  "notebook.firstOpened": string;
+  // Fogged notes the user has lifted, by note id.
+  "notebook.lifted": number[];
   // Small asks put off with "Later", by message id.
   "asks.later": number[];
 };

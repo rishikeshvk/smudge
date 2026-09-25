@@ -53,6 +53,8 @@ class Plan(Base):
     title: Mapped[str]
     start_date: Mapped[date]
     study_time: Mapped[time]
+    # How long the buddy studies from the study time, from the hours a day agreed.
+    session_minutes: Mapped[int] = mapped_column(server_default="60")
     baseline_card: Mapped[list[str]] = mapped_column(JSONB)
 
 
@@ -104,6 +106,21 @@ class LedgerNote(Base):
     body: Mapped[str]
     shaky: Mapped[list[str]] = mapped_column(JSONB)
     sources: Mapped[list[str]] = mapped_column(ARRAY(Text))
+    written_at: Mapped[datetime]
+
+
+# A shaky point the user helped the buddy sort out. It is knowledge, so like the notes
+# it is append-only and read only through the gate.
+class ShakyResolution(Base):
+    __tablename__ = "shaky_resolutions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    note_id: Mapped[int] = mapped_column(
+        ForeignKey("ledger_notes.id", ondelete="RESTRICT"), index=True
+    )
+    shaky: Mapped[str]
+    # What the buddy understands now, checked against the topic's sources and audited.
+    insight: Mapped[str]
     written_at: Mapped[datetime]
 
 
@@ -176,8 +193,11 @@ class Message(Base):
         ForeignKey("messages.id"), unique=True
     )
     turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
-    # A ritual's card: what the app draws around the text.
-    card: Mapped[dict[str, object] | None] = mapped_column(JSONB)
+    # What the app draws around the text: a ritual, or the user's own moment. None is
+    # stored as SQL NULL, so "no card" is one thing in queries.
+    card: Mapped[dict[str, object] | None] = mapped_column(JSONB(none_as_null=True))
+    # The buddy's emoji on a user message it acknowledged instead of replying to.
+    reaction: Mapped[str | None]
 
 
 # The user saying "I studied today"; one per topic, in plan order.
@@ -187,14 +207,18 @@ class StudyCheckin(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
     at: Mapped[datetime]
+    # How it went for the user: solid, okay or rough, and what's still fuzzy.
+    feeling: Mapped[str | None]
+    fuzzy: Mapped[str | None]
 
 
-# One night's study per topic: the note it wrote, or why it wrote nothing.
+# A night's study of a topic: the note it wrote, or why it wrote nothing. A failed
+# night gets one retry.
 class StudySession(Base):
     __tablename__ = "study_sessions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
+    node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), index=True)
     status: Mapped[str]
     at: Mapped[datetime]
     note_id: Mapped[int | None] = mapped_column(ForeignKey("ledger_notes.id"))
@@ -251,3 +275,14 @@ class LLMSettings(Base):
     base_url: Mapped[str | None]
     api_key: Mapped[str | None]
     models: Mapped[dict[str, str] | None] = mapped_column(JSONB)
+
+
+# One reflection per finished day of chat, so the Reflector never reads a day twice.
+class ReflectionDay(Base):
+    __tablename__ = "reflection_days"
+    __table_args__ = (UniqueConstraint("user_id", "for_date"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    for_date: Mapped[date]
+    reflected_at: Mapped[datetime]

@@ -1,13 +1,16 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, time
 from enum import StrEnum
 from typing import Protocol
 
-from sqlalchemy import exists, select
+from sqlalchemy import exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.embedding import DocumentEmbedder
 from kindred_api.ledger import append_note
+from kindred_api.note_audit import NoteAuditor, audit_note_text
+from kindred_api.plans import CurrentPlan
+from kindred_api.schedule import plan_day, plan_moment
 from kindred_contracts import (
     AuditVerdict,
     EarlierNote,
@@ -15,6 +18,7 @@ from kindred_contracts import (
     StudyBrief,
     TopicRef,
     Verdict,
+    still_shaky,
 )
 from kindred_db import Plan, StudySession, TopicNode
 from kindred_gate import TopicMap, list_notes, load_topic_map, read_sources
@@ -29,14 +33,6 @@ class NoteWriter(Protocol):
     model: str
 
     async def study(self, brief: StudyBrief, session_id: str) -> NoteDraft: ...
-
-
-class NoteAuditor(Protocol):
-    model: str
-
-    async def audit_note(
-        self, note: str, topics: TopicMap, now: datetime, session_id: str
-    ) -> AuditVerdict: ...
 
 
 @dataclass(frozen=True)
@@ -61,13 +57,30 @@ class StudyOutcome:
 
 
 async def due_topics(
-    session: AsyncSession, plan_id: int, now: datetime
+    session: AsyncSession, plan: CurrentPlan, now: datetime
 ) -> list[TopicNode]:
-    """Unlocked topics the buddy hasn't sat down to study yet, in plan order."""
-    studied = exists().where(StudySession.node_id == TopicNode.id)
+    """Topics whose study session has ended with no note attempt yet, in plan order.
+    The note is written as the session ends, so mid-session the buddy has none. A
+    failed night gets one more go once its day is over."""
+    tried = exists().where(StudySession.node_id == TopicNode.id)
+    today = plan_day(plan.start_date, now, plan.tz)
+    retry = (
+        select(StudySession.node_id)
+        .group_by(StudySession.node_id)
+        .having(
+            func.count() == 1,
+            func.bool_and(StudySession.status == StudyStatus.FAILED.value),
+            func.max(StudySession.at)
+            < plan_moment(plan.start_date, today, time(0), plan.tz),
+        )
+    )
     nodes = await session.scalars(
         select(TopicNode)
-        .where(TopicNode.plan_id == plan_id, TopicNode.unlock_at <= now, ~studied)
+        .where(
+            TopicNode.plan_id == plan.id,
+            TopicNode.unlock_at <= now - plan.session_length,
+            or_(~tried, TopicNode.id.in_(retry)),
+        )
         .order_by(TopicNode.day)
     )
     return list(nodes)
@@ -89,7 +102,7 @@ async def study_topic(
 
     topics = await load_topic_map(session, plan.id)
     earlier = [
-        EarlierNote(topic=note.topic, shaky=note.shaky)
+        EarlierNote(topic=note.topic, shaky=still_shaky(note.shaky, note.sorted))
         for note in await list_notes(session, plan_id=plan.id, now=now)
         if note.topic.day < node.day
     ]
@@ -109,8 +122,12 @@ async def study_topic(
         except StructuredOutputError:
             break
         # Judged at the topic's own unlock, so a late study can't cover later days.
-        verdict = await _audit(
-            draft, topics, node.unlock_at, components.auditor, f"{session_id}:auditor"
+        verdict = await audit_note_text(
+            _note_text(draft),
+            topics,
+            node.unlock_at,
+            components.auditor,
+            f"{session_id}:auditor",
         )
         attempts.append(
             {
@@ -156,31 +173,6 @@ async def study_topic(
         )
     )
     return StudyOutcome(topic, StudyStatus.FAILED)
-
-
-async def _audit(
-    draft: NoteDraft,
-    topics: TopicMap,
-    at: datetime,
-    auditor: NoteAuditor,
-    session_id: str,
-) -> AuditVerdict:
-    text = _note_text(draft)
-    # Locked jargon is a sure leak, so it skips the LLM call.
-    jargon = jargon_in(text, topics, at)
-    if jargon:
-        return AuditVerdict(
-            verdict=Verdict.LEAK,
-            leaked_topic_slugs=list(dict.fromkeys(topic.slug for topic, _ in jargon)),
-            rationale="uses locked terms: "
-            + ", ".join(dict.fromkeys(word.term for _, word in jargon)),
-        )
-    try:
-        return await auditor.audit_note(text, topics, at, session_id)
-    except StructuredOutputError:
-        return AuditVerdict(
-            verdict=Verdict.LEAK, rationale="auditor output was invalid"
-        )
 
 
 def _note_text(draft: NoteDraft) -> str:

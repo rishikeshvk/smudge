@@ -1,7 +1,42 @@
+from enum import StrEnum
+
 from pydantic import AwareDatetime, Field
 
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.memory import DaySummary
+from kindred_contracts.turn import TopicRef
+
+
+class MoodKind(StrEnum):
+    STEADY = "steady"
+    FOCUSED = "focused"
+    UPBEAT = "upbeat"
+    TIRED = "tired"
+    FLAT = "flat"
+    FRIED = "fried"
+
+
+class Mood(Contract):
+    """How the buddy feels, from events in its own day only."""
+
+    kind: MoodKind
+    # Public words only, since the app shows it: topic titles, never their content.
+    reason: str | None
+
+
+class Studying(Contract):
+    """The buddy's study session in progress."""
+
+    topic: TopicRef
+    until: AwareDatetime
+
+
+class ReplyStyle(Contract):
+    """How to text back, measured from the user's own recent messages."""
+
+    max_words: int = Field(ge=1)
+    # Only when they use emoji themselves.
+    emoji: bool
 
 
 class PersonaContext(Contract):
@@ -20,3 +55,6 @@ class PersonaContext(Contract):
     streak: int = Field(ge=0)
     # Topics the buddy is ahead of the user; negative when the user is ahead.
     gap: int
+    style: ReplyStyle
+    mood: Mood
+    studying: Studying | None

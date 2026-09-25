@@ -42,9 +42,12 @@ class TopicMap:
     def locked(self, now: datetime) -> list[Topic]:
         return [t for t in self.topics if not t.is_unlocked(now)]
 
-    def roadmap(self, now: datetime) -> list[RoadmapEntry]:
+    def roadmap(self, now: datetime, noted: frozenset[str]) -> list[RoadmapEntry]:
         return [
-            RoadmapEntry(topic=t.ref, unlocked=t.is_unlocked(now)) for t in self.topics
+            RoadmapEntry(
+                topic=t.ref, unlocked=t.is_unlocked(now), has_note=t.slug in noted
+            )
+            for t in self.topics
         ]
 
 

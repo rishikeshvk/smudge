@@ -49,14 +49,18 @@ async def change_clock(
 async def study_now(
     clock: DevClockDep, session: SessionDep, ticker: TickerDep
 ) -> ClockView:
-    """Run tonight's study: move to today's study time if it's earlier, then tick."""
+    """Run tonight's study: move to the end of today's session if it's later, then
+    tick."""
     plan = await load_current_plan(session)
     if plan is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "there is no plan yet")
     today = max(plan_day(plan.start_date, clock.now(), plan.tz), 1)
-    tonight = plan_moment(plan.start_date, today, plan.study_time, plan.tz)
-    if clock.now() < tonight:
-        clock.move_to(tonight)
+    studied = (
+        plan_moment(plan.start_date, today, plan.study_time, plan.tz)
+        + plan.session_length
+    )
+    if clock.now() < studied:
+        clock.move_to(studied)
         await save_offset(session, clock.offset)
         await session.commit()
     await ticker.tick()

@@ -3,6 +3,7 @@ from datetime import datetime, time
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from kindred_api.chat import Thread
 from kindred_api.config import Settings
@@ -10,6 +11,7 @@ from kindred_api.plans import CurrentPlan
 from kindred_api.progress import checked_in_since, next_topic, studied_slugs
 from kindred_api.rituals import (
     BuddyNight,
+    Retried,
     RitualKind,
     RitualMessage,
     ask,
@@ -21,7 +23,7 @@ from kindred_api.rituals import (
 from kindred_api.schedule import plan_day, plan_moment
 from kindred_api.standing import load_standing
 from kindred_api.study import StudyStatus
-from kindred_contracts import Speaker, TopicRef
+from kindred_contracts import Speaker, TopicRef, still_shaky
 from kindred_db import Message, Ritual, StudySession, TopicNode
 from kindred_gate import list_notes
 
@@ -131,7 +133,54 @@ async def _morning(session: AsyncSession, today: Today) -> Composed | None:
     ):
         return None
     you = await next_topic(session, today.plan.id, today.now)
-    return Composed(morning(today.day, today.ref, you, today.plan.study_time))
+    retried = await _retried(session, today)
+    thanks = await _sorted_overnight(session, today)
+    return Composed(
+        morning(today.day, today.ref, you, today.plan.study_time, retried, thanks)
+    )
+
+
+async def _sorted_overnight(session: AsyncSession, today: Today) -> TopicRef | None:
+    """A topic the user helped sort out a shaky point on, reflected on overnight."""
+    notes = await list_notes(session, plan_id=today.plan.id, now=today.now)
+    midnight = today.at(time(0))
+    return next(
+        (
+            note.topic
+            for note in notes
+            if any(point.sorted_at >= midnight for point in note.sorted)
+        ),
+        None,
+    )
+
+
+async def _retried(session: AsyncSession, today: Today) -> Retried | None:
+    """An earlier topic studied again since midnight, after its night failed."""
+    midnight = today.at(time(0))
+    failed = aliased(StudySession)
+    row = (
+        await session.execute(
+            select(TopicNode, StudySession.status)
+            .join(StudySession, StudySession.node_id == TopicNode.id)
+            .join(failed, failed.node_id == TopicNode.id)
+            .where(
+                TopicNode.plan_id == today.plan.id,
+                StudySession.at >= midnight,
+                StudySession.at <= today.now,
+                failed.status == StudyStatus.FAILED.value,
+                failed.at < midnight,
+            )
+            .order_by(StudySession.at.desc())
+            .limit(1)
+        )
+    ).first()
+    if row is None:
+        return None
+    node, status = row
+    return Retried(
+        TopicRef(slug=node.slug, title=node.title, day=node.day),
+        worked=status == StudyStatus.WRITTEN.value,
+    )
 
 
 async def _study_share(session: AsyncSession, today: Today) -> Composed | None:
@@ -166,7 +215,7 @@ async def _ask(session: AsyncSession, today: Today) -> Composed | None:
     for note in reversed(notes):
         if note.topic.slug not in studied:
             continue
-        for shaky in note.shaky:
+        for shaky in still_shaky(note.shaky, note.sorted):
             if (note.note_id, shaky) not in asked:
                 return Composed(
                     ask(today.day, note.note_id, note.topic, shaky),
@@ -177,7 +226,12 @@ async def _ask(session: AsyncSession, today: Today) -> Composed | None:
 
 
 async def _night_review(session: AsyncSession, today: Today) -> Composed | None:
-    if not today.at(today.schedule.night) <= today.now < today.midnight:
+    # A long session can run past the usual time; the review waits for it to end.
+    start = max(
+        today.at(today.schedule.night),
+        today.at(today.plan.study_time) + today.plan.session_length,
+    )
+    if not start <= today.now < today.midnight:
         return None
     study = await _tonights_study(session, today)
     if study is None:
@@ -199,9 +253,10 @@ async def _night_review(session: AsyncSession, today: Today) -> Composed | None:
 
 async def _tonights_study(session: AsyncSession, today: Today) -> StudySession | None:
     study: StudySession | None = await session.scalar(
-        select(StudySession).where(
-            StudySession.node_id == today.topic.id, StudySession.at <= today.now
-        )
+        select(StudySession)
+        .where(StudySession.node_id == today.topic.id, StudySession.at <= today.now)
+        .order_by(StudySession.at)
+        .limit(1)
     )
     return study
 
@@ -236,12 +291,18 @@ async def _send(
 def next_ritual_at(
     plan: CurrentPlan, schedule: RitualSchedule, now: datetime
 ) -> datetime:
-    """The next moment a ritual can fire: a morning, a study (its share follows) or a
-    night review."""
+    """The next moment something happens: a morning, a study session starting, its end
+    (the note and its share follow) or a night review."""
     day = max(plan_day(plan.start_date, now, plan.tz), 1)
     moments = [
-        plan_moment(plan.start_date, d, local_time, plan.tz)
+        moment
         for d in (day, day + 1)
-        for local_time in (schedule.morning, plan.study_time, schedule.night)
+        for study in [plan_moment(plan.start_date, d, plan.study_time, plan.tz)]
+        for moment in (
+            plan_moment(plan.start_date, d, schedule.morning, plan.tz),
+            study,
+            study + plan.session_length,
+            plan_moment(plan.start_date, d, schedule.night, plan.tz),
+        )
     ]
     return min(m for m in moments if m > now)

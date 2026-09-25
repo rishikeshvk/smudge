@@ -4,7 +4,6 @@ import * as Device from "expo-device";
 import { router } from "expo-router";
 import { useEffect } from "react";
 
-import { listMessagesQueryKey } from "./api/@tanstack/react-query.gen";
 import { addPushToken } from "./api/sdk.gen";
 import { pushSupport } from "./pushSupport";
 
@@ -39,7 +38,8 @@ export function usePush(ready: boolean) {
       return;
     }
 
-    const refresh = () => queryClient.invalidateQueries({ queryKey: listMessagesQueryKey() });
+    // A ritual can come with a new note or a new day, so everything is fetched again.
+    const refresh = () => queryClient.invalidateQueries();
     const openChat = () => {
       refresh();
       router.navigate("/");

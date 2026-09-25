@@ -5,7 +5,7 @@ import httpx2
 import pytest
 
 from kindred_buddy.memory import MemoryWriter, build_prompt
-from kindred_contracts import ChatTurn, MemoryBrief, Speaker
+from kindred_contracts import DayMessage, MemoryBrief, Speaker
 from kindred_llm import LLMClient
 
 ScriptedLLM = Callable[[list[str]], tuple[LLMClient, list[httpx2.Request]]]
@@ -15,8 +15,19 @@ BRIEF = MemoryBrief(
     buddy_name="Juno",
     day=date(2026, 10, 5),
     conversation=[
-        ChatTurn(speaker=Speaker.USER, text="studying late again, work ran over"),
-        ChatTurn(speaker=Speaker.BUDDY, text="oof, same time tomorrow?"),
+        DayMessage(
+            speaker=Speaker.BUDDY,
+            text="morning. IAM tonight around 19:00, you?",
+            scheduled=True,
+        ),
+        DayMessage(
+            speaker=Speaker.USER,
+            text="studying late again, work ran over",
+            scheduled=False,
+        ),
+        DayMessage(
+            speaker=Speaker.BUDDY, text="oof, same time tomorrow?", scheduled=False
+        ),
     ],
     facts=["Studies after work, around 21:00."],
 )
@@ -27,7 +38,17 @@ def test_prompt_carries_the_day_and_what_is_remembered() -> None:
 
     assert "- Studies after work, around 21:00." in prompt
     assert "The chat on Monday 05 October:" in prompt
-    assert "user: studying late again, work ran over" in prompt
+    assert "them: studying late again, work ran over" in prompt
+
+
+def test_prompt_keeps_the_buddys_own_messages_apart_from_theirs() -> None:
+    prompt = build_prompt(BRIEF)
+
+    assert (
+        "Juno (you, scheduled message): morning. IAM tonight around 19:00, you?"
+        in prompt
+    )
+    assert "Juno (you): oof, same time tomorrow?" in prompt
 
 
 @pytest.mark.anyio

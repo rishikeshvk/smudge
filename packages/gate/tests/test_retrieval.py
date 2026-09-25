@@ -8,6 +8,7 @@ from kindred_db import (
     LedgerNote,
     NoteEmbedding,
     Plan,
+    ShakyResolution,
     SourceDocument,
     TopicNode,
     User,
@@ -203,3 +204,42 @@ async def test_the_notebook_lists_only_visible_notes_in_plan_order(
     assert await days(DAY_1 - timedelta(seconds=1)) == []
     assert await days(DAY_1) == [1]
     assert await days(DAY_2) == [1, 2]
+
+
+@pytest.mark.anyio
+async def test_a_sorted_point_stays_hidden_until_it_was_written(
+    session: AsyncSession,
+) -> None:
+    plan = await add_plan(session)
+    note = await add_note(session, plan, 1, DAY_1, axis(0))
+    sorted_at = DAY_1 + timedelta(hours=6)
+    session.add(
+        ShakyResolution(
+            note_id=note.id,
+            shaky="why regions?",
+            insight="regions keep failures apart",
+            written_at=sorted_at,
+        )
+    )
+    await session.flush()
+
+    async def sorted_points(now: datetime) -> tuple[list[str], list[str]]:
+        [listed] = await list_notes(session, plan_id=plan.id, now=now)
+        [retrieved] = await retrieve_notes(
+            session,
+            plan_id=plan.id,
+            query_embedding=axis(0),
+            model=MODEL,
+            now=now,
+            limit=1,
+        )
+        return (
+            [p.insight for p in listed.sorted],
+            [p.insight for p in retrieved.sorted],
+        )
+
+    assert await sorted_points(sorted_at - timedelta(seconds=1)) == ([], [])
+    assert await sorted_points(sorted_at) == (
+        ["regions keep failures apart"],
+        ["regions keep failures apart"],
+    )

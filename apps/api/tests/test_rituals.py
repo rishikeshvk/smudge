@@ -6,6 +6,7 @@ import pytest
 from kindred_api.catalog import load_curriculum
 from kindred_api.rituals import (
     BuddyNight,
+    Retried,
     RitualMessage,
     ask,
     failed_study_share,
@@ -31,6 +32,9 @@ def every_template(day: int) -> list[RitualMessage]:
         morning(day, A, B, time(19)),
         morning(day, A, A, time(19)),
         morning(day, A, None, time(19)),
+        morning(day, A, B, time(19), Retried(B, worked=True)),
+        morning(day, A, B, time(19), Retried(B, worked=False)),
+        morning(day, A, B, time(19), None, B),
         failed_study_share(day, A),
         ask(day, 1, B, "SHAKY"),
         *(
@@ -91,19 +95,33 @@ def test_morning_says_when_the_buddy_studies_and_where_the_user_is() -> None:
     message = morning(1, A, B, time(19))
 
     assert "Topic A" in message.text and "19:00" in message.text
-    assert message.text.endswith("you're on Topic B.")
+    assert "yours is Topic B." in message.text
     assert message.card.model_dump()["quick_replies"]
+
+
+def test_morning_names_a_shared_topic_once() -> None:
+    message = morning(1, A, A, time(19))
+
+    assert message.text.count("Topic A") == 1
+    assert "same one for you." in message.text
 
 
 def test_night_review_is_honest_about_the_gap() -> None:
     behind = night_review(4, A, BuddyNight.STUDIED, None, 2, 1).text
     ahead = night_review(4, A, BuddyNight.NOT_YET, B, 3, -2).text
 
-    assert "did you get to yours today?" in behind
-    assert "you're 1 topic behind me right now." in behind
-    assert "you did Topic B: 3 days in a row for us." in ahead
-    assert "you're 2 topics ahead of me, nice." in ahead
-    assert "I haven't sat down with Topic A yet." in ahead
+    assert "did you get to yours?" in behind
+    assert "you're 1 topic behind me for now." in behind
+    assert "you got through Topic B. that's 3 days running." in ahead
+    assert "you're 2 topics ahead of me." in ahead
+    assert "haven't got to Topic A yet." in ahead
+
+
+def test_night_review_names_a_shared_topic_once() -> None:
+    text = night_review(4, A, BuddyNight.STUDIED, A, 1, 0).text
+
+    assert text.count("Topic A") == 1
+    assert "you did it too. first day of a new streak." in text
 
 
 def test_the_ask_quotes_its_shaky_point() -> None:

@@ -103,3 +103,25 @@ async def test_history_includes_replies_sent_after_this_message_was_queued(
         ChatTurn(speaker=Speaker.USER, text="hi"),
         ChatTurn(speaker=Speaker.BUDDY, text="hey!"),
     ]
+
+
+@pytest.mark.anyio
+async def test_an_acknowledgement_is_reacted_to_instead_of_queued(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    plan = await add_course(1)
+    session.add(
+        Message(
+            user_id=plan.user_id,
+            speaker=Speaker.BUDDY.value,
+            text="topic 1 went fine.",
+            at=NOW,
+        )
+    )
+
+    thanks = await post_message(session, plan.user_id, "thanks!", NOW)
+    question = await post_message(session, plan.user_id, "what was hard?", NOW)
+
+    assert (thanks.stage, thanks.reaction) == (TurnStage.ANSWERED.value, "❤️")
+    assert (question.stage, question.reaction) == (TurnStage.QUEUED.value, None)
+    assert await next_queued(session) == question
