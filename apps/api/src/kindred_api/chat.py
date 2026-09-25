@@ -36,7 +36,11 @@ def to_contract(message: Message) -> ChatMessage:
 
 
 async def post_message(
-    session: AsyncSession, user_id: int, text: str, now: datetime
+    session: AsyncSession,
+    user_id: int,
+    text: str,
+    now: datetime,
+    card: MessageCard | None = None,
 ) -> Message:
     """Queue a message for a turn, unless it's an "ok" the buddy only reacts to."""
     last = await session.scalar(
@@ -59,6 +63,7 @@ async def post_message(
         at=now,
         stage=(TurnStage.QUEUED if reaction is None else TurnStage.ANSWERED).value,
         reaction=reaction,
+        card=CARD.dump_python(card, mode="json") if card is not None else None,
     )
     session.add(message)
     await session.flush()

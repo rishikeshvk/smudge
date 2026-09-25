@@ -3,7 +3,7 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, Field, SecretStr
 
-from kindred_contracts.cards import MessageCard
+from kindred_contracts.cards import Feeling, MessageCard
 from kindred_contracts.curriculum import Contract
 from kindred_contracts.persona import Mood, Studying
 from kindred_contracts.planning import PlanProposal
@@ -95,6 +95,11 @@ class RoadmapView(Contract):
     gap: int
     checked_in_today: bool
     topics: list[RoadmapTopic]
+
+
+class CheckIn(Contract):
+    feeling: Feeling
+    fuzzy: str | None = Field(default=None, min_length=1, max_length=280)
 
 
 class PullTopic(Contract):

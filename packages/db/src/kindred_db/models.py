@@ -178,8 +178,9 @@ class Message(Base):
         ForeignKey("messages.id"), unique=True
     )
     turn_id: Mapped[int | None] = mapped_column(ForeignKey("turns.id"))
-    # A ritual's card: what the app draws around the text.
-    card: Mapped[dict[str, object] | None] = mapped_column(JSONB)
+    # What the app draws around the text: a ritual, or the user's own moment. None is
+    # stored as SQL NULL, so "no card" is one thing in queries.
+    card: Mapped[dict[str, object] | None] = mapped_column(JSONB(none_as_null=True))
     # The buddy's emoji on a user message it acknowledged instead of replying to.
     reaction: Mapped[str | None]
 
@@ -191,6 +192,9 @@ class StudyCheckin(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     node_id: Mapped[int] = mapped_column(ForeignKey("topic_nodes.id"), unique=True)
     at: Mapped[datetime]
+    # How it went for the user: solid, okay or rough, and what's still fuzzy.
+    feeling: Mapped[str | None]
+    fuzzy: Mapped[str | None]
 
 
 # A night's study of a topic: the note it wrote, or why it wrote nothing. A failed

@@ -3,12 +3,16 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_contracts import TopicRef
+from kindred_contracts import CheckIn, Feeling, TopicRef
 from kindred_db import StudyCheckin, TopicNode
 
 
 async def check_in(
-    session: AsyncSession, plan_id: int, now: datetime
+    session: AsyncSession,
+    plan_id: int,
+    now: datetime,
+    feeling: Feeling | None = None,
+    fuzzy: str | None = None,
 ) -> TopicRef | None:
     """Mark the user's next topic studied, in plan order; None once all are done."""
     node = await session.scalar(
@@ -20,7 +24,14 @@ async def check_in(
     )
     if node is None:
         return None
-    session.add(StudyCheckin(node_id=node.id, at=now))
+    session.add(
+        StudyCheckin(
+            node_id=node.id,
+            at=now,
+            feeling=feeling.value if feeling is not None else None,
+            fuzzy=fuzzy,
+        )
+    )
     await session.flush()
     return TopicRef(slug=node.slug, title=node.title, day=node.day)
 
@@ -71,3 +82,11 @@ async def checked_in_since(
     if node is None:
         return None
     return TopicRef(slug=node.slug, title=node.title, day=node.day)
+
+
+def checkin_text(topic: TopicRef, checkin: CheckIn) -> str:
+    """The check-in as the user's own message, so the buddy can compare notes."""
+    text = f"finished {topic.title}, felt {checkin.feeling.value}."
+    if checkin.fuzzy:
+        text += f" still fuzzy on: {checkin.fuzzy}"
+    return text

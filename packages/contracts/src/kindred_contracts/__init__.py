@@ -3,6 +3,7 @@ from kindred_contracts.api import (
     AdvanceClock,
     BuddyStatus,
     ChatMessage,
+    CheckIn,
     ClockChange,
     ClockView,
     ConnectionCheck,
@@ -25,7 +26,12 @@ from kindred_contracts.api import (
     SendMessage,
     StudyTimeChange,
 )
-from kindred_contracts.cards import MessageCard, StudyTogetherCard
+from kindred_contracts.cards import (
+    CheckinCard,
+    Feeling,
+    MessageCard,
+    StudyTogetherCard,
+)
 from kindred_contracts.curriculum import (
     Curriculum,
     StudyNote,
@@ -107,6 +113,8 @@ __all__ = [
     "RitualCard",
     "MessageCard",
     "StudyTogetherCard",
+    "CheckinCard",
+    "Feeling",
     "StudyShareCard",
     "ConnectionCheck",
     "LLMSettingsUpdate",
@@ -134,6 +142,7 @@ __all__ = [
     "StudyBrief",
     "AdvanceClock",
     "BuddyStatus",
+    "CheckIn",
     "ChatMessage",
     "ClockChange",
     "ClockView",
