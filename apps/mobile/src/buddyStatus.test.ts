@@ -49,7 +49,7 @@ describe("buddyStatusLine", () => {
   it("names the topic, the time left and how far through the session it is", () => {
     expect(buddyStatusLine({ ...buddy, studying }, roadmap, now)).toEqual({
       avatar: "studying",
-      text: "studying Topic 2 · 30 min left",
+      text: "studying · 30 min left · Topic 2",
       lamp: true,
       progress: 0.5,
     });

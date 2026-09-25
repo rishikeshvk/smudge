@@ -38,7 +38,8 @@ export function buddyStatusLine(
     const progress = start ? Math.min(Math.max((now.getTime() - start) / (until - start), 0), 1) : null;
     return {
       avatar: "studying",
-      text: `studying ${studying.topic.title} · ${left} min left`,
+      // The time left goes first: the header is one line, so a long title gets cut instead.
+      text: `studying · ${left} min left · ${studying.topic.title}`,
       lamp: true,
       progress,
     };
