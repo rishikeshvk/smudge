@@ -77,6 +77,7 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make users` — who has an account, a buddy, a plan, and how many phones are signed in
 - `make revoke ARGS='--user 3'` — sign a user out on every phone and stop their pushes
 - `make llm-ping` — one real call to the configured LLM endpoint
+- `make icons` — render the app icon, splash and notification icon from `apps/mobile/assets/brand` (native: rebuild after)
 - `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
 - `make mobile-build` — build the Android development build (EAS) that push notifications need; install its APK
 - `make mobile` — Expo dev server for the development build (press `s` to switch to Expo Go, which has no push)
