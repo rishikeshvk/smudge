@@ -1,3 +1,4 @@
+import { setAudioModeAsync, useAudioPlayer } from "expo-audio";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useEffect } from "react";
@@ -19,6 +20,9 @@ import { Button } from "./Button";
 import { SEAL_PATH } from "./sealPath";
 
 const STAMP_MS = 480;
+// The stamp first reaches full size about a third of the way in: the moment it lands.
+const LAND_MS = 150;
+const STAMP_SOUND = require("../../assets/sounds/seal-stamp.wav");
 const SEAL = 132;
 const RAYS = 204;
 
@@ -60,24 +64,42 @@ type Props = {
   onClose: () => void;
 };
 
-// The study seal: stamped once per check-in, with one medium haptic. No points, no confetti.
+// The study seal: stamped once per check-in, with one thunk you hear and feel as it lands.
+// No points, no confetti.
 export function StudySeal({ topic, caption, onClose }: Props) {
   const reduced = useReducedMotion();
   const theme = useThemeName();
   const lamp = useThemeColor("lamp");
   const onLamp = useThemeColor("on-lamp");
   const progress = useSharedValue(reduced ? 1 : 0);
+  const thunk = useAudioPlayer(STAMP_SOUND);
+
+  // A quarter-second effect shouldn't pause whatever the user is listening to.
+  useEffect(() => {
+    setAudioModeAsync({ interruptionMode: "mixWithOthers" }).catch((error: unknown) =>
+      console.warn("Couldn't set the audio mode", error),
+    );
+  }, []);
 
   useEffect(() => {
     if (!topic) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    if (reduced) return;
+    const land = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      thunk.seekTo(0);
+      thunk.play();
+    };
+    if (reduced) {
+      land();
+      return;
+    }
     progress.value = 0;
     progress.value = withTiming(1, {
       duration: STAMP_MS,
       easing: Easing.bezier(0.2, 1.4, 0.4, 1),
     });
-  }, [topic, reduced, progress]);
+    const landing = setTimeout(land, LAND_MS);
+    return () => clearTimeout(landing);
+  }, [topic, reduced, progress, thunk]);
 
   const stamp = useAnimatedStyle(() => ({
     opacity: Math.min(progress.value, 1),
