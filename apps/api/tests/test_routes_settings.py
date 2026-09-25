@@ -80,3 +80,21 @@ async def test_an_unreachable_endpoint_fails_the_check_without_details(
     assert response.json()["ok"] is False
     assert response.json()["models"] == []
     assert KEY not in response.text
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize(
+    ("method", "path"),
+    [("GET", "/settings"), ("PUT", "/settings"), ("POST", "/settings/test")],
+)
+async def test_a_friend_cannot_see_or_change_the_endpoint(
+    api: ApiClient, runtime: LLMRuntime, add_user: AddUser, method: str, path: str
+) -> None:
+    friend = await add_user()
+
+    response = await api(FixedClock(NOW), None, friend.id).request(
+        method, path, json={}
+    )
+
+    assert response.status_code == 403
+    assert KEY not in response.text

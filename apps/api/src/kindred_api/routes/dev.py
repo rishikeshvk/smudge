@@ -1,10 +1,16 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.clock import OffsetClock
-from kindred_api.dependencies import DevClockDep, OwnerDep, SessionDep, TickerDep
+from kindred_api.dependencies import (
+    DevClockDep,
+    OwnerDep,
+    SessionDep,
+    TickerDep,
+    get_owner,
+)
 from kindred_api.dev_clock import save_offset
 from kindred_api.director import next_ritual_at
 from kindred_api.plans import load_current_plan
@@ -17,7 +23,8 @@ from kindred_contracts import (
     ResetClock,
 )
 
-router = APIRouter(prefix="/dev", tags=["dev"])
+# The dev clock is server-wide; checked first, before any other dependency.
+router = APIRouter(prefix="/dev", tags=["dev"], dependencies=[Depends(get_owner)])
 
 
 @router.get("/clock")

@@ -160,3 +160,14 @@ async def test_next_ritual_moves_to_the_next_ritual_moment_and_ticks(
         "2026-10-02T02:30:00Z",
     ]
     assert ticker.ticks == 4
+
+
+@pytest.mark.anyio
+async def test_a_friend_has_no_time_controls(api: ApiClient, add_user: AddUser) -> None:
+    friend = await add_user()
+    client = api(OffsetClock(FixedClock(REAL_NOW), timedelta()), None, friend.id)
+
+    moved = await client.post("/dev/clock", json={"kind": "advance", "hours": 24})
+    studied = await client.post("/dev/study-now")
+
+    assert (moved.status_code, studied.status_code) == (403, 403)
