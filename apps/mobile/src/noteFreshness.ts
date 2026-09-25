@@ -11,10 +11,3 @@ export function isFogged(
   if (!firstOpened) return false;
   return Date.parse(note.written_at) > Date.parse(firstOpened) && !lifted.includes(note.note_id);
 }
-
-export function notebookCaption(notes: NotebookNote[]): string {
-  if (notes.length === 0) return "nothing written yet";
-  const shaky = notes.filter((note) => note.shaky.length > 0).length;
-  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
-  return `${plural(notes.length, "note")} · ${shaky} still ${shaky === 1 ? "has" : "have"} shaky parts`;
-}

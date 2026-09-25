@@ -13,6 +13,7 @@ export type StatusLine = {
 
 // Moods with a reason read as a friend's status; the reason names public titles only.
 const MOOD_LINES: Partial<Record<MoodKind, string>> = {
+  upbeat: "in a good place",
   tired: "winding down",
   flat: "a bit flat",
   fried: "a bit fried",
@@ -45,7 +46,9 @@ export function buddyStatusLine(
 
   const line = MOOD_LINES[mood.kind];
   if (line && mood.reason) {
-    return { avatar: "dim", text: `${line} · ${mood.reason}`, lamp: false, progress: null };
+    // A low mood dims the lamp; a good one leaves it as it is.
+    const avatar = mood.kind === "upbeat" ? "idle" : "dim";
+    return { avatar, text: `${line} · ${mood.reason}`, lamp: false, progress: null };
   }
 
   // Topics unlock at the plan's study time, so the next unlock is when the buddy studies next.

@@ -14,9 +14,10 @@ import { Screen } from "@/components/Screen";
 import { ScreenHeader } from "@/components/ScreenHeader";
 import { SealedNote } from "@/components/SealedNote";
 import { useKindredNow } from "@/kindredNow";
-import { isFogged, notebookCaption } from "@/noteFreshness";
+import { isFogged } from "@/noteFreshness";
 import { usePref } from "@/prefs";
 import { useRefetchOnScreenFocus } from "@/queryClient";
+import { notebookCaption } from "@/shaky";
 import { relativeDay, upcomingDay } from "@/time";
 
 export default function Notebook() {

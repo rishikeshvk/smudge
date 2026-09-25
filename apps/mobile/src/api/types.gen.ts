@@ -364,7 +364,7 @@ export type Mood = {
 /**
  * MoodKind
  */
-export type MoodKind = 'steady' | 'focused' | 'tired' | 'flat' | 'fried';
+export type MoodKind = 'steady' | 'focused' | 'upbeat' | 'tired' | 'flat' | 'fried';
 
 /**
  * MorningCard
@@ -429,6 +429,10 @@ export type NotebookNote = {
      * Shaky
      */
     shaky: Array<string>;
+    /**
+     * Sorted
+     */
+    sorted: Array<SortedPoint>;
     /**
      * Sources
      */
@@ -588,6 +592,10 @@ export type RetrievedNote = {
      */
     shaky: Array<string>;
     /**
+     * Sorted
+     */
+    sorted: Array<SortedPoint>;
+    /**
      * Distance
      */
     distance: number;
@@ -705,6 +713,26 @@ export type SendMessage = {
      * Text
      */
     text: string;
+};
+
+/**
+ * SortedPoint
+ *
+ * A shaky point the user helped the buddy sort out, and what it gets now.
+ */
+export type SortedPoint = {
+    /**
+     * Shaky
+     */
+    shaky: string;
+    /**
+     * Insight
+     */
+    insight: string;
+    /**
+     * Sorted At
+     */
+    sorted_at: string;
 };
 
 /**

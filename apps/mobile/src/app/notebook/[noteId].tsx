@@ -10,6 +10,9 @@ import { BackHeader } from "@/components/BackHeader";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { NoteBody } from "@/components/NoteBody";
+import { useKindredNow } from "@/kindredNow";
+import { stillShaky } from "@/shaky";
+import { relativeDay } from "@/time";
 
 function sourceLabel(url: string): string {
   return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
@@ -20,6 +23,7 @@ export default function NoteDetail() {
   const { noteId } = useLocalSearchParams<{ noteId: string }>();
   const note = useQuery(readNoteOptions({ path: { note_id: Number(noteId) } }));
   const buddy = useBuddy();
+  const now = useKindredNow();
   const name = buddy.data?.name ?? "Your buddy";
 
   return (
@@ -37,14 +41,31 @@ export default function NoteDetail() {
                 <Text className="font-title text-title text-ink">{note.data.topic.title}</Text>
               </View>
               <NoteBody markdown={note.data.body} />
-              {note.data.shaky.length > 0 && (
+              {stillShaky(note.data).length > 0 && (
                 // Labelled as well as highlighted, so colour is never the only cue.
                 <View className="gap-1 rounded-sm bg-surface p-3">
                   <Text className="font-label text-label uppercase text-ink-muted">Still shaky</Text>
-                  {note.data.shaky.map((point) => (
+                  {stillShaky(note.data).map((point) => (
                     <Text key={point} className="font-body text-body text-ink">
                       <Text className="bg-pencil-soft">{point}</Text>
                     </Text>
+                  ))}
+                </View>
+              )}
+              {note.data.sorted.length > 0 && (
+                <View className="gap-3 rounded-sm bg-surface p-3">
+                  <Text className="font-label text-label uppercase text-ink-muted">Sorted with your help</Text>
+                  {note.data.sorted.map((point) => (
+                    <View key={point.shaky} className="flex-row gap-2">
+                      <Text className="font-body-strong text-body text-you">✓</Text>
+                      <View className="flex-1 gap-1">
+                        <Text className="font-body text-body text-ink-muted line-through">{point.shaky}</Text>
+                        <Text className="font-body text-body text-ink">{point.insight}</Text>
+                        <Text className="font-meta text-meta text-ink-muted">
+                          {`sorted with your help · ${relativeDay(point.sorted_at, now)}`}
+                        </Text>
+                      </View>
+                    </View>
                   ))}
                 </View>
               )}

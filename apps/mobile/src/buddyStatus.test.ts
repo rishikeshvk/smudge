@@ -63,6 +63,14 @@ describe("buddyStatusLine", () => {
     });
   });
 
+  it("keeps the lamp as it is when the mood is good", () => {
+    const upbeat = { ...buddy, mood: { kind: "upbeat" as const, reason: "IAM finally clicked, thanks to you" } };
+    expect(buddyStatusLine(upbeat, roadmap, now)).toMatchObject({
+      avatar: "idle",
+      text: "in a good place · IAM finally clicked, thanks to you",
+    });
+  });
+
   it("says when the buddy studies next, from the next unlock", () => {
     expect(buddyStatusLine(buddy, roadmap, now, "Asia/Kolkata").text).toBe(
       "around · studies at ~19:00",

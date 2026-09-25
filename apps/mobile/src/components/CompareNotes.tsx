@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 
 import { readNotebookOptions } from "@/api/@tanstack/react-query.gen";
 import type { CheckinCard } from "@/api/types.gen";
+import { stillShaky } from "@/shaky";
 
 function Side({ who, lines, empty }: { who: string; lines: string[]; empty: string }) {
   return (
@@ -36,7 +37,7 @@ export function CompareNotes({ card, buddyName }: { card: CheckinCard; buddyName
         <Side who="You" lines={card.fuzzy ? [card.fuzzy] : []} empty="nothing fuzzy" />
         <Side
           who={buddyName}
-          lines={note?.shaky ?? []}
+          lines={note ? stillShaky(note) : []}
           empty={note ? "nothing shaky" : "hasn't studied it yet"}
         />
       </View>
