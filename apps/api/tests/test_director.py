@@ -6,9 +6,11 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.director import RitualSchedule, next_ritual_at, send_due_rituals
+from kindred_api.ledger import append_resolution
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.progress import check_in
 from kindred_db import Message, Plan
+from kindred_gate import list_notes
 
 AddCourse = Callable[[int], Awaitable[Plan]]
 AddStudy = Callable[..., Awaitable[None]]
@@ -217,3 +219,40 @@ async def test_the_morning_says_how_a_retry_went(
 
     assert "had another go at Topic 1 overnight and it worked" in message.text
     assert message.text.count("Topic 2") == 1
+
+
+async def sort_out(
+    session: AsyncSession, plan: CurrentPlan, shaky: str, at: datetime
+) -> None:
+    [note] = await list_notes(session, plan_id=plan.id, now=at)
+    await append_resolution(
+        session, note_id=note.note_id, shaky=shaky, insight="got it now", written_at=at
+    )
+
+
+@pytest.mark.anyio
+async def test_the_ask_skips_points_the_user_already_sorted_out(
+    session: AsyncSession, add_course: AddCourse, add_study: AddStudy
+) -> None:
+    plan = await current(session, add_course, 1)
+    await add_study(1, local(1, 20), shaky=["why regions?", "what's an AZ?"])
+    await check_in(session, plan.id, local(1, 20, 30))
+    await sort_out(session, plan, "why regions?", local(1, 20, 45))
+
+    sent = await send_due_rituals(session, plan, SCHEDULE, local(1, 21))
+
+    [ask] = [m for m in sent if m.card is not None and m.card["kind"] == "ask"]
+    assert "what's an AZ?" in ask.text
+
+
+@pytest.mark.anyio
+async def test_the_morning_thanks_the_user_for_what_they_sorted_out(
+    session: AsyncSession, add_course: AddCourse, add_study: AddStudy
+) -> None:
+    plan = await current(session, add_course, 2)
+    await add_study(1, local(1, 20))
+    await sort_out(session, plan, "shaky 1", local(2, 0, 5))
+
+    [message] = await send_due_rituals(session, plan, SCHEDULE, local(2, 8))
+
+    assert "thought about what you said on Topic 1" in message.text

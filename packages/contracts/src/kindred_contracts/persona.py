@@ -10,6 +10,7 @@ from kindred_contracts.turn import TopicRef
 class MoodKind(StrEnum):
     STEADY = "steady"
     FOCUSED = "focused"
+    UPBEAT = "upbeat"
     TIRED = "tired"
     FLAT = "flat"
     FRIED = "fried"

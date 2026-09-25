@@ -23,7 +23,7 @@ def at(hour: int) -> datetime:
 def test_mid_session_the_buddy_is_focused() -> None:
     studying = Studying(topic=TopicRef(slug="iam", title="IAM", day=2), until=at(20))
 
-    assert mood(at(19), studying, None) == Mood(
+    assert mood(at(19), studying, None, None) == Mood(
         kind=MoodKind.FOCUSED, reason="mid-way through IAM"
     )
 
@@ -31,22 +31,33 @@ def test_mid_session_the_buddy_is_focused() -> None:
 def test_late_at_night_the_buddy_is_tired() -> None:
     fried = Tonight("IAM", StudyStatus.WRITTEN, shaky=3)
 
-    assert mood(at(23), None, fried).kind is MoodKind.TIRED
-    assert mood(at(2), None, None).kind is MoodKind.TIRED
-    assert mood(at(6), None, None) == STEADY
+    assert mood(at(23), None, fried, None).kind is MoodKind.TIRED
+    assert mood(at(2), None, None, None).kind is MoodKind.TIRED
+    assert mood(at(6), None, None, None) == STEADY
 
 
 def test_a_failed_night_leaves_it_flat() -> None:
-    assert mood(at(20), None, Tonight("IAM", StudyStatus.FAILED, shaky=0)) == Mood(
-        kind=MoodKind.FLAT, reason="IAM didn't come together tonight"
-    )
+    assert mood(
+        at(20), None, Tonight("IAM", StudyStatus.FAILED, shaky=0), None
+    ) == Mood(kind=MoodKind.FLAT, reason="IAM didn't come together tonight")
 
 
 def test_a_topic_full_of_shaky_points_leaves_it_fried() -> None:
-    assert mood(at(20), None, Tonight("IAM", StudyStatus.WRITTEN, shaky=3)) == Mood(
-        kind=MoodKind.FRIED, reason="IAM was a lot"
+    assert mood(
+        at(20), None, Tonight("IAM", StudyStatus.WRITTEN, shaky=3), None
+    ) == Mood(kind=MoodKind.FRIED, reason="IAM was a lot")
+    assert (
+        mood(at(20), None, Tonight("IAM", StudyStatus.WRITTEN, shaky=1), None) == STEADY
     )
-    assert mood(at(20), None, Tonight("IAM", StudyStatus.WRITTEN, shaky=1)) == STEADY
+
+
+def test_a_point_the_user_helped_sort_out_lifts_the_mood() -> None:
+    iam = TopicRef(slug="iam", title="IAM", day=2)
+    fried = Tonight("S3", StudyStatus.WRITTEN, shaky=3)
+
+    assert mood(at(20), None, fried, iam) == Mood(
+        kind=MoodKind.UPBEAT, reason="IAM finally clicked, thanks to you"
+    )
 
 
 @pytest.mark.anyio

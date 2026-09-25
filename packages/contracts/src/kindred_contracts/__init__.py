@@ -39,7 +39,12 @@ from kindred_contracts.curriculum import (
     VocabularyKind,
     VocabularyTerm,
 )
-from kindred_contracts.knowledge import RetrievedNote, SortedPoint, SourceExcerpt
+from kindred_contracts.knowledge import (
+    RetrievedNote,
+    SortedPoint,
+    SourceExcerpt,
+    still_shaky,
+)
 from kindred_contracts.memory import (
     MAX_FACTS,
     DayMessage,
@@ -181,6 +186,7 @@ __all__ = [
     "ProbeTime",
     "RetrievedNote",
     "SortedPoint",
+    "still_shaky",
     "MAX_INSIGHT_WORDS",
     "ReflectedPoint",
     "Reflection",

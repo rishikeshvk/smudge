@@ -5,7 +5,8 @@ An AI study buddy that learns the same subject as the user, on its own schedule,
 and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 
 ## Hard invariants — never violate
-1. The knowledge ledger is append-only. Never UPDATE or DELETE its rows.
+1. The knowledge ledger (notes and the shaky points the user helped sort out) is
+   append-only. Never UPDATE or DELETE its rows.
 2. All knowledge retrieval goes through one repository function that applies the
    unlock-date filter in SQL. Never write a gated query anywhere else.
 3. Components exchange typed Pydantic schemas from `packages/contracts`, never

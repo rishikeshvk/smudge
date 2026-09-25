@@ -34,6 +34,7 @@ def every_template(day: int) -> list[RitualMessage]:
         morning(day, A, None, time(19)),
         morning(day, A, B, time(19), Retried(B, worked=True)),
         morning(day, A, B, time(19), Retried(B, worked=False)),
+        morning(day, A, B, time(19), None, B),
         failed_study_share(day, A),
         ask(day, 1, B, "SHAKY"),
         *(

@@ -18,6 +18,7 @@ from kindred_contracts import (
     RetrievedNote,
     RoadmapEntry,
     Route,
+    SortedPoint,
     Speaker,
     Studying,
     TopicRef,
@@ -196,3 +197,28 @@ def test_mid_session_the_buddy_replies_briefly_without_a_note() -> None:
 
     assert "mid-way through studying IAM policies, until 22:00" in prompt
     assert "Right now" not in build_prompt(request(DEFLECT), CONTEXT)
+
+
+def test_a_point_they_helped_sort_out_is_no_longer_shaky() -> None:
+    [note] = request(DEFLECT).notes
+    sorted_note = note.model_copy(
+        update={
+            "shaky": ["authN vs authZ", "what's a role?"],
+            "sorted": [
+                SortedPoint(
+                    shaky="authN vs authZ",
+                    insight="authN is who you are, authZ is what you may do",
+                    sorted_at=datetime(2026, 10, 5, 0, 5, tzinfo=ZoneInfo("UTC")),
+                )
+            ],
+        }
+    )
+    context_request = request(DEFLECT).model_copy(update={"notes": [sorted_note]})
+
+    prompt = build_prompt(context_request, CONTEXT)
+
+    assert "Still shaky on: what's a role?" in prompt
+    assert (
+        "Sorted with their help: authN vs authZ -> authN is who you are, authZ is "
+        "what you may do" in prompt
+    )

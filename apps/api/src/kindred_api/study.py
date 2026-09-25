@@ -18,6 +18,7 @@ from kindred_contracts import (
     StudyBrief,
     TopicRef,
     Verdict,
+    still_shaky,
 )
 from kindred_db import Plan, StudySession, TopicNode
 from kindred_gate import TopicMap, list_notes, load_topic_map, read_sources
@@ -101,7 +102,7 @@ async def study_topic(
 
     topics = await load_topic_map(session, plan.id)
     earlier = [
-        EarlierNote(topic=note.topic, shaky=note.shaky)
+        EarlierNote(topic=note.topic, shaky=still_shaky(note.shaky, note.sorted))
         for note in await list_notes(session, plan_id=plan.id, now=now)
         if note.topic.day < node.day
     ]

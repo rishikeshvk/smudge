@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import select
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.schedule import plan_day
 from kindred_api.study import StudyStatus
-from kindred_contracts import Mood, MoodKind, Studying
+from kindred_contracts import Mood, MoodKind, Studying, TopicRef
 from kindred_db import Plan, StudySession, TopicNode
 from kindred_gate import list_notes
 
@@ -16,6 +16,8 @@ LATE_FROM = 23
 LATE_UNTIL = 6
 # The most shaky points a note may have: the whole topic felt hard.
 FRIED_SHAKY = 3
+# How long a point the user helped sort out keeps the buddy upbeat.
+UPBEAT_FOR = timedelta(hours=24)
 
 STEADY = Mood(kind=MoodKind.STEADY, reason=None)
 
@@ -30,7 +32,10 @@ class Tonight:
 
 
 def mood(
-    local_now: datetime, studying: Studying | None, tonight: Tonight | None
+    local_now: datetime,
+    studying: Studying | None,
+    tonight: Tonight | None,
+    sorted_lately: TopicRef | None,
 ) -> Mood:
     """The buddy's mood comes only from its own day, never from the user's gap, streak
     or check-ins, so it can't turn into a guilt lever."""
@@ -40,12 +45,18 @@ def mood(
         )
     if local_now.hour >= LATE_FROM or local_now.hour < LATE_UNTIL:
         return Mood(kind=MoodKind.TIRED, reason="it's late")
-    if tonight is None:
-        return STEADY
-    if tonight.status is StudyStatus.FAILED:
+    if tonight is not None and tonight.status is StudyStatus.FAILED:
         return Mood(
             kind=MoodKind.FLAT, reason=f"{tonight.title} didn't come together tonight"
         )
+    # Credit for sorting it out goes to the user, which is a lift, never a debt.
+    if sorted_lately is not None:
+        return Mood(
+            kind=MoodKind.UPBEAT,
+            reason=f"{sorted_lately.title} finally clicked, thanks to you",
+        )
+    if tonight is None:
+        return STEADY
     if tonight.shaky >= FRIED_SHAKY:
         return Mood(kind=MoodKind.FRIED, reason=f"{tonight.title} was a lot")
     return STEADY
@@ -72,10 +83,18 @@ async def load_mood(
             .limit(1)
         )
     ).first()
+    notes = await list_notes(session, plan_id=plan_id, now=now)
     tonight = None
     if row is not None:
         title, slug, status = row
-        notes = await list_notes(session, plan_id=plan_id, now=now)
         shaky = next((len(n.shaky) for n in notes if n.topic.slug == slug), 0)
         tonight = Tonight(title, StudyStatus(status), shaky)
-    return mood(now.astimezone(tz), studying, tonight)
+    sorted_lately = next(
+        (
+            note.topic
+            for note in notes
+            if any(point.sorted_at > now - UPBEAT_FOR for point in note.sorted)
+        ),
+        None,
+    )
+    return mood(now.astimezone(tz), studying, tonight, sorted_lately)

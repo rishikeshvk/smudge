@@ -15,6 +15,7 @@ from kindred_contracts import (
     Speaker,
     TurnTrace,
     Verdict,
+    still_shaky,
 )
 from kindred_db import ReflectionDay, TopicNode, Turn
 from kindred_gate import list_notes, load_topic_map, read_sources
@@ -70,8 +71,7 @@ async def reflect_day(
     written = 0
     for note in await list_notes(session, plan_id=plan.id, now=now):
         said = exchanges.get(note.topic.slug)
-        done = {point.shaky for point in note.sorted}
-        still_open = [shaky for shaky in note.shaky if shaky not in done]
+        still_open = still_shaky(note.shaky, note.sorted)
         if not said or not still_open:
             continue
         node_id = await session.scalar(

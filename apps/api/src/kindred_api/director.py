@@ -23,7 +23,7 @@ from kindred_api.rituals import (
 from kindred_api.schedule import plan_day, plan_moment
 from kindred_api.standing import load_standing
 from kindred_api.study import StudyStatus
-from kindred_contracts import Speaker, TopicRef
+from kindred_contracts import Speaker, TopicRef, still_shaky
 from kindred_db import Message, Ritual, StudySession, TopicNode
 from kindred_gate import list_notes
 
@@ -134,7 +134,24 @@ async def _morning(session: AsyncSession, today: Today) -> Composed | None:
         return None
     you = await next_topic(session, today.plan.id, today.now)
     retried = await _retried(session, today)
-    return Composed(morning(today.day, today.ref, you, today.plan.study_time, retried))
+    thanks = await _sorted_overnight(session, today)
+    return Composed(
+        morning(today.day, today.ref, you, today.plan.study_time, retried, thanks)
+    )
+
+
+async def _sorted_overnight(session: AsyncSession, today: Today) -> TopicRef | None:
+    """A topic the user helped sort out a shaky point on, reflected on overnight."""
+    notes = await list_notes(session, plan_id=today.plan.id, now=today.now)
+    midnight = today.at(time(0))
+    return next(
+        (
+            note.topic
+            for note in notes
+            if any(point.sorted_at >= midnight for point in note.sorted)
+        ),
+        None,
+    )
 
 
 async def _retried(session: AsyncSession, today: Today) -> Retried | None:
@@ -198,7 +215,7 @@ async def _ask(session: AsyncSession, today: Today) -> Composed | None:
     for note in reversed(notes):
         if note.topic.slug not in studied:
             continue
-        for shaky in note.shaky:
+        for shaky in still_shaky(note.shaky, note.sorted):
             if (note.note_id, shaky) not in asked:
                 return Composed(
                     ask(today.day, note.note_id, note.topic, shaky),

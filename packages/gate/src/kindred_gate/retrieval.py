@@ -42,7 +42,11 @@ async def _sorted(
     by_note: dict[int, list[SortedPoint]] = {note_id: [] for note_id in note_ids}
     for resolution in resolutions:
         by_note[resolution.note_id].append(
-            SortedPoint(shaky=resolution.shaky, insight=resolution.insight)
+            SortedPoint(
+                shaky=resolution.shaky,
+                insight=resolution.insight,
+                sorted_at=resolution.written_at,
+            )
         )
     return by_note
 

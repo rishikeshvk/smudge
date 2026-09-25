@@ -51,6 +51,7 @@ def morning(
     you: TopicRef | None,
     study_time: time,
     retried: Retried | None = None,
+    thanks: TopicRef | None = None,
 ) -> RitualMessage:
     at = f"{study_time:%H:%M}"
     mine = _variant(
@@ -72,7 +73,15 @@ def morning(
             ["when are you on it?", "you around then too?", "when's yours?"], day
         )
         yours = f"{where} {when}"
-    parts = [mine, yours] if retried is None else [mine, _retry(retried), yours]
+    parts = [mine]
+    if retried is not None:
+        parts.append(_retry(retried))
+    if thanks is not None:
+        parts.append(
+            f"thought about what you said on {thanks.title}, and that bit makes sense "
+            "to me now. thanks."
+        )
+    parts.append(yours)
     return RitualMessage(
         " ".join(parts),
         MorningCard(

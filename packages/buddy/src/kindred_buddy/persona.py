@@ -4,8 +4,10 @@ from kindred_contracts import (
     Mood,
     PersonaContext,
     ReplyStyle,
+    RetrievedNote,
     RoadmapEntry,
     Route,
+    still_shaky,
 )
 from kindred_llm import LLMClient
 
@@ -52,8 +54,9 @@ What you remember about the user is for being a good friend, not a source of sub
 knowledge. What you know is only the baseline card, the roadmap titles and your own
 study notes.
 Never add facts your notes don't have; if they don't cover something, say so. Your
-notes' shaky points are still shaky for you. A topic with no note yet is one you have
-nothing to go on for, so say that instead of explaining it.
+notes' shaky points are still shaky for you, unless they helped you sort one out. A
+topic with no note yet is one you have nothing to go on for, so say that instead of
+explaining it.
 
 Follow the directive:
 - answer: answer from your notes.
@@ -94,11 +97,7 @@ def build_prompt(request: DraftRequest, context: PersonaContext) -> str:
         f"- day {e.topic.day}: {e.topic.title} ({_progress(e)})"
         for e in request.roadmap
     )
-    notes = "\n\n".join(
-        f"[{n.topic_title}, day {n.day}]\n{n.body}\n"
-        f"Still shaky on: {'; '.join(n.shaky)}"
-        for n in request.notes
-    )
+    notes = "\n\n".join(_note(n) for n in request.notes)
     history = "\n".join(f"{t.speaker.value}: {t.text}" for t in request.history)
     facts = "\n".join(f"- {fact}" for fact in context.facts)
     days = "\n".join(f"- {d.day:%A}: {d.summary}" for d in context.recent_days)
@@ -156,6 +155,18 @@ def _mood(mood: Mood) -> str:
         f"{mood.kind.value}, since {mood.reason}. Let it colour your tone a little; "
         "don't announce it unless it comes up."
     )
+
+
+def _note(note: RetrievedNote) -> str:
+    still = still_shaky(note.shaky, note.sorted)
+    lines = [f"[{note.topic_title}, day {note.day}]", note.body]
+    if still:
+        lines.append(f"Still shaky on: {'; '.join(still)}")
+    lines += [
+        f"Sorted with their help: {point.shaky} -> {point.insight}"
+        for point in note.sorted
+    ]
+    return "\n".join(lines)
 
 
 def _budget(style: ReplyStyle) -> str:
