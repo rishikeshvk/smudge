@@ -80,7 +80,7 @@ export default function Notebook() {
             <View className="gap-4 pt-2">
               <SealedNote
                 tall
-                text={`Day ${sealed[0].day}\n${name} writes this one ${upcomingDay(sealed[0].unlocks_at, now)}`}
+                text={`Day ${sealed[0].day}\n${name} studies this one ${upcomingDay(sealed[0].unlocks_at, now)}`}
               />
               <Text className="font-body text-body text-ink-muted">
                 {`${name}'s notes show up here after each study session, shaky parts included. It only ever knows what's in this notebook.`}
@@ -95,7 +95,7 @@ export default function Notebook() {
               {sealed.map((day) => (
                 <SealedNote
                   key={day.day}
-                  text={`Day ${day.day} · ${name} writes this one ${upcomingDay(day.unlocks_at, now)}`}
+                  text={`Day ${day.day} · ${name} studies this one ${upcomingDay(day.unlocks_at, now)}`}
                 />
               ))}
             </>
