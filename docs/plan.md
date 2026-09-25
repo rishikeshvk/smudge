@@ -117,7 +117,7 @@ The MVP is the full core idea as a working Android app; only infrastructure and 
 
 **Deferred:**
 
-- Authentication and multi-user (one hardcoded user for now).
+- Full authentication and public sign-up. The multi-user pass adds invite codes for a few friends.
 - Shared code sandbox, the one part of the original idea that isn't cheap.
 - iOS and web versions; Telegram/WhatsApp.
 - Non-tech domains.
@@ -160,9 +160,11 @@ Build the gate first because everything depends on it, but start the frontend ea
 | M2 Buddy brain | Planner onboarding, source ingestion, nightly Curator, Persona chat, relationship memory, API endpoints | 14 simulated days run end to end via the Clock |
 | M3 App | Onboarding, chat, roadmap, notebook, X-ray view, settings, dev time controls | A full day's loop works on an Android phone |
 | M4 Rituals | Director, push notifications, streaks, the catch-up gap, replanning on request, seeded-gap asks, message caps | A simulated week feels like a buddy, not a bot |
-| M5 Portfolio | README with leak-rate chart, demo video, backend demo deploy on AWS, installable APK | Someone else can install it or watch it |
+| Buddy feel | Understated voice and mood, the buddy's study session, check-ins, the Reflector ([spec](buddy-feel-spec.md)) | A simulated day reads like texts from a peer |
+| Multi-user | Per-user data, invite-code login, an opening screen ([brief](multi-user-brief.md)) | Two users share one API and neither sees the other's |
+| M5 Portfolio | A private deploy and APK for a few friends first, then README with leak-rate chart, demo video, public backend demo on AWS | Someone else can install it or watch it |
 
-M3 can run in parallel with M1 and M2 once the typed contracts exist. Set target numbers before M1, e.g. under 1% leaks and under 10% over-blocks.
+M3 can run in parallel with M1 and M2 once the typed contracts exist. Buddy feel and Multi-user are unnumbered passes added between M4 and M5. Set target numbers before M1, e.g. under 1% leaks and under 10% over-blocks.
 
 ## First curriculum and decisions
 
