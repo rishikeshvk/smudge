@@ -28,6 +28,13 @@ The PC has to be on and awake for friends to reach the buddy. The ticker catches
 sleeps through runs late rather than never. Messages sent while it's off fail. If `make serve` stops, start it
 again; there's no service that restarts it yet.
 
+Keep the PC on its own Wi-Fi or ethernet, not the phone's hotspot. When the hotspot's network changes, Tailscale
+reconnects but the Funnel's relays keep the old route, and the public address stops answering (`unexpected eof`)
+while the tailnet address still works. `sudo systemctl restart tailscaled` in a terminal fixes it.
+
+To stop everything: stop `make serve`, run `tailscale funnel --https=443 off`, then `make down`. To start again:
+`make serve` and `tailscale funnel --bg 8100`.
+
 ## Moving to a VM later
 
 On an always-on VM such as Oracle's free tier:
