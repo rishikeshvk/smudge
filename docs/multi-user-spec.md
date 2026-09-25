@@ -1,6 +1,6 @@
 # Multi-user spec
 
-2026-09-25 · Status: **done** on branch `multi-user`; the phone check passed, and it waits for approval to merge
+2026-09-25 · Status: **done** and merged into `main`
 
 A pass between buddy feel and M5, with no milestone number. Kindred is finished for one person. Before the public
 demo, a few friends get to use it. That means three things:
