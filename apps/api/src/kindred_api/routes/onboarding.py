@@ -1,8 +1,14 @@
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 
-from kindred_api.dependencies import ClockDep, CurrentUserDep, PlanningDep, SessionDep
+from kindred_api.dependencies import (
+    ClockDep,
+    CurrentUserDep,
+    PlanningDep,
+    SessionDep,
+    SourcesDep,
+)
 from kindred_api.onboarding import (
     AlreadyPlannedError,
     accept_plan,
@@ -62,6 +68,8 @@ async def accept(
     clock: ClockDep,
     planning: PlanningDep,
     user: CurrentUserDep,
+    sources: SourcesDep,
+    background: BackgroundTasks,
 ) -> RoadmapView:
     try:
         await accept_plan(
@@ -74,4 +82,5 @@ async def accept(
     await session.commit()
     plan = await load_current_plan(session, user.id)
     assert plan is not None
+    background.add_task(sources.fetch_for, plan.id, plan.curriculum_slug)
     return await build_roadmap(session, plan, clock.now())

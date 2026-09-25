@@ -11,6 +11,7 @@ from kindred_api.config import get_settings
 from kindred_api.dependencies import Services, get_current_user
 from kindred_api.dev_clock import build_clock
 from kindred_api.director import RitualSchedule
+from kindred_api.ingest import SourceFetcher, source_client
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.llm_settings import effective, load_saved
 from kindred_api.push import Pusher
@@ -45,6 +46,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         llm = LLMRuntime(base, effective(base, await load_saved(session)))
     worker = TurnWorker(sessions, clock, llm.turn_components)
     push_client = httpx2.AsyncClient(timeout=15)
+    pages_client = source_client()
     ticker = Ticker(
         sessions,
         clock,
@@ -55,13 +57,19 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         Pusher(push_client, base.expo_push_url),
     )
     app.state.services = Services(
-        sessions=sessions, clock=clock, worker=worker, ticker=ticker, llm=llm
+        sessions=sessions,
+        clock=clock,
+        worker=worker,
+        ticker=ticker,
+        llm=llm,
+        sources=SourceFetcher(sessions, pages_client, base.curricula_dir, clock),
     )
     tasks = [asyncio.create_task(worker.run()), asyncio.create_task(ticker.run())]
     yield
     for task in tasks:
         task.cancel()
     await push_client.aclose()
+    await pages_client.aclose()
     await engine.dispose()
 
 

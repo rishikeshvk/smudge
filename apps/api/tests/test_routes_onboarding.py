@@ -5,7 +5,7 @@ import httpx
 import pytest
 
 from kindred_api.clock import Clock, FixedClock
-from kindred_api.dependencies import get_planning
+from kindred_api.dependencies import get_planning, get_sources
 from kindred_api.main import app
 from kindred_api.onboarding import Planning
 from kindred_api.turn_worker import TurnWorker
@@ -72,8 +72,25 @@ class Scripted:
         return AuditVerdict(verdict=Verdict.PASS, rationale="fine")
 
 
+class RecordingSources:
+    def __init__(self) -> None:
+        self.fetched: list[tuple[int, str]] = []
+
+    async def fetch_for(self, plan_id: int, curriculum_slug: str) -> None:
+        self.fetched.append((plan_id, curriculum_slug))
+
+
 @pytest.fixture
-async def client(api: ApiClient, add_user: AddUser) -> httpx.AsyncClient:
+def sources() -> RecordingSources:
+    recording = RecordingSources()
+    app.dependency_overrides[get_sources] = lambda: recording
+    return recording
+
+
+@pytest.fixture
+async def client(
+    api: ApiClient, add_user: AddUser, sources: RecordingSources
+) -> httpx.AsyncClient:
     user = await add_user()
     scripted = Scripted()
     app.dependency_overrides[get_planning] = lambda: Planning(
@@ -83,7 +100,9 @@ async def client(api: ApiClient, add_user: AddUser) -> httpx.AsyncClient:
 
 
 @pytest.mark.anyio
-async def test_onboarding_ends_in_an_accepted_plan(client: httpx.AsyncClient) -> None:
+async def test_onboarding_ends_in_an_accepted_plan_with_its_pages_on_the_way(
+    client: httpx.AsyncClient, sources: RecordingSources
+) -> None:
     sent = await client.post(
         "/onboarding/messages",
         json={"text": "tiny, an hour a day", "timezone": "Asia/Kolkata"},
@@ -101,6 +120,7 @@ async def test_onboarding_ends_in_an_accepted_plan(client: httpx.AsyncClient) ->
 
     assert accepted.status_code == 201
     assert accepted.json()["plan_title"] == "Tiny course"
+    assert [slug for _, slug in sources.fetched] == ["tiny"]
     again = await client.post(
         "/onboarding/messages", json={"text": "hi", "timezone": "Asia/Kolkata"}
     )
