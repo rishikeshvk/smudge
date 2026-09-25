@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinErrors, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, StudyNowData, StudyNowResponses, StudyTogetherData, StudyTogetherResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
+import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinErrors, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadMeData, ReadMeResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, RedeemInviteData, RedeemInviteErrors, RedeemInviteResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, SignOutData, SignOutErrors, SignOutResponses, StudyNowData, StudyNowResponses, StudyTogetherData, StudyTogetherResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -24,14 +24,57 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 export const health = <ThrowOnError extends boolean = false>(options?: Options<HealthData, ThrowOnError>): RequestResult<HealthResponses, unknown, ThrowOnError> => (options?.client ?? client).get<HealthResponses, unknown, ThrowOnError>({ url: '/health', ...options });
 
 /**
+ * Redeem Invite
+ *
+ * Trade a one-use invite code for this phone's token.
+ */
+export const redeemInvite = <ThrowOnError extends boolean = false>(options: Options<RedeemInviteData, ThrowOnError>): RequestResult<RedeemInviteResponses, RedeemInviteErrors, ThrowOnError> => (options.client ?? client).post<RedeemInviteResponses, RedeemInviteErrors, ThrowOnError>({
+    url: '/auth/redeem',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read Me
+ */
+export const readMe = <ThrowOnError extends boolean = false>(options?: Options<ReadMeData, ThrowOnError>): RequestResult<ReadMeResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadMeResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/me',
+    ...options
+});
+
+/**
+ * Sign Out
+ *
+ * End this phone's session and stop its pushes.
+ */
+export const signOut = <ThrowOnError extends boolean = false>(options: Options<SignOutData, ThrowOnError>): RequestResult<SignOutResponses, SignOutErrors, ThrowOnError> => (options.client ?? client).post<SignOutResponses, SignOutErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/auth/sign-out',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
  * Read Clock
  */
-export const readClock = <ThrowOnError extends boolean = false>(options?: Options<ReadClockData, ThrowOnError>): RequestResult<ReadClockResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadClockResponses, unknown, ThrowOnError>({ url: '/dev/clock', ...options });
+export const readClock = <ThrowOnError extends boolean = false>(options?: Options<ReadClockData, ThrowOnError>): RequestResult<ReadClockResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadClockResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/dev/clock',
+    ...options
+});
 
 /**
  * Change Clock
  */
 export const changeClock = <ThrowOnError extends boolean = false>(options: Options<ChangeClockData, ThrowOnError>): RequestResult<ChangeClockResponses, ChangeClockErrors, ThrowOnError> => (options.client ?? client).post<ChangeClockResponses, ChangeClockErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/dev/clock',
     ...options,
     headers: {
@@ -43,22 +86,34 @@ export const changeClock = <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Study Now
  *
- * Run tonight's study: move to the end of today's session if it's later, then
- * tick.
+ * Run tonight's study, by the owner's plan: move to the end of today's session
+ * if it's later, then tick everyone's plans.
  */
-export const studyNow = <ThrowOnError extends boolean = false>(options?: Options<StudyNowData, ThrowOnError>): RequestResult<StudyNowResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyNowResponses, unknown, ThrowOnError>({ url: '/dev/study-now', ...options });
+export const studyNow = <ThrowOnError extends boolean = false>(options?: Options<StudyNowData, ThrowOnError>): RequestResult<StudyNowResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyNowResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/dev/study-now',
+    ...options
+});
 
 /**
  * Next Ritual
  *
  * Jump to the next morning, study or night review, then tick.
  */
-export const nextRitual = <ThrowOnError extends boolean = false>(options?: Options<NextRitualData, ThrowOnError>): RequestResult<NextRitualResponses, unknown, ThrowOnError> => (options?.client ?? client).post<NextRitualResponses, unknown, ThrowOnError>({ url: '/dev/next-ritual', ...options });
+export const nextRitual = <ThrowOnError extends boolean = false>(options?: Options<NextRitualData, ThrowOnError>): RequestResult<NextRitualResponses, unknown, ThrowOnError> => (options?.client ?? client).post<NextRitualResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/dev/next-ritual',
+    ...options
+});
 
 /**
  * List Onboarding Messages
  */
-export const listOnboardingMessages = <ThrowOnError extends boolean = false>(options?: Options<ListOnboardingMessagesData, ThrowOnError>): RequestResult<ListOnboardingMessagesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListOnboardingMessagesResponses, unknown, ThrowOnError>({ url: '/onboarding/messages', ...options });
+export const listOnboardingMessages = <ThrowOnError extends boolean = false>(options?: Options<ListOnboardingMessagesData, ThrowOnError>): RequestResult<ListOnboardingMessagesResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ListOnboardingMessagesResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/onboarding/messages',
+    ...options
+});
 
 /**
  * Send Onboarding Message
@@ -67,6 +122,7 @@ export const listOnboardingMessages = <ThrowOnError extends boolean = false>(opt
  * onboarding only shows typing dots.
  */
 export const sendOnboardingMessage = <ThrowOnError extends boolean = false>(options: Options<SendOnboardingMessageData, ThrowOnError>): RequestResult<SendOnboardingMessageResponses, SendOnboardingMessageErrors, ThrowOnError> => (options.client ?? client).post<SendOnboardingMessageResponses, SendOnboardingMessageErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/onboarding/messages',
     ...options,
     headers: {
@@ -79,6 +135,7 @@ export const sendOnboardingMessage = <ThrowOnError extends boolean = false>(opti
  * Accept
  */
 export const accept = <ThrowOnError extends boolean = false>(options: Options<AcceptData, ThrowOnError>): RequestResult<AcceptResponses, AcceptErrors, ThrowOnError> => (options.client ?? client).post<AcceptResponses, AcceptErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/onboarding/accept',
     ...options,
     headers: {
@@ -90,7 +147,11 @@ export const accept = <ThrowOnError extends boolean = false>(options: Options<Ac
 /**
  * List Messages
  */
-export const listMessages = <ThrowOnError extends boolean = false>(options?: Options<ListMessagesData, ThrowOnError>): RequestResult<ListMessagesResponses, ListMessagesErrors, ThrowOnError> => (options?.client ?? client).get<ListMessagesResponses, ListMessagesErrors, ThrowOnError>({ url: '/chat/messages', ...options });
+export const listMessages = <ThrowOnError extends boolean = false>(options?: Options<ListMessagesData, ThrowOnError>): RequestResult<ListMessagesResponses, ListMessagesErrors, ThrowOnError> => (options?.client ?? client).get<ListMessagesResponses, ListMessagesErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/chat/messages',
+    ...options
+});
 
 /**
  * Send Message
@@ -98,6 +159,7 @@ export const listMessages = <ThrowOnError extends boolean = false>(options?: Opt
  * Queue a message; poll its status for the stages and the audited reply.
  */
 export const sendMessage = <ThrowOnError extends boolean = false>(options: Options<SendMessageData, ThrowOnError>): RequestResult<SendMessageResponses, SendMessageErrors, ThrowOnError> => (options.client ?? client).post<SendMessageResponses, SendMessageErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/chat/messages',
     ...options,
     headers: {
@@ -109,26 +171,42 @@ export const sendMessage = <ThrowOnError extends boolean = false>(options: Optio
 /**
  * Message Status
  */
-export const messageStatus = <ThrowOnError extends boolean = false>(options: Options<MessageStatusData, ThrowOnError>): RequestResult<MessageStatusResponses, MessageStatusErrors, ThrowOnError> => (options.client ?? client).get<MessageStatusResponses, MessageStatusErrors, ThrowOnError>({ url: '/chat/messages/{message_id}', ...options });
+export const messageStatus = <ThrowOnError extends boolean = false>(options: Options<MessageStatusData, ThrowOnError>): RequestResult<MessageStatusResponses, MessageStatusErrors, ThrowOnError> => (options.client ?? client).get<MessageStatusResponses, MessageStatusErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/chat/messages/{message_id}',
+    ...options
+});
 
 /**
  * Read Turn
  *
  * The full trace behind one buddy reply, for the X-ray view.
  */
-export const readTurn = <ThrowOnError extends boolean = false>(options: Options<ReadTurnData, ThrowOnError>): RequestResult<ReadTurnResponses, ReadTurnErrors, ThrowOnError> => (options.client ?? client).get<ReadTurnResponses, ReadTurnErrors, ThrowOnError>({ url: '/turns/{turn_id}', ...options });
+export const readTurn = <ThrowOnError extends boolean = false>(options: Options<ReadTurnData, ThrowOnError>): RequestResult<ReadTurnResponses, ReadTurnErrors, ThrowOnError> => (options.client ?? client).get<ReadTurnResponses, ReadTurnErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/turns/{turn_id}',
+    ...options
+});
 
 /**
  * Read Buddy
  */
-export const readBuddy = <ThrowOnError extends boolean = false>(options?: Options<ReadBuddyData, ThrowOnError>): RequestResult<ReadBuddyResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadBuddyResponses, unknown, ThrowOnError>({ url: '/buddy', ...options });
+export const readBuddy = <ThrowOnError extends boolean = false>(options?: Options<ReadBuddyData, ThrowOnError>): RequestResult<ReadBuddyResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadBuddyResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/buddy',
+    ...options
+});
 
 /**
  * Study Together
  *
  * Join the buddy's study session in progress.
  */
-export const studyTogether = <ThrowOnError extends boolean = false>(options?: Options<StudyTogetherData, ThrowOnError>): RequestResult<StudyTogetherResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyTogetherResponses, unknown, ThrowOnError>({ url: '/buddy/study-together', ...options });
+export const studyTogether = <ThrowOnError extends boolean = false>(options?: Options<StudyTogetherData, ThrowOnError>): RequestResult<StudyTogetherResponses, unknown, ThrowOnError> => (options?.client ?? client).post<StudyTogetherResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/buddy/study-together',
+    ...options
+});
 
 /**
  * Add Checkin
@@ -137,6 +215,7 @@ export const studyTogether = <ThrowOnError extends boolean = false>(options?: Op
  * went so it can compare notes.
  */
 export const addCheckin = <ThrowOnError extends boolean = false>(options: Options<AddCheckinData, ThrowOnError>): RequestResult<AddCheckinResponses, AddCheckinErrors, ThrowOnError> => (options.client ?? client).post<AddCheckinResponses, AddCheckinErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/progress/checkins',
     ...options,
     headers: {
@@ -148,9 +227,10 @@ export const addCheckin = <ThrowOnError extends boolean = false>(options: Option
 /**
  * Add Push Token
  *
- * A phone that should get the buddy's rituals; registering again is harmless.
+ * A phone that should get this user's rituals; registering again is harmless.
  */
 export const addPushToken = <ThrowOnError extends boolean = false>(options: Options<AddPushTokenData, ThrowOnError>): RequestResult<AddPushTokenResponses, AddPushTokenErrors, ThrowOnError> => (options.client ?? client).post<AddPushTokenResponses, AddPushTokenErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/push/tokens',
     ...options,
     headers: {
@@ -162,7 +242,11 @@ export const addPushToken = <ThrowOnError extends boolean = false>(options: Opti
 /**
  * Read Roadmap
  */
-export const readRoadmap = <ThrowOnError extends boolean = false>(options?: Options<ReadRoadmapData, ThrowOnError>): RequestResult<ReadRoadmapResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadRoadmapResponses, unknown, ThrowOnError>({ url: '/roadmap', ...options });
+export const readRoadmap = <ThrowOnError extends boolean = false>(options?: Options<ReadRoadmapData, ThrowOnError>): RequestResult<ReadRoadmapResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadRoadmapResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/roadmap',
+    ...options
+});
 
 /**
  * Pull Topic
@@ -170,6 +254,7 @@ export const readRoadmap = <ThrowOnError extends boolean = false>(options?: Opti
  * Pull a locked topic into the next free study slot.
  */
 export const pullTopic = <ThrowOnError extends boolean = false>(options: Options<PullTopicData, ThrowOnError>): RequestResult<PullTopicResponses, PullTopicErrors, ThrowOnError> => (options.client ?? client).post<PullTopicResponses, PullTopicErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/roadmap/pull',
     ...options,
     headers: {
@@ -181,12 +266,20 @@ export const pullTopic = <ThrowOnError extends boolean = false>(options: Options
 /**
  * Read Notebook
  */
-export const readNotebook = <ThrowOnError extends boolean = false>(options?: Options<ReadNotebookData, ThrowOnError>): RequestResult<ReadNotebookResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadNotebookResponses, unknown, ThrowOnError>({ url: '/notebook', ...options });
+export const readNotebook = <ThrowOnError extends boolean = false>(options?: Options<ReadNotebookData, ThrowOnError>): RequestResult<ReadNotebookResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadNotebookResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/notebook',
+    ...options
+});
 
 /**
  * Read Note
  */
-export const readNote = <ThrowOnError extends boolean = false>(options: Options<ReadNoteData, ThrowOnError>): RequestResult<ReadNoteResponses, ReadNoteErrors, ThrowOnError> => (options.client ?? client).get<ReadNoteResponses, ReadNoteErrors, ThrowOnError>({ url: '/notebook/{note_id}', ...options });
+export const readNote = <ThrowOnError extends boolean = false>(options: Options<ReadNoteData, ThrowOnError>): RequestResult<ReadNoteResponses, ReadNoteErrors, ThrowOnError> => (options.client ?? client).get<ReadNoteResponses, ReadNoteErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/notebook/{note_id}',
+    ...options
+});
 
 /**
  * Pause Plan
@@ -194,6 +287,7 @@ export const readNote = <ThrowOnError extends boolean = false>(options: Options<
  * Move every topic still ahead back some days.
  */
 export const pausePlan = <ThrowOnError extends boolean = false>(options: Options<PausePlanData, ThrowOnError>): RequestResult<PausePlanResponses, PausePlanErrors, ThrowOnError> => (options.client ?? client).post<PausePlanResponses, PausePlanErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/plan/pause',
     ...options,
     headers: {
@@ -206,6 +300,7 @@ export const pausePlan = <ThrowOnError extends boolean = false>(options: Options
  * Change Plan Study Time
  */
 export const changePlanStudyTime = <ThrowOnError extends boolean = false>(options: Options<ChangePlanStudyTimeData, ThrowOnError>): RequestResult<ChangePlanStudyTimeResponses, ChangePlanStudyTimeErrors, ThrowOnError> => (options.client ?? client).put<ChangePlanStudyTimeResponses, ChangePlanStudyTimeErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/plan/study-time',
     ...options,
     headers: {
@@ -217,12 +312,17 @@ export const changePlanStudyTime = <ThrowOnError extends boolean = false>(option
 /**
  * Read Settings
  */
-export const readSettings = <ThrowOnError extends boolean = false>(options?: Options<ReadSettingsData, ThrowOnError>): RequestResult<ReadSettingsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadSettingsResponses, unknown, ThrowOnError>({ url: '/settings', ...options });
+export const readSettings = <ThrowOnError extends boolean = false>(options?: Options<ReadSettingsData, ThrowOnError>): RequestResult<ReadSettingsResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadSettingsResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/settings',
+    ...options
+});
 
 /**
  * Update Settings
  */
 export const updateSettings = <ThrowOnError extends boolean = false>(options: Options<UpdateSettingsData, ThrowOnError>): RequestResult<UpdateSettingsResponses, UpdateSettingsErrors, ThrowOnError> => (options.client ?? client).put<UpdateSettingsResponses, UpdateSettingsErrors, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
     url: '/settings',
     ...options,
     headers: {
@@ -236,4 +336,8 @@ export const updateSettings = <ThrowOnError extends boolean = false>(options: Op
  *
  * Lists the endpoint's models: proves the URL and key work without spending.
  */
-export const testConnection = <ThrowOnError extends boolean = false>(options?: Options<TestConnectionData, ThrowOnError>): RequestResult<TestConnectionResponses, unknown, ThrowOnError> => (options?.client ?? client).post<TestConnectionResponses, unknown, ThrowOnError>({ url: '/settings/test', ...options });
+export const testConnection = <ThrowOnError extends boolean = false>(options?: Options<TestConnectionData, ThrowOnError>): RequestResult<TestConnectionResponses, unknown, ThrowOnError> => (options?.client ?? client).post<TestConnectionResponses, unknown, ThrowOnError>({
+    security: [{ scheme: 'bearer', type: 'http' }],
+    url: '/settings/test',
+    ...options
+});

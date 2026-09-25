@@ -10,9 +10,11 @@ import { Appearance } from "react-native";
 
 import { gateFor, useBuddy } from "@/buddy";
 import { Unreachable } from "@/components/Unreachable";
-import { queryClient, useRefetchOnAppFocus, useRefetchOnNewDay } from "@/queryClient";
+import { queryClient } from "@/queryClient";
+import { useRefetchOnAppFocus, useRefetchOnNewDay } from "@/refetch";
 import { usePref } from "@/prefs";
 import { usePush } from "@/push";
+import { loadSession, useSession } from "@/session";
 import { fonts } from "@/theme/fonts";
 import { colorSchemeFor } from "@/theme/preference";
 import { ThemeRoot } from "@/theme/ThemeRoot";
@@ -29,8 +31,9 @@ function useApplyThemePreference() {
 
 function AppStack() {
   useApplyThemePreference();
+  const session = useSession();
   const buddy = useBuddy();
-  const gate = gateFor(buddy);
+  const gate = gateFor(session, buddy);
   usePush(gate === "ready");
   useRefetchOnNewDay();
 
@@ -57,8 +60,13 @@ function AppStack() {
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />
       </Stack.Protected>
+      <Stack.Protected guard={gate === "signedOut"}>
+        <Stack.Screen name="sign-in" />
+      </Stack.Protected>
       {/* Reachable before onboarding too: without a working model key, the Planner can't answer. */}
-      <Stack.Screen name="settings" />
+      <Stack.Protected guard={gate !== "signedOut"}>
+        <Stack.Screen name="settings" />
+      </Stack.Protected>
     </Stack>
   );
 }
@@ -66,6 +74,9 @@ function AppStack() {
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts(fonts);
   useRefetchOnAppFocus();
+  useEffect(() => {
+    void loadSession();
+  }, []);
 
   // A font load failure falls back to system fonts rather than a stuck splash.
   if (!fontsLoaded && !fontError) return null;

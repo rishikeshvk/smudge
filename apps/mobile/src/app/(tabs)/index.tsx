@@ -28,7 +28,7 @@ import { XrayToggle } from "@/components/XrayToggle";
 import { draftSteps, isInFlight } from "@/draftStage";
 import { useKindredNow } from "@/kindredNow";
 import { usePref } from "@/prefs";
-import { useRefetchOnScreenFocus } from "@/queryClient";
+import { useRefetchOnScreenFocus } from "@/refetch";
 import { ambientForHour } from "@/theme/ambient";
 import { chronological, threadRows } from "@/thread";
 import { localHour } from "@/time";

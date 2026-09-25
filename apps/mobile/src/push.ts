@@ -9,6 +9,13 @@ import { pushSupport } from "./pushSupport";
 
 type Notifications = typeof import("expo-notifications");
 
+// Kept so signing out can tell the API to stop pushing to this phone.
+let registered: string | null = null;
+
+export function registeredPushToken(): string | null {
+  return registered;
+}
+
 async function register(notifications: Notifications, projectId: string) {
   // Android 13 only asks for permission once a channel exists.
   await notifications.setNotificationChannelAsync("rituals", {
@@ -19,6 +26,7 @@ async function register(notifications: Notifications, projectId: string) {
   if (!granted) return;
   const { data } = await notifications.getExpoPushTokenAsync({ projectId });
   await addPushToken({ body: { token: data }, throwOnError: true });
+  registered = data;
 }
 
 // Registers this phone for the buddy's rituals, refreshes the thread when one arrives and

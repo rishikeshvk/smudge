@@ -16,7 +16,7 @@ import { SealedNote } from "@/components/SealedNote";
 import { useKindredNow } from "@/kindredNow";
 import { isFogged } from "@/noteFreshness";
 import { usePref } from "@/prefs";
-import { useRefetchOnScreenFocus } from "@/queryClient";
+import { useRefetchOnScreenFocus } from "@/refetch";
 import { notebookCaption } from "@/shaky";
 import { relativeDay, upcomingDay } from "@/time";
 
