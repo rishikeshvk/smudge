@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.clock import Clock
 from kindred_api.director import RitualSchedule, send_due_rituals
-from kindred_api.plans import CurrentPlan, load_current_plan
+from kindred_api.plans import CurrentPlan, load_active_plans
 from kindred_api.push import Pusher
 from kindred_api.reflection import (
     ReflectionComponents,
@@ -54,10 +54,18 @@ class Ticker:
             await asyncio.sleep(TICK_SECONDS)
 
     async def tick(self) -> None:
-        async with self._lock, self._sessions() as session:
-            plan = await load_current_plan(session)
-            if plan is None:
-                return
+        async with self._lock:
+            async with self._sessions() as session:
+                plans = await load_active_plans(session)
+            for plan in plans:
+                # Each user's day runs in its own session, so one failure stays theirs.
+                try:
+                    await self._tick_plan(plan)
+                except Exception:
+                    logger.exception("tick failed for plan %s", plan.id)
+
+    async def _tick_plan(self, plan: CurrentPlan) -> None:
+        async with self._sessions() as session:
             try:
                 await self._study_due(session, plan)
                 await self._remember_due(session, plan)

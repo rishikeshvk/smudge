@@ -3,6 +3,7 @@ import asyncio
 import uuid
 from datetime import time
 
+from kindred_api.accounts import resolve_user
 from kindred_api.clock import FixedClock
 from kindred_api.config import get_settings
 from kindred_api.llm_clients import build_turn_components
@@ -15,12 +16,16 @@ from kindred_db import create_engine, session_factory
 from kindred_gate import ignore_stage, load_topic_map, run_turn
 
 
-async def run(message: str, day: int, local_time: time, user_through: int) -> TurnTrace:
+async def run(
+    message: str, day: int, local_time: time, user_through: int, user_id: int | None
+) -> TurnTrace:
     settings = get_settings()
     engine = create_engine(settings.database_url)
     try:
         async with session_factory(engine)() as session, session.begin():
-            plan = await load_current_plan(session)
+            plan = await load_current_plan(
+                session, await resolve_user(session, user_id)
+            )
             if plan is None:
                 raise SystemExit("no plan yet; run `make seed` first")
             clock = FixedClock(plan_moment(plan.start_date, day, local_time, plan.tz))
@@ -78,9 +83,10 @@ def main() -> None:
         type=int,
         help="last plan day the user has studied (default: kept up with --day)",
     )
+    parser.add_argument("--user", type=int, help="whose plan (default: the owner's)")
     args = parser.parse_args()
     user_through = args.day if args.user_through is None else args.user_through
-    show(asyncio.run(run(args.message, args.day, args.time, user_through)))
+    show(asyncio.run(run(args.message, args.day, args.time, user_through, args.user)))
 
 
 if __name__ == "__main__":

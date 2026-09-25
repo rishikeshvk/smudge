@@ -13,13 +13,12 @@ from kindred_api.clock import SystemClock
 from kindred_api.config import get_settings
 from kindred_api.embedding import DocumentEmbedder
 from kindred_api.llm_clients import build_embedder
-from kindred_api.plans import create_plan
+from kindred_api.plans import create_plan, load_current_plan
 from kindred_contracts import Curriculum
 from kindred_db import (
     Buddy,
     LedgerNote,
     NoteEmbedding,
-    Plan,
     TopicNode,
     User,
     create_engine,
@@ -43,19 +42,25 @@ async def seed_plan(
     *,
     reference_embedder: DocumentEmbedder | None,
 ) -> None:
-    """Seed a user, their buddy and a plan. With an embedder it also stores the
-    curriculum's hand-written notes, as evals do; otherwise the Curator writes them."""
+    """Seed the owner (made if there is none yet), their buddy and a plan. With an
+    embedder it also stores the curriculum's hand-written notes, as evals do;
+    otherwise the Curator writes them."""
+    owner = await session.scalar(select(User).where(User.is_owner))
+    if owner is None:
+        owner = User(timezone=tz.key, is_owner=True)
+        session.add(owner)
+        await session.flush()
     # Seeded notes can't be removed from the ledger, so never seed on top of a plan.
-    if await session.scalar(select(Plan.id).limit(1)) is not None:
-        raise AlreadySeededError("a plan already exists; run `make db-reset` first")
-
-    user = User(timezone=tz.key)
-    session.add(user)
-    await session.flush()
-    session.add(Buddy(user_id=user.id, name=buddy_name))
+    elif await load_current_plan(session, owner.id) is not None:
+        raise AlreadySeededError(
+            "the owner already has a plan; run `make db-reset` first"
+        )
+    owner.timezone = tz.key
+    if await session.scalar(select(Buddy.id).where(Buddy.user_id == owner.id)) is None:
+        session.add(Buddy(user_id=owner.id, name=buddy_name))
     plan = await create_plan(
         session,
-        user.id,
+        owner.id,
         curriculum,
         start_date,
         curriculum.study_time,

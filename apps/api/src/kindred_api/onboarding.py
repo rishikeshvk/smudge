@@ -54,17 +54,6 @@ class Planning:
     auditor: Auditor
 
 
-async def ensure_user(session: AsyncSession, timezone: str) -> User:
-    """The one hardcoded user, created by the first onboarding message."""
-    user = await session.scalar(select(User).order_by(User.id).limit(1))
-    if user is None:
-        user = User(timezone=timezone)
-        session.add(user)
-    user.timezone = timezone
-    await session.flush()
-    return user
-
-
 async def onboarding_transcript(
     session: AsyncSession, user: User, now: datetime
 ) -> list[OnboardingEntry]:
@@ -93,7 +82,7 @@ async def onboarding_turn(
 ) -> OnboardingReply:
     """One exchange of the co-planning chat. Every reply is audited with every topic
     locked, because the buddy hasn't studied anything yet."""
-    if await load_current_plan(session) is not None:
+    if await load_current_plan(session, user.id) is not None:
         raise AlreadyPlannedError("there is already a plan")
     earlier = await read_thread(
         session,
@@ -171,7 +160,7 @@ async def accept_plan(
     courses: list[Curriculum],
 ) -> Plan:
     """Turn an accepted proposal into the plan, and name the buddy for good."""
-    if await load_current_plan(session) is not None:
+    if await load_current_plan(session, user.id) is not None:
         raise AlreadyPlannedError("there is already a plan")
     message = await session.get(Message, proposal_message_id)
     if message is None or message.user_id != user.id or message.proposal is None:

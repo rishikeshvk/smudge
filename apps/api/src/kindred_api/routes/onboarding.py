@@ -1,13 +1,11 @@
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from fastapi import APIRouter, HTTPException, status
-from sqlalchemy import select
 
-from kindred_api.dependencies import ClockDep, PlanningDep, SessionDep
+from kindred_api.dependencies import ClockDep, CurrentUserDep, PlanningDep, SessionDep
 from kindred_api.onboarding import (
     AlreadyPlannedError,
     accept_plan,
-    ensure_user,
     onboarding_transcript,
     onboarding_turn,
 )
@@ -20,18 +18,14 @@ from kindred_contracts import (
     OnboardingReply,
     RoadmapView,
 )
-from kindred_db import User
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 
 
 @router.get("/messages")
 async def list_onboarding_messages(
-    session: SessionDep, clock: ClockDep
+    session: SessionDep, clock: ClockDep, user: CurrentUserDep
 ) -> list[OnboardingEntry]:
-    user = await session.scalar(select(User).order_by(User.id).limit(1))
-    if user is None:
-        return []
     return await onboarding_transcript(session, user, clock.now())
 
 
@@ -41,6 +35,7 @@ async def send_onboarding_message(
     session: SessionDep,
     clock: ClockDep,
     planning: PlanningDep,
+    user: CurrentUserDep,
 ) -> OnboardingReply:
     """One exchange of the co-planning chat. It waits for the audited reply, since
     onboarding only shows typing dots."""
@@ -50,7 +45,8 @@ async def send_onboarding_message(
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT, "unknown timezone"
         ) from error
-    user = await ensure_user(session, body.timezone)
+    # The phone knows where its user is; plans and rituals run in that time zone.
+    user.timezone = body.timezone
     try:
         reply = await onboarding_turn(session, user, body.text, clock.now(), planning)
     except AlreadyPlannedError as error:
@@ -61,11 +57,12 @@ async def send_onboarding_message(
 
 @router.post("/accept", status_code=status.HTTP_201_CREATED)
 async def accept(
-    body: AcceptPlan, session: SessionDep, clock: ClockDep, planning: PlanningDep
+    body: AcceptPlan,
+    session: SessionDep,
+    clock: ClockDep,
+    planning: PlanningDep,
+    user: CurrentUserDep,
 ) -> RoadmapView:
-    user = await session.scalar(select(User).order_by(User.id).limit(1))
-    if user is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "no such proposal")
     try:
         await accept_plan(
             session, user, body.proposal_message_id, body.buddy_name, planning.courses
@@ -75,6 +72,6 @@ async def accept(
     except LookupError as error:
         raise HTTPException(status.HTTP_404_NOT_FOUND, str(error)) from error
     await session.commit()
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, user.id)
     assert plan is not None
     return await build_roadmap(session, plan, clock.now())

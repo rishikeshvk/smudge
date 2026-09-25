@@ -19,6 +19,16 @@ class AccountError(Exception):
     pass
 
 
+async def resolve_user(session: AsyncSession, user_id: int | None) -> int:
+    """The named user, or the owner, for CLIs that act as someone."""
+    if user_id is not None:
+        return user_id
+    owner = await session.scalar(select(User.id).where(User.is_owner))
+    if owner is None:
+        raise AccountError("there is no owner yet; run `make seed` or `make invite`")
+    return owner
+
+
 async def invite(session: AsyncSession, user_id: int | None, owner: bool) -> str:
     settings = get_settings()
     # The server's clock, so a dev clock moved ahead doesn't expire the code on arrival.

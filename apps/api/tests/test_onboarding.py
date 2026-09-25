@@ -12,7 +12,6 @@ from kindred_api.onboarding import (
     AlreadyPlannedError,
     Planning,
     accept_plan,
-    ensure_user,
     onboarding_turn,
 )
 from kindred_api.plans import load_current_plan
@@ -25,7 +24,7 @@ from kindred_contracts import (
     PlannerDraft,
     Verdict,
 )
-from kindred_db import Buddy, TopicNode
+from kindred_db import Buddy, TopicNode, User
 from kindred_gate import TopicMap
 from kindred_gate.jargon import jargon_in
 
@@ -97,6 +96,13 @@ class FakeAuditor:
         return self._verdicts.pop(0)
 
 
+async def add_user(session: AsyncSession) -> User:
+    user = User(timezone="Asia/Kolkata")
+    session.add(user)
+    await session.flush()
+    return user
+
+
 def planning(planner: FakePlanner, auditor: FakeAuditor) -> Planning:
     return Planning(courses=[TINY], planner=planner, auditor=auditor)
 
@@ -105,7 +111,7 @@ def planning(planner: FakePlanner, auditor: FakeAuditor) -> Planning:
 async def test_an_audited_reply_comes_with_its_quick_replies_and_card(
     session: AsyncSession,
 ) -> None:
-    user = await ensure_user(session, "Asia/Kolkata")
+    user = await add_user(session)
     draft = PlannerDraft(reply="an hour works", quick_replies=["ok"], plan=plan())
     auditor = FakeAuditor(PASS)
 
@@ -125,7 +131,7 @@ async def test_an_audited_reply_comes_with_its_quick_replies_and_card(
 
 @pytest.mark.anyio
 async def test_the_planner_sees_the_onboarding_so_far(session: AsyncSession) -> None:
-    user = await ensure_user(session, "Asia/Kolkata")
+    user = await add_user(session)
     planner = FakePlanner(
         PlannerDraft(reply="what's the goal?"), PlannerDraft(reply="nice")
     )
@@ -147,7 +153,7 @@ async def test_the_planner_sees_the_onboarding_so_far(session: AsyncSession) -> 
 async def test_a_leaky_reply_is_redrafted_then_replaced_but_keeps_its_card(
     session: AsyncSession,
 ) -> None:
-    user = await ensure_user(session, "Asia/Kolkata")
+    user = await add_user(session)
     leaky = PlannerDraft(reply="S3 stores objects.", quick_replies=["go"], plan=plan())
     planner = FakePlanner(leaky, leaky)
 
@@ -166,7 +172,7 @@ async def test_a_leaky_reply_is_redrafted_then_replaced_but_keeps_its_card(
 async def test_an_invented_course_or_a_past_start_is_no_card(
     session: AsyncSession,
 ) -> None:
-    user = await ensure_user(session, "Asia/Kolkata")
+    user = await add_user(session)
     drafts = [
         PlannerDraft(reply="ok", plan=plan(slug="made-up")),
         PlannerDraft(reply="ok", plan=plan(start=date(2026, 9, 20))),
@@ -182,7 +188,7 @@ async def test_an_invented_course_or_a_past_start_is_no_card(
 async def test_accepting_a_card_creates_the_plan_and_names_the_buddy(
     session: AsyncSession,
 ) -> None:
-    user = await ensure_user(session, "Asia/Kolkata")
+    user = await add_user(session)
     draft = PlannerDraft(reply="ready?", plan=plan())
     reply = await onboarding_turn(
         session, user, "go", NOW, planning(FakePlanner(draft), FakeAuditor(PASS))
@@ -190,7 +196,7 @@ async def test_accepting_a_card_creates_the_plan_and_names_the_buddy(
 
     await accept_plan(session, user, reply.message.id, "Wren", [TINY])
 
-    current = await load_current_plan(session)
+    current = await load_current_plan(session, user.id)
     assert current is not None
     assert (current.start_date, current.study_time) == (date(2026, 9, 24), time(20))
     first = await session.scalar(select(TopicNode).where(TopicNode.day == 1))
@@ -204,7 +210,7 @@ async def test_accepting_a_card_creates_the_plan_and_names_the_buddy(
 
 @pytest.mark.anyio
 async def test_only_a_real_proposal_can_be_accepted(session: AsyncSession) -> None:
-    user = await ensure_user(session, "Asia/Kolkata")
+    user = await add_user(session)
     reply = await onboarding_turn(
         session,
         user,

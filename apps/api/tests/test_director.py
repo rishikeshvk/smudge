@@ -26,8 +26,8 @@ def local(day: int, hour: int, minute: int = 0) -> datetime:
 async def current(
     session: AsyncSession, add_course: AddCourse, days: int
 ) -> CurrentPlan:
-    await add_course(days)
-    plan = await load_current_plan(session)
+    course = await add_course(days)
+    plan = await load_current_plan(session, course.user_id)
     assert plan is not None
     return plan
 
