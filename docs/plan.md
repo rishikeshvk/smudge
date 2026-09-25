@@ -64,7 +64,7 @@ Replies are not streamed, since they only ship after the audit; the UI shows a t
 
 ## System components
 
-Five components use an LLM; everything else is plain code.
+Six components use an LLM; everything else is plain code.
 
 | Component | Job | Runs | Model tier |
 | --- | --- | --- | --- |
@@ -72,6 +72,7 @@ Five components use an LLM; everything else is plain code.
 | Curator | Writes the buddy's daily study notes (with deliberate gaps) and drafts the day's messages | Nightly batch | Mid |
 | Persona | The buddy you chat with; sees only gated notes and relationship memory | Each message | Mid/large |
 | Auditor | Classifies incoming messages and checks every draft for leaks | Each message | Small, swappable (first knob to turn if leaks are high) |
+| Reflector | Checks what you explained about the buddy's shaky points against the topic's sources, and records what got sorted | Nightly batch | Mid |
 | Director | Schedules ritual messages, tracks streaks and the gap between you | Cron | Mostly code |
 
 **Two memories, kept apart.** The knowledge ledger (append-only study notes) is *what the buddy knows*. Relationship memory (facts about you, conversation summaries) is *who you are to each other*.
@@ -83,7 +84,8 @@ Every psychological mechanic must also make you a better learner; anything that 
 | Mechanic | How it shows up |
 | --- | --- |
 | Ben Franklin effect | Small asks ("can you check my note on IAM roles?"), each one also retrieval practice for you |
-| Protégé effect | You learn by explaining things to the buddy |
+| Protégé effect | You learn by explaining things to the buddy, and a point you explain well gets sorted in its notebook, credited to you |
+| Body doubling | "Study with me" while the buddy's session runs: both lamps on, then compare notes |
 | Commitment device | The morning "when are you studying today?" exchange |
 | Shared streak | "We're 9 days in": something you protect together, not a guilt counter |
 | Imperfect peer | Its notes have real gaps and struggles, so it feels like a fellow learner |
@@ -96,7 +98,7 @@ Every psychological mechanic must also make you a better learner; anything that 
 - Crisis rule: if a chat touches self-harm or crisis, the buddy drops the persona and points to real help.
 - Adults only for any public launch, since companion-chatbot laws (e.g. California SB 243) would likely apply.
 
-To explore later: spacing and testing effects, the goal-gradient effect, and body doubling.
+To explore later: spacing and testing effects, and the goal-gradient effect.
 
 ## MVP scope
 

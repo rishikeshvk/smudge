@@ -1,6 +1,6 @@
 # Buddy feel spec
 
-2026-09-24 · Status: **in progress**
+2026-09-25 · Status: **built**; the paid runs and the phone check wait for a go-ahead
 
 A module between M4 and M5. M0–M4 work end to end, but the buddy still reads as a polite bot: every reply is 60–70
 upbeat words that end in a question, the rituals repeat full topic titles, its "studying" lasts one LLM call, and
@@ -69,3 +69,23 @@ Each step is built, tested and committed on its own.
 | 10 Reflector | `shaky_resolutions`, the Reflector, gated retrieval with sorted points, the ask and the Curator skipping them, the morning thanks |
 | 11 App sorted | Sorted ticks and insights in the notebook |
 | 12 Wrap-up | A small probe run and a short simulation (paid, asked first), a phone check, results recorded here |
+
+## Changed during build
+
+- `BuddyStatus.studying` is a `Studying` contract (topic and until), shared with `PersonaContext`, rather than a
+  bare `session_ends_at`.
+- A retry is told in the morning message's text only. `MorningCard.retried` would have had no reader.
+- Rules join mood in the step that brings their data: `focused` with the session, `upbeat` with the Reflector.
+- "I studied today" opens a `check-in` sheet route from Chat, the Roadmap and a finished shared session. The study
+  seal shows there.
+- `messages.card` stores `None` as SQL NULL, so "no card" is one thing in queries.
+- `SortedPoint.sorted_at` came in with step 10's knock-on effects: the morning thanks and the upbeat mood need it.
+- `still_shaky` lives in the contracts, because the Persona, the Director, the Curator and the Reflector all need it.
+
+## Cost
+
+- A reaction saves the three calls an "ok" used to cost.
+- The Reflector costs one call and one audit per topic, and only on days you talked about a topic that still has
+  shaky points.
+- Style, mood, sessions, the retry schedule and study with me are plain code. The retry repeats one night's
+  Curator calls.
