@@ -11,6 +11,7 @@ import { useThemeColor } from "@/theme/useTheme";
 
 const FADE_IN_MS = 1200;
 const FADE_OUT_MS = 800;
+export const GLOW_HEIGHT = 420;
 
 // "#RRGGBBAA" → an SVG colour and opacity, since stop colours don't take an alpha channel.
 function splitAlpha(hex: string): { color: string; opacity: number } {
@@ -18,8 +19,8 @@ function splitAlpha(hex: string): { color: string; opacity: number } {
 }
 
 // The only gradient in the system, and it always means the lamp is on. It stays mounted so
-// the lamp fades out as well as in.
-export function LampGlow({ on }: { on: boolean }) {
+// the lamp fades out as well as in. It rises at the top of the chat unless placed elsewhere.
+export function LampGlow({ on, top = -140 }: { on: boolean; top?: number }) {
   const reduced = useReducedMotion();
   const glow = splitAlpha(useThemeColor("lamp-glow"));
   const opacity = useSharedValue(0);
@@ -36,7 +37,7 @@ export function LampGlow({ on }: { on: boolean }) {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[{ position: "absolute", left: "-20%", right: "-20%", top: -140, height: 420 }, style]}
+      style={[{ position: "absolute", left: "-20%", right: "-20%", top, height: GLOW_HEIGHT }, style]}
     >
       <Svg width="100%" height="100%">
         <Defs>

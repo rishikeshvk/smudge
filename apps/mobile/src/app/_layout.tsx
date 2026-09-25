@@ -5,10 +5,11 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Appearance } from "react-native";
 
-import { gateFor, useBuddy } from "@/buddy";
+import { type Gate, gateFor, useBuddy } from "@/buddy";
+import { Opening } from "@/components/Opening";
 import { Unreachable } from "@/components/Unreachable";
 import { queryClient } from "@/queryClient";
 import { useRefetchOnAppFocus, useRefetchOnNewDay } from "@/refetch";
@@ -36,15 +37,29 @@ function AppStack() {
   const gate = gateFor(session, buddy);
   usePush(gate === "ready");
   useRefetchOnNewDay();
+  // Only on a cold start: signing in later goes straight to the next screen.
+  const [opening, setOpening] = useState(true);
+  const openingGone = useCallback(() => setOpening(false), []);
 
-  useEffect(() => {
-    if (gate !== "loading") SplashScreen.hideAsync();
-  }, [gate]);
+  return (
+    <>
+      <Screens gate={gate} onRetry={() => buddy.refetch()} retrying={buddy.isFetching} />
+      {opening && <Opening ready={gate !== "loading"} onGone={openingGone} />}
+    </>
+  );
+}
 
+function Screens({
+  gate,
+  onRetry,
+  retrying,
+}: {
+  gate: Gate;
+  onRetry: () => void;
+  retrying: boolean;
+}) {
   if (gate === "loading") return null;
-  if (gate === "unreachable") {
-    return <Unreachable onRetry={() => buddy.refetch()} retrying={buddy.isFetching} />;
-  }
+  if (gate === "unreachable") return <Unreachable onRetry={onRetry} retrying={retrying} />;
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

@@ -52,7 +52,7 @@ export default function SignIn() {
         <View className="gap-2">
           <Text accessibilityRole="header" className="text-center text-ink">
             <Text className="font-display-light text-display">Got an </Text>
-            <Text className="font-display text-display">invite code?</Text>
+            <Text className="font-display-bold text-display">invite code?</Text>
           </Text>
           <Text className="text-center font-body text-body text-ink-muted">
             Kindred is invite-only for now. Ask the person who sent you here for a code.
