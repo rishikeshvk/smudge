@@ -1,6 +1,6 @@
 # Multi-user brief
 
-2026-09-25 · Status: **not started**. This is the input for the next session's plan mode, which turns it into
+2026-09-25 · Status: **planned** in [multi-user-spec.md](multi-user-spec.md). This was the input for plan mode, which turned it into
 `docs/multi-user-spec.md`.
 
 A pass between buddy feel and M5, with no milestone number. Kindred is finished for one person. Before the public

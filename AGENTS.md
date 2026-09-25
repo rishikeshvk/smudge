@@ -16,6 +16,8 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 5. No buddy message is sent without an audit pass.
 6. When unsure whether content is locked, fail closed and deflect.
 7. API keys live only on the backend. Never log them, never return them to the app.
+8. The user comes only from the auth token, never from a path or a body. Any row fetched
+   by id is checked against that user, and another user's row is a 404.
 
 ## Stack and layout
 - `apps/api` — FastAPI, Python 3.12, uv.
