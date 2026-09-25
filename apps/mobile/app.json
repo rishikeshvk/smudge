@@ -40,14 +40,6 @@
         {
           "defaultChannel": "rituals"
         }
-      ],
-      [
-        "expo-audio",
-        {
-          "microphonePermission": false,
-          "recordAudioAndroid": false,
-          "enableBackgroundPlayback": false
-        }
       ]
     ],
     "experiments": {
