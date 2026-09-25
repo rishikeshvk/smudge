@@ -23,7 +23,7 @@ Background: [plan.md](plan.md). Previous module: [multi-user-spec.md](multi-user
 | --- | --- | --- |
 | Backend host | An Oracle Always Free ARM VM (A1.Flex). It takes over the Tailscale node `kindred`, so the Funnel URL compiled into the APK stays the same | The AWS free plan: $100–200 in credits for 6 months, then it's paid, and 1–2 GB is tight for Ollama; staying on the PC |
 | Public demo | A static replay of a recorded 7-day run, with each turn's X-ray. Live access stays invite-only | An open live demo, where strangers would spend LLM budget, with companion-chatbot risk |
-| Visitors | Watch only. The page says Kindred is invite-only, with no APK link and no request form | A mailto for codes; a public APK |
+| Visitors | The page tells a week with the buddy as a story. People with an invite code get a "Download for Android" link to the APK; everyone else can read the story and watch the film. There is no request form | A mailto for codes |
 | Landing host | EAS Hosting (`<name>.expo.app`), deployed from a hand-built static folder | Cloudflare Pages is the fallback. GitHub Pages ties hosting to the repo. An Expo Router web route would mix a marketing page into the Android app's router |
 | Leak rate | No new probe runs and no chart yet. The committed numbers are kept, and a way to present them is designed and parked | Leak fixes and a re-run on the Go models, deferred |
 | Replay data | A new 7-day `make simulate` on the free Space Bunny model, curated into `replay.json` | The Go models, which spend budget; the owner's real chat, which is private |
