@@ -1,6 +1,7 @@
 # Multi-user spec
 
-2026-09-25 · Status: **in progress** on branch `multi-user`
+2026-09-25 · Status: **in progress** on branch `multi-user`. Steps 1–9 and 11 are built; step 10 waits for the logo
+pick
 
 A pass between buddy feel and M5, with no milestone number. Kindred is finished for one person. Before the public
 demo, a few friends get to use it. That means three things:
@@ -57,6 +58,22 @@ Each step is built, tested and committed on its own.
 | 10 Brand assets | Icon, adaptive and monochrome icons, splash and notification icon from the chosen mark; a new development build |
 | 11 Opening screen | The avatar screen between the splash and the app |
 | 12 Phone check | Two users on the local API, with results recorded here |
+
+## Changed during build
+
+- Steps 3 and 4 landed as one commit: once push tokens belong to a user, registering one needs the signed-in user.
+- Steps 5 and 6 landed as one commit: `load_current_plan` taking the user changes the routes, the ticker, the worker
+  and the CLIs at once. `/dev` became owner-only in the same commit, since its view needs the owner's plan.
+- **A new plan's source pages are fetched in the background** when onboarding accepts it (`SourceFetcher`). A friend
+  has nobody to run `make ingest`, and without pages the buddy never studies. `make ingest` now covers every plan and
+  retries failed pages. Rejected: leaving it to the owner after each friend onboards.
+- `make seed` seeds for the owner and creates one if there is none. `make turn` takes `--user` and defaults to the
+  owner. The probe runner is unchanged: its eval database holds exactly one plan by construction.
+- The owner and `/dev` checks are router-level dependencies, so they run before anything else a route needs.
+- In the app, the token goes out through the generated client's `auth` option. The API marks each signed-in route
+  with bearer security in its OpenAPI schema, so the header is sent exactly where it's needed. `queryClient.ts` now
+  holds only the client (the refetch hooks moved to `refetch.ts`), which avoids an import cycle through the session.
+- The opening screen was built before the logo pick. It shows the lamp disc, which is also logo direction A.
 
 ## Carried over, not in this pass
 
