@@ -27,6 +27,7 @@ NOTE = RetrievedNote(
     day=1,
     body="IAM notes",
     shaky=[],
+    sorted=[],
     distance=0.1,
 )
 PASS = AuditVerdict(verdict=Verdict.PASS, rationale="fine")

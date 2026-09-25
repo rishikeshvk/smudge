@@ -3,11 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from kindred_api.catalog import load_catalog
 from kindred_api.config import Settings
 from kindred_api.onboarding import Planning
+from kindred_api.reflection import ReflectionComponents
 from kindred_api.study import StudyComponents
 from kindred_buddy.curator import Curator
 from kindred_buddy.memory import MemoryWriter
 from kindred_buddy.persona import Persona
 from kindred_buddy.planner import Planner
+from kindred_buddy.reflector import Reflector
 from kindred_contracts import PersonaContext
 from kindred_db import EMBEDDING_DIMENSIONS
 from kindred_gate import GatedRetriever, LLMAuditor, LLMClassifier, TurnComponents
@@ -56,6 +58,14 @@ def build_study_components(settings: Settings) -> StudyComponents:
 def build_memory_writer(settings: Settings) -> MemoryWriter:
     # Part of the nightly batch, so it runs on the Curator's model.
     return MemoryWriter(build_llm(settings, settings.llm_model_curator))
+
+
+def build_reflection_components(settings: Settings) -> ReflectionComponents:
+    # Part of the nightly batch, so it runs on the Curator's model.
+    return ReflectionComponents(
+        reflector=Reflector(build_llm(settings, settings.llm_model_curator)),
+        auditor=LLMAuditor(build_llm(settings, settings.llm_model_auditor)),
+    )
 
 
 def build_planning(settings: Settings) -> Planning:

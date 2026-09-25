@@ -1,7 +1,7 @@
 from pydantic import AwareDatetime, Field, field_validator
 
 from kindred_contracts.curriculum import Contract
-from kindred_contracts.knowledge import SourceExcerpt
+from kindred_contracts.knowledge import SortedPoint, SourceExcerpt
 from kindred_contracts.turn import TopicRef
 
 MAX_NOTE_WORDS = 400
@@ -53,6 +53,8 @@ class NotebookNote(Contract):
     note_id: int
     topic: TopicRef
     body: str
+    # Every shaky point the note was written with; the sorted ones are also in sorted.
     shaky: list[str]
+    sorted: list[SortedPoint]
     sources: list[str]
     written_at: AwareDatetime

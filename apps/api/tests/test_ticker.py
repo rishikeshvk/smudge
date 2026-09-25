@@ -11,6 +11,7 @@ from kindred_api.chat import post_message
 from kindred_api.clock import FixedClock
 from kindred_api.director import RitualSchedule
 from kindred_api.push import Pusher, register_token
+from kindred_api.reflection import ReflectionComponents
 from kindred_api.relationship import load_memory
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
@@ -19,6 +20,8 @@ from kindred_contracts import (
     MemoryBrief,
     MemoryUpdate,
     NoteDraft,
+    Reflection,
+    ReflectionBrief,
     StudyBrief,
     Verdict,
 )
@@ -70,6 +73,9 @@ class Buddy:
             summary=f"{len(brief.conversation)} messages", facts=["likes mornings"]
         )
 
+    async def reflect(self, brief: ReflectionBrief, session_id: str) -> Reflection:
+        return Reflection(points=[])
+
 
 async def sourced_course(
     session: AsyncSession, add_course: AddCourse, days: int
@@ -95,6 +101,7 @@ def ticker_for(
         clock,
         lambda: StudyComponents(curator=buddy, auditor=buddy, embedder=buddy),
         lambda: buddy,
+        lambda: ReflectionComponents(reflector=buddy, auditor=buddy),
         RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4),
         Pusher(httpx2.AsyncClient(transport=push), "https://push.test"),
     )

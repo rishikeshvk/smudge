@@ -64,6 +64,7 @@ def request(directive: Directive, feedback: str | None = None) -> DraftRequest:
                 day=3,
                 body="IAM decides who can do what.",
                 shaky=["authN vs authZ"],
+                sorted=[],
                 distance=0.2,
             )
         ],

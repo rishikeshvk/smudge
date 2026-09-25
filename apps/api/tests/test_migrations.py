@@ -21,6 +21,8 @@ TABLES = {
     "study_sessions",
     "relationship_memory",
     "llm_settings",
+    "shaky_resolutions",
+    "reflection_days",
 }
 
 
@@ -82,3 +84,30 @@ def test_ledger_notes_are_append_only(connection: Connection, statement: str) ->
         connection.execute(text(statement))
 
     assert connection.scalar(text("SELECT body FROM ledger_notes")) == "Note"
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "UPDATE shaky_resolutions SET insight = 'rewritten'",
+        "DELETE FROM shaky_resolutions",
+        "TRUNCATE shaky_resolutions",
+    ],
+)
+def test_shaky_resolutions_are_append_only(
+    connection: Connection, statement: str
+) -> None:
+    insert_note(connection)
+    connection.execute(
+        text(
+            """
+            INSERT INTO shaky_resolutions (note_id, shaky, insight, written_at)
+            SELECT id, 'shaky', 'Insight', '2026-10-02T00:00Z' FROM ledger_notes
+            """
+        )
+    )
+
+    with pytest.raises(DBAPIError, match="append-only"), connection.begin_nested():
+        connection.execute(text(statement))
+
+    assert connection.scalar(text("SELECT insight FROM shaky_resolutions")) == "Insight"

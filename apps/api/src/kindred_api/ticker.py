@@ -8,6 +8,11 @@ from kindred_api.clock import Clock
 from kindred_api.director import RitualSchedule, send_due_rituals
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.push import Pusher
+from kindred_api.reflection import (
+    ReflectionComponents,
+    reflect_day,
+    unreflected_days,
+)
 from kindred_api.relationship import Rememberer, remember_day, unremembered_days
 from kindred_api.study import StudyComponents, due_topics, study_topic
 from kindred_llm import LLMUnavailableError
@@ -27,6 +32,7 @@ class Ticker:
         clock: Clock,
         study: Callable[[], StudyComponents],
         memory: Callable[[], Rememberer],
+        reflection: Callable[[], ReflectionComponents],
         rituals: RitualSchedule,
         pusher: Pusher,
     ) -> None:
@@ -34,6 +40,7 @@ class Ticker:
         self._clock = clock
         self._study = study
         self._memory = memory
+        self._reflection = reflection
         self.rituals = rituals
         self._pusher = pusher
         self._lock = asyncio.Lock()
@@ -54,6 +61,7 @@ class Ticker:
             try:
                 await self._study_due(session, plan)
                 await self._remember_due(session, plan)
+                await self._reflect_due(session, plan)
             except LLMUnavailableError:
                 await session.rollback()
                 logger.warning("model endpoint unavailable; trying again next tick")
@@ -73,6 +81,15 @@ class Ticker:
             await remember_day(session, plan.user_id, day, plan.tz, now, self._memory())
             await session.commit()
             logger.info("remembered %s", day)
+
+    async def _reflect_due(self, session: AsyncSession, plan: CurrentPlan) -> None:
+        now = self._clock.now()
+        for day in await unreflected_days(session, plan, now):
+            sorted_points = await reflect_day(
+                session, plan, day, now, self._reflection()
+            )
+            await session.commit()
+            logger.info("reflected on %s: %s sorted", day, sorted_points)
 
     async def _send_rituals(self, session: AsyncSession, plan: CurrentPlan) -> None:
         sent = await send_due_rituals(session, plan, self.rituals, self._clock.now())

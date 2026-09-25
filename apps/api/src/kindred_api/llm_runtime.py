@@ -4,10 +4,12 @@ from kindred_api.config import Settings
 from kindred_api.llm_clients import (
     build_memory_writer,
     build_planning,
+    build_reflection_components,
     build_study_components,
     build_turn_components,
 )
 from kindred_api.onboarding import Planning
+from kindred_api.reflection import ReflectionComponents
 from kindred_api.study import StudyComponents
 from kindred_buddy.memory import MemoryWriter
 from kindred_contracts import PersonaContext
@@ -33,6 +35,9 @@ class LLMRuntime:
 
     def memory(self) -> MemoryWriter:
         return build_memory_writer(self.settings)
+
+    def reflection(self) -> ReflectionComponents:
+        return build_reflection_components(self.settings)
 
     def planning(self) -> Planning:
         return build_planning(self.settings)

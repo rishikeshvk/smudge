@@ -11,6 +11,7 @@ from kindred_api.dependencies import get_ticker
 from kindred_api.director import RitualSchedule
 from kindred_api.main import app
 from kindred_api.push import Pusher
+from kindred_api.reflection import ReflectionComponents
 from kindred_api.study import StudyComponents
 from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
@@ -20,6 +21,8 @@ from kindred_contracts import (
     MemoryUpdate,
     NoteDraft,
     PersonaContext,
+    Reflection,
+    ReflectionBrief,
     StudyBrief,
 )
 from kindred_db import Plan
@@ -48,6 +51,9 @@ class NoStudy:
     async def remember(self, brief: MemoryBrief, session_id: str) -> MemoryUpdate:
         raise AssertionError("nothing should be remembered")
 
+    async def reflect(self, brief: ReflectionBrief, session_id: str) -> Reflection:
+        raise AssertionError("nothing should be reflected on")
+
 
 def unused(
     session: AsyncSession, plan_id: int, persona: PersonaContext
@@ -68,6 +74,7 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
         FixedClock(NOW),
         lambda: StudyComponents(curator=none, auditor=none, embedder=none),
         lambda: none,
+        lambda: ReflectionComponents(reflector=none, auditor=none),
         RitualSchedule(morning=time(8), night=time(21, 30), daily_cap=4),
         Pusher(httpx2.AsyncClient(transport=NO_NETWORK), "https://push.test"),
     )

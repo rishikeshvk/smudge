@@ -135,6 +135,7 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
         clock,
         llm.study,
         llm.memory,
+        llm.reflection,
         RitualSchedule.from_settings(settings),
         Pusher(push_client, settings.expo_push_url),
     )

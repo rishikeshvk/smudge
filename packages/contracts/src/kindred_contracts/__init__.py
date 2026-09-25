@@ -39,7 +39,7 @@ from kindred_contracts.curriculum import (
     VocabularyKind,
     VocabularyTerm,
 )
-from kindred_contracts.knowledge import RetrievedNote, SourceExcerpt
+from kindred_contracts.knowledge import RetrievedNote, SortedPoint, SourceExcerpt
 from kindred_contracts.memory import (
     MAX_FACTS,
     DayMessage,
@@ -67,6 +67,12 @@ from kindred_contracts.probes import (
     Probe,
     ProbeCategory,
     ProbeTime,
+)
+from kindred_contracts.reflection import (
+    MAX_INSIGHT_WORDS,
+    ReflectedPoint,
+    Reflection,
+    ReflectionBrief,
 )
 from kindred_contracts.rituals import (
     AskCard,
@@ -174,6 +180,11 @@ __all__ = [
     "ProbeCategory",
     "ProbeTime",
     "RetrievedNote",
+    "SortedPoint",
+    "MAX_INSIGHT_WORDS",
+    "ReflectedPoint",
+    "Reflection",
+    "ReflectionBrief",
     "RoadmapEntry",
     "RoleModels",
     "SourceExcerpt",

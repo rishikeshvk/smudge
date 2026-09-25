@@ -109,6 +109,21 @@ class LedgerNote(Base):
     written_at: Mapped[datetime]
 
 
+# A shaky point the user helped the buddy sort out. It is knowledge, so like the notes
+# it is append-only and read only through the gate.
+class ShakyResolution(Base):
+    __tablename__ = "shaky_resolutions"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    note_id: Mapped[int] = mapped_column(
+        ForeignKey("ledger_notes.id", ondelete="RESTRICT"), index=True
+    )
+    shaky: Mapped[str]
+    # What the buddy understands now, checked against the topic's sources and audited.
+    insight: Mapped[str]
+    written_at: Mapped[datetime]
+
+
 # Real material the buddy studies from, gated by its topic's unlock like the notes.
 class SourceDocument(Base):
     __tablename__ = "source_documents"
@@ -260,3 +275,14 @@ class LLMSettings(Base):
     base_url: Mapped[str | None]
     api_key: Mapped[str | None]
     models: Mapped[dict[str, str] | None] = mapped_column(JSONB)
+
+
+# One reflection per finished day of chat, so the Reflector never reads a day twice.
+class ReflectionDay(Base):
+    __tablename__ = "reflection_days"
+    __table_args__ = (UniqueConstraint("user_id", "for_date"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    for_date: Mapped[date]
+    reflected_at: Mapped[datetime]

@@ -3,8 +3,20 @@ from datetime import datetime
 from sqlalchemy import ColumnElement, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_contracts import NotebookNote, RetrievedNote, SourceExcerpt, TopicRef
-from kindred_db import LedgerNote, NoteEmbedding, SourceDocument, TopicNode
+from kindred_contracts import (
+    NotebookNote,
+    RetrievedNote,
+    SortedPoint,
+    SourceExcerpt,
+    TopicRef,
+)
+from kindred_db import (
+    LedgerNote,
+    NoteEmbedding,
+    ShakyResolution,
+    SourceDocument,
+    TopicNode,
+)
 
 
 def _unlocked(plan_id: int, now: datetime) -> list[ColumnElement[bool]]:
@@ -16,6 +28,23 @@ def _unlocked(plan_id: int, now: datetime) -> list[ColumnElement[bool]]:
 
 def _written(plan_id: int, now: datetime) -> list[ColumnElement[bool]]:
     return [*_unlocked(plan_id, now), LedgerNote.written_at <= now]
+
+
+async def _sorted(
+    session: AsyncSession, note_ids: list[int], now: datetime
+) -> dict[int, list[SortedPoint]]:
+    """What the user helped sort out on notes already gated, as of now."""
+    resolutions = await session.scalars(
+        select(ShakyResolution)
+        .where(ShakyResolution.note_id.in_(note_ids), ShakyResolution.written_at <= now)
+        .order_by(ShakyResolution.id)
+    )
+    by_note: dict[int, list[SortedPoint]] = {note_id: [] for note_id in note_ids}
+    for resolution in resolutions:
+        by_note[resolution.note_id].append(
+            SortedPoint(shaky=resolution.shaky, insight=resolution.insight)
+        )
+    return by_note
 
 
 async def retrieve_notes(
@@ -39,6 +68,8 @@ async def retrieve_notes(
         .order_by(distance)
         .limit(limit)
     )
+    found = rows.tuples().all()
+    sorted_points = await _sorted(session, [note.id for note, _, _ in found], now)
     return [
         RetrievedNote(
             note_id=note.id,
@@ -47,9 +78,10 @@ async def retrieve_notes(
             day=node.day,
             body=note.body,
             shaky=note.shaky,
+            sorted=sorted_points[note.id],
             distance=note_distance,
         )
-        for note, node, note_distance in rows.tuples()
+        for note, node, note_distance in found
     ]
 
 
@@ -78,14 +110,17 @@ async def list_notes(
         .where(*_written(plan_id, now))
         .order_by(TopicNode.day, LedgerNote.id)
     )
+    found = rows.tuples().all()
+    sorted_points = await _sorted(session, [note.id for note, _ in found], now)
     return [
         NotebookNote(
             note_id=note.id,
             topic=TopicRef(slug=node.slug, title=node.title, day=node.day),
             body=note.body,
             shaky=note.shaky,
+            sorted=sorted_points[note.id],
             sources=note.sources,
             written_at=note.written_at,
         )
-        for note, node in rows.tuples()
+        for note, node in found
     ]
