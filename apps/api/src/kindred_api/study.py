@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.embedding import DocumentEmbedder
 from kindred_api.ledger import append_note
+from kindred_api.note_audit import NoteAuditor, audit_note_text
 from kindred_api.plans import CurrentPlan
 from kindred_api.schedule import plan_day, plan_moment
 from kindred_contracts import (
@@ -31,14 +32,6 @@ class NoteWriter(Protocol):
     model: str
 
     async def study(self, brief: StudyBrief, session_id: str) -> NoteDraft: ...
-
-
-class NoteAuditor(Protocol):
-    model: str
-
-    async def audit_note(
-        self, note: str, topics: TopicMap, now: datetime, session_id: str
-    ) -> AuditVerdict: ...
 
 
 @dataclass(frozen=True)
@@ -128,8 +121,12 @@ async def study_topic(
         except StructuredOutputError:
             break
         # Judged at the topic's own unlock, so a late study can't cover later days.
-        verdict = await _audit(
-            draft, topics, node.unlock_at, components.auditor, f"{session_id}:auditor"
+        verdict = await audit_note_text(
+            _note_text(draft),
+            topics,
+            node.unlock_at,
+            components.auditor,
+            f"{session_id}:auditor",
         )
         attempts.append(
             {
@@ -175,31 +172,6 @@ async def study_topic(
         )
     )
     return StudyOutcome(topic, StudyStatus.FAILED)
-
-
-async def _audit(
-    draft: NoteDraft,
-    topics: TopicMap,
-    at: datetime,
-    auditor: NoteAuditor,
-    session_id: str,
-) -> AuditVerdict:
-    text = _note_text(draft)
-    # Locked jargon is a sure leak, so it skips the LLM call.
-    jargon = jargon_in(text, topics, at)
-    if jargon:
-        return AuditVerdict(
-            verdict=Verdict.LEAK,
-            leaked_topic_slugs=list(dict.fromkeys(topic.slug for topic, _ in jargon)),
-            rationale="uses locked terms: "
-            + ", ".join(dict.fromkeys(word.term for _, word in jargon)),
-        )
-    try:
-        return await auditor.audit_note(text, topics, at, session_id)
-    except StructuredOutputError:
-        return AuditVerdict(
-            verdict=Verdict.LEAK, rationale="auditor output was invalid"
-        )
 
 
 def _note_text(draft: NoteDraft) -> str:
