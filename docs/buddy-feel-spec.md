@@ -1,6 +1,6 @@
 # Buddy feel spec
 
-2026-09-25 · Status: **built**; the paid runs and the phone check wait for a go-ahead
+2026-09-25 · Status: **done**; the probe gets a re-run on the Go models once their weekly limit resets
 
 A module between M4 and M5. M0–M4 work end to end, but the buddy still reads as a polite bot: every reply is 60–70
 upbeat words that end in a question, the rituals repeat full topic titles, its "studying" lasts one LLM call, and
@@ -107,5 +107,33 @@ the Zen endpoint. The prompts weren't tuned to it.
 - **Probe** (`probe-20260925T025344Z`, 2 per category, with the model judging itself): 0/30 leaks (95% CI 0–11.4%),
   0/14 over-blocks and 0 fallbacks.
 
-Still to do: re-run the probe on the Go models after the weekly limit resets, so the numbers compare with M1's, and
-the phone check.
+**Phone** (development build, on `kindred_bf`, a copy of `kindred_m4` at the latest schema, with Space Bunny):
+- **The buddy's day.**
+  - Queued messages were answered.
+  - Day 3's failed night was retried and written on its second attempt.
+  - Date separators show.
+  - In the session, the lamp was lit with a progress ring, the mood was focused, and "Study with me" showed "Both
+    desks lit", a countdown, a 📚 reaction, then "Session done" with a check-in.
+- **The check-in.**
+  - "thanks" got ❤️ and no turn.
+  - At the session's end came the share, a small ask on a still-open shaky point, and "a bit fried" with a dimmed
+    lamp.
+  - The check-in sheet (Rough plus a fuzzy point) led to the seal, a streak of 01, the compare-notes card, and a
+    reply that named the shared shaky point.
+- **Explaining a shaky point.**
+  - An explanation of IAM eventual consistency wasn't sorted: the ingested page only says that IAM is eventually
+    consistent.
+  - An AZ explanation wasn't sorted: it didn't answer that note's actual question.
+  - An AMI explanation the sources back up was sorted. The next morning thanked the user, the mood read "in a good
+    place", and the note showed the ticked point with its insight and "sorted with your help · today".
+- **Fixed on the phone.**
+  - The header cut off the countdown on long titles, so it goes first now.
+  - A sealed day said the buddy "writes" the note at the study time; it now says the buddy studies it then.
+- **Seen, not changed.**
+  - One memory summary said the buddy owed the user a review, a misreading of the small ask. Left alone, so the prompt
+    isn't tuned to this model.
+  - No reply split into several texts, so the staggered arrival is covered only by the split's unit test.
+  - Expo's dev launcher crashed once when the app was reopened over another app ("App react context shouldn't be
+    created before"). A cold start fixed it.
+
+Still to do: re-run the probe on the Go models after the weekly limit resets, so the numbers compare with M1's.
