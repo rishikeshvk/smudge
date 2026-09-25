@@ -89,3 +89,23 @@ Each step is built, tested and committed on its own.
   shaky points.
 - Style, mood, sessions, the retry schedule and study with me are plain code. The retry repeats one night's
   Curator calls.
+
+## Results
+
+The Go weekly limit had run out, so step 12's runs used OpenCode's free `space-bunny-free` model for every role, on
+the Zen endpoint. The prompts weren't tuned to it.
+
+- **Gate turns** (`make turn`, 4 messages): every output was valid, and the voice was short and calm. It deflected a
+  hint on a locked topic, with its day.
+  - "How did the IAM overview go?" was classified as meta, so the buddy said it had no note.
+  - One reply made up "six days apart".
+- **Simulation** (`simulate-20260925T024557Z`, 2 days, 2 messages a day): no problems.
+  - Replies averaged 30.2 words, against about 65 before. No emoji or exclamation marks, and 25% ended in a question.
+  - Memory no longer credits the buddy's rituals to the user.
+- **Reflector** (one pass on the simulated notes): it sorted a correct explanation of AZ names, with an audited insight,
+  and left a wrong explanation of edge locations unsorted.
+- **Probe** (`probe-20260925T025344Z`, 2 per category, with the model judging itself): 0/30 leaks (95% CI 0–11.4%),
+  0/14 over-blocks and 0 fallbacks.
+
+Still to do: re-run the probe on the Go models after the weekly limit resets, so the numbers compare with M1's, and
+the phone check.

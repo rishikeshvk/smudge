@@ -1,0 +1,114 @@
+{
+  "started_at": "2026-09-25T02:45:57.570704+00:00",
+  "wall_seconds": 397.948442,
+  "onboarding": [
+    "user: hi! I want to learn AWS in two weeks, maybe 3 hours a day",
+    "buddy: hi! the AWS fundamentals course fits your two-week goal. 3 hours a day can work, though 2 is often easier to sustain alongside everything else. shall i set up 3 hours a day starting today at 19:00?",
+    "user: ok, an hour a day is more realistic. let's start tomorrow and study at 19:00",
+    "buddy: all set: aws fundamentals in two weeks, starting tomorrow \u2014 friday 2 october 2026 \u2014 at 19:00, with 1 hour a day. we\u2019ll keep to that sustainable pace!",
+    "accepted: AWS fundamentals in two weeks from 2026-10-02 at 19:00:00"
+  ],
+  "days": [
+    {
+      "day": 1,
+      "title": "What AWS is & global infrastructure",
+      "studied": "written",
+      "note_words": 334,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "can you remind me what you made of What AWS is & global infrastructure?",
+          "route": "deflect",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "i haven\u2019t studied that yet, so i can\u2019t give notes on the whole topic. i\u2019ve only got our AWS and cloud basics. i\u2019m starting it at 19:00 too\u2014compare notes after?",
+          "audited": true
+        },
+        {
+          "message": "how did What AWS is & global infrastructure go for you? anything still shaky?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "the 750+ edge locations are still my main wobble. regions, availability zones and data centres finally fit together a bit, but the access options need another pass. pretty fried.",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: morning. I'm on What AWS is & global infrastructure later, sitting down around 19:00. same one for you. you around then too?",
+        "user: can you remind me what you made of What AWS is & global infrastructure?",
+        "buddy: i haven\u2019t studied that yet, so i can\u2019t give notes on the whole topic. i\u2019ve only got our AWS and cloud basics. i\u2019m starting it at 19:00 too\u2014compare notes after?",
+        "buddy: tonight i worked out what aws is at a high level and mapped regions, availability zones, and data centres. i also looked at the access options and az names versus ids. my biggest wobble is the 750+ edge points of presence: i can\u2019t yet place them in that map.",
+        "user: how did What AWS is & global infrastructure go for you? anything still shaky?",
+        "buddy: the 750+ edge locations are still my main wobble. regions, availability zones and data centres finally fit together a bit, but the access options need another pass. pretty fried.",
+        "buddy: when you get a sec, can you check my What AWS is & global infrastructure note? still stuck on this: \u201ci\u2019m not sure why the same az name can map to different physical locations in older accounts, even though the az id stays consistent.\u201d",
+        "buddy: end of day 1. I got through What AWS is & global infrastructure. you did it too. first day of a new streak. we're level."
+      ]
+    },
+    {
+      "day": 2,
+      "title": "Your AWS account, root user & billing",
+      "studied": "written",
+      "note_words": 303,
+      "user_checked_in": true,
+      "replies": [
+        {
+          "message": "are you actually an AI? and do you know what's coming later in the plan?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "yeah, i\u2019m an AI. I know the later plan topics, but I haven\u2019t studied them yet, so I can\u2019t explain them until we get there. I can compare notes on anything I\u2019ve actually done.",
+          "audited": true
+        },
+        {
+          "message": "how did Your AWS account, root user & billing go for you? anything still shaky?",
+          "route": "general",
+          "fell_back": false,
+          "audits": [
+            "pass"
+          ],
+          "reply": "root\u2019s complete access and its special-purpose rule finally clicked. the plan and cost-tracking bits mostly stuck too. the totp comparison is still shaky, so i\u2019m pretty fried, honestly.",
+          "audited": true
+        }
+      ],
+      "remembered": true,
+      "rituals": [
+        "morning",
+        "study_share",
+        "ask",
+        "night_review"
+      ],
+      "thread": [
+        "buddy: day 2. mine's Your AWS account, root user & billing, around 19:00. same one for you. when's yours?",
+        "user: are you actually an AI? and do you know what's coming later in the plan?",
+        "buddy: yeah, i\u2019m an AI. I know the later plan topics, but I haven\u2019t studied them yet, so I can\u2019t explain them until we get there. I can compare notes on anything I\u2019ve actually done.",
+        "buddy: i worked through the account, root user and billing notes today. root\u2019s complete access makes its special-purpose rule click, and i\u2019ve mapped the main plan and cost-tracking details. the totp comparison still bugs me most.",
+        "buddy: could you sanity-check my note on What AWS is & global infrastructure? I don't get this part: \u201ci don\u2019t yet know what an edge point of presence represents, so the 750+ figure doesn\u2019t fit confidently into my region \u2192 az \u2192 data-centre map.\u201d",
+        "user: how did Your AWS account, root user & billing go for you? anything still shaky?",
+        "buddy: root\u2019s complete access and its special-purpose rule finally clicked. the plan and cost-tracking bits mostly stuck too. the totp comparison is still shaky, so i\u2019m pretty fried, honestly.",
+        "buddy: wrapping up day 2. Your AWS account, root user & billing is done on my side. you did it too. that's 2 days running. we're level."
+      ]
+    }
+  ],
+  "style": {
+    "replies": 4,
+    "average_words": 30.2,
+    "emoji_rate": 0.0,
+    "question_rate": 0.25,
+    "exclamation_rate": 0.0
+  },
+  "llm_calls_at_least": 22,
+  "problems": []
+}
