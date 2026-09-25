@@ -13,7 +13,16 @@
       "environment": "development",
       "env": {
         "APP_VARIANT": "development"
-      }
+      },
+      "channel": "development"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "environment": "preview",
+      "channel": "preview"
     }
   }
 }

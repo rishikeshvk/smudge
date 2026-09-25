@@ -1,4 +1,4 @@
-.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build
+.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -122,3 +122,11 @@ mobile-usb:
 # The development build with push notifications; install the APK it links to on the phone.
 mobile-build:
 	cd apps/mobile && npx eas-cli@latest build --profile development --platform android
+
+# The standalone APK friends install; it reaches the API at the preview environment's EXPO_PUBLIC_API_URL.
+mobile-preview:
+	cd apps/mobile && npx eas-cli@latest build --profile preview --platform android
+
+# make mobile-update MSG='Fix the notebook fog': JS changes to installed preview APKs, no reinstall.
+mobile-update:
+	cd apps/mobile && npx eas-cli@latest update --channel preview --environment preview --platform android --message "$(MSG)"
