@@ -9,6 +9,7 @@ import { Bubble } from "./Bubble";
 import { BubbleBurst } from "./BubbleBurst";
 import { Button } from "./Button";
 import { CoachMark } from "./CoachMark";
+import { CompareNotes } from "./CompareNotes";
 import { DaySeparator } from "./DaySeparator";
 import { ReactionChip } from "./ReactionChip";
 import { RitualCard } from "./RitualCard";
@@ -31,7 +32,6 @@ type Props = {
   newest: boolean;
   checkedInToday: boolean;
   onCheckIn: () => void;
-  checkingIn: boolean;
 };
 
 export function ChatRow({
@@ -48,7 +48,6 @@ export function ChatRow({
   newest,
   checkedInToday,
   onCheckIn,
-  checkingIn,
 }: Props) {
   const { message, startsDay, startsRun, endsRun } = row;
   const mine = message.speaker === "user";
@@ -68,10 +67,11 @@ export function ChatRow({
         buddyName={buddyName}
         now={now}
         checkedInToday={checkedInToday}
-        checkingIn={checkingIn}
         onCheckIn={onCheckIn}
       />
     );
+  } else if (message.card?.kind === "checkin") {
+    body = <CompareNotes card={message.card} buddyName={buddyName} />;
   } else if (message.card) {
     body = (
       <RitualCard
@@ -84,7 +84,6 @@ export function ChatRow({
         checkedInToday={checkedInToday}
         onSend={onResend}
         onCheckIn={onCheckIn}
-        checkingIn={checkingIn}
       />
     );
   } else if (mine) {

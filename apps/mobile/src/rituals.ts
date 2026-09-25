@@ -1,7 +1,10 @@
-import type { ChatMessage, StudyShareCard, StudyTogetherCard, TopicRef } from "./api/types.gen";
+import type { ChatMessage, StudyShareCard } from "./api/types.gen";
 
-// The buddy's rituals; a study-together card is the user's own.
-export type Ritual = Exclude<NonNullable<ChatMessage["card"]>, StudyTogetherCard>;
+// The buddy's rituals; the other cards are the user's own moments.
+export type Ritual = Extract<
+  NonNullable<ChatMessage["card"]>,
+  { kind: "morning" | "study_share" | "ask" | "night_review" }
+>;
 
 export function ritualBand(card: Ritual): string {
   switch (card.kind) {
@@ -29,10 +32,6 @@ export function showsActions(card: Ritual, newest: boolean, checkedInToday: bool
   if (!newest) return false;
   if (card.kind === "night_review") return !card.checked_in_today && !checkedInToday;
   return card.kind === "morning";
-}
-
-export function checkInMessage(topic: TopicRef): string {
-  return `I studied today · finished ${topic.title}`;
 }
 
 export const NOT_TODAY = "Not today";

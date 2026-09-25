@@ -13,7 +13,6 @@ import {
   useStudyTogether,
   useTurnStage,
 } from "@/chat";
-import { useCheckIn } from "@/checkIn";
 import { AmbientGround } from "@/components/AmbientGround";
 import { Bubble } from "@/components/Bubble";
 import { BuddyHeader } from "@/components/BuddyHeader";
@@ -23,7 +22,6 @@ import { DraftStatus } from "@/components/DraftStatus";
 import { LampGlow } from "@/components/LampGlow";
 import { LoadState } from "@/components/LoadState";
 import { StreakChip } from "@/components/StreakChip";
-import { StudySeal } from "@/components/StudySeal";
 import { StudyAlongBar } from "@/components/StudyTogether";
 import { UnavailableBanner } from "@/components/UnavailableBanner";
 import { XrayToggle } from "@/components/XrayToggle";
@@ -31,7 +29,6 @@ import { draftSteps, isInFlight } from "@/draftStage";
 import { useKindredNow } from "@/kindredNow";
 import { usePref } from "@/prefs";
 import { useRefetchOnScreenFocus } from "@/queryClient";
-import { checkInMessage } from "@/rituals";
 import { ambientForHour } from "@/theme/ambient";
 import { chronological, threadRows } from "@/thread";
 import { localHour } from "@/time";
@@ -54,9 +51,6 @@ export default function Chat() {
   // A failed message comes back to the composer, unless something new is being typed there.
   const send = useSendMessage({
     onFailed: (text) => setDraft((current) => (current.trim() ? current : text)),
-  });
-  const { checkIn, sealed, closeSeal } = useCheckIn({
-    onCheckedIn: (topic) => send.mutate({ body: { text: checkInMessage(topic) } }),
   });
   const { draft: prefill } = useLocalSearchParams<{ draft?: string }>();
   const [appliedPrefill, setAppliedPrefill] = useState<string | undefined>();
@@ -155,8 +149,7 @@ export default function Chat() {
                 onOpenTrace={(turnId) => router.push({ pathname: "/trace/[turnId]", params: { turnId } })}
                 newest={item.message.id === rows[0]?.message.id && !send.isPending}
                 checkedInToday={roadmap.data?.checked_in_today ?? false}
-                onCheckIn={() => checkIn.mutate({})}
-                checkingIn={checkIn.isPending}
+                onCheckIn={() => router.push("/check-in")}
               />
             )}
             ListHeaderComponent={latest}
@@ -170,11 +163,6 @@ export default function Chat() {
             Couldn&apos;t send that. Check the connection and try again.
           </Text>
         )}
-        {checkIn.isError && (
-          <Text className="px-4 pb-2 font-meta text-meta text-leak">
-            Couldn&apos;t save that check-in. Try again.
-          </Text>
-        )}
         <Composer
           value={draft}
           onChangeText={setDraft}
@@ -182,7 +170,6 @@ export default function Chat() {
           placeholder={available ? `Message ${name}` : `Messages wait until ${name}'s back`}
         />
       </KeyboardAvoidingView>
-      <StudySeal topic={sealed?.topic ?? null} caption={sealed?.caption ?? ""} onClose={closeSeal} />
     </AmbientGround>
   );
 }

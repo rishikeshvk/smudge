@@ -1,5 +1,5 @@
 import type { AskCard, MorningCard, NightReviewCard, StudyShareCard } from "./api/types.gen";
-import { checkInMessage, ritualBand, shareStub, showsActions, streakNumber } from "./rituals";
+import { ritualBand, shareStub, showsActions, streakNumber } from "./rituals";
 
 const topic = { slug: "s3-encryption", title: "S3 encryption", day: 9 };
 const morning: MorningCard = {
@@ -41,10 +41,6 @@ test("only the newest morning or unanswered night review offers buttons", () => 
 
 test("a check-in since the night review was sent hides its buttons", () => {
   expect(showsActions(night, true, true)).toBe(false);
-});
-
-test("a check-in from the night review reads like the user wrote it", () => {
-  expect(checkInMessage(topic)).toBe("I studied today · finished S3 encryption");
 });
 
 test("the streak shows two digits", () => {

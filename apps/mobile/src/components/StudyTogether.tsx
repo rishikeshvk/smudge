@@ -37,14 +37,12 @@ export function StudyTogetherNote({
   buddyName,
   now,
   checkedInToday,
-  checkingIn,
   onCheckIn,
 }: {
   card: StudyTogetherCard;
   buddyName: string;
   now: Date;
   checkedInToday: boolean;
-  checkingIn: boolean;
   onCheckIn: () => void;
 }) {
   const left = minutesUntil(card.until, now);
@@ -64,11 +62,10 @@ export function StudyTogetherNote({
       </Text>
       {left === 0 && !checkedInToday && (
         <Button
-          label={checkingIn ? "Sealing…" : "I studied today"}
+          label="I studied today"
           variant="primary"
           small
-          disabled={checkingIn}
-          onPress={onCheckIn}
+            onPress={onCheckIn}
         />
       )}
     </View>

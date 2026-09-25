@@ -52,6 +52,7 @@ function AppStack() {
         <Stack.Screen name="trace/[turnId]" options={{ presentation: "transparentModal", animation: "fade" }} />
         <Stack.Screen name="pull/[slug]" options={{ presentation: "transparentModal", animation: "fade" }} />
         <Stack.Screen name="change-plan" options={{ presentation: "transparentModal", animation: "fade" }} />
+        <Stack.Screen name="check-in" options={{ presentation: "transparentModal", animation: "fade" }} />
       </Stack.Protected>
       <Stack.Protected guard={gate === "onboarding"}>
         <Stack.Screen name="onboarding" />

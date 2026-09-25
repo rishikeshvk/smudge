@@ -27,7 +27,6 @@ type Props = {
   checkedInToday: boolean;
   onSend: (text: string) => void;
   onCheckIn: () => void;
-  checkingIn: boolean;
 };
 
 export function RitualCard(props: Props) {
@@ -136,17 +135,15 @@ function NightReview({
   checkedInToday,
   onSend,
   onCheckIn,
-  checkingIn,
 }: Props & { card: NightReviewCard }) {
   if (!showsActions(card, newest, checkedInToday)) return null;
 
   return (
     <View className="flex-row flex-wrap gap-2">
       <Button
-        label={checkingIn ? "Sealing…" : "I studied today"}
+        label="I studied today"
         variant="primary"
         small
-        disabled={checkingIn}
         onPress={onCheckIn}
       />
       <Button label={NOT_TODAY} small onPress={() => onSend(NOT_TODAY)} />

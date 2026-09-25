@@ -122,11 +122,42 @@ export type ChatMessage = {
         kind: 'night_review';
     } & NightReviewCard) | ({
         kind: 'study_together';
-    } & StudyTogetherCard) | null;
+    } & StudyTogetherCard) | ({
+        kind: 'checkin';
+    } & CheckinCard) | null;
     /**
      * Reaction
      */
     reaction: string | null;
+};
+
+/**
+ * CheckIn
+ */
+export type CheckIn = {
+    feeling: Feeling;
+    /**
+     * Fuzzy
+     */
+    fuzzy?: string | null;
+};
+
+/**
+ * CheckinCard
+ *
+ * The user's "I studied today", with how it went, so both can compare notes.
+ */
+export type CheckinCard = {
+    /**
+     * Kind
+     */
+    kind: 'checkin';
+    topic: TopicRef;
+    feeling: Feeling;
+    /**
+     * Fuzzy
+     */
+    fuzzy: string | null;
 };
 
 /**
@@ -209,6 +240,11 @@ export type DraftAttempt = {
     reply: string;
     audit: AuditVerdict;
 };
+
+/**
+ * Feeling
+ */
+export type Feeling = 'solid' | 'okay' | 'rough';
 
 /**
  * HTTPValidationError
@@ -1167,11 +1203,20 @@ export type StudyTogetherResponses = {
 export type StudyTogetherResponse = StudyTogetherResponses[keyof StudyTogetherResponses];
 
 export type AddCheckinData = {
-    body?: never;
+    body: CheckIn;
     path?: never;
     query?: never;
     url: '/progress/checkins';
 };
+
+export type AddCheckinErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AddCheckinError = AddCheckinErrors[keyof AddCheckinErrors];
 
 export type AddCheckinResponses = {
     /**

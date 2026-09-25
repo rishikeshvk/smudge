@@ -5,13 +5,11 @@ import { ScrollView, Text, View } from "react-native";
 import { readRoadmapOptions } from "@/api/@tanstack/react-query.gen";
 import type { RoadmapView } from "@/api/types.gen";
 import { useBuddy } from "@/buddy";
-import { useCheckIn } from "@/checkIn";
 import { Button } from "@/components/Button";
 import { LoadState } from "@/components/LoadState";
 import { Rail } from "@/components/Rail";
 import { Screen } from "@/components/Screen";
 import { ScreenHeader } from "@/components/ScreenHeader";
-import { StudySeal } from "@/components/StudySeal";
 import { PausedRow, TopicRow } from "@/components/TopicRow";
 import {
   gapLine,
@@ -85,7 +83,6 @@ function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {
 export default function Roadmap() {
   const buddy = useBuddy();
   const roadmap = useQuery(readRoadmapOptions());
-  const { checkIn, sealed, closeSeal } = useCheckIn();
   useRefetchOnScreenFocus(roadmap.refetch);
 
   const view = roadmap.data;
@@ -102,16 +99,10 @@ export default function Roadmap() {
           {next && (
             // Named, because a check-in can't be undone and marks topics in plan order.
             <Button
-              label={checkIn.isPending ? "Sealing…" : `I studied: ${next.topic.title}`}
+              label={`I studied: ${next.topic.title}`}
               variant="primary"
-              disabled={checkIn.isPending}
-              onPress={() => checkIn.mutate({})}
+              onPress={() => router.push("/check-in")}
             />
-          )}
-          {checkIn.isError && (
-            <Text className="font-meta text-meta text-leak">
-              Couldn&apos;t save that check-in. Try again.
-            </Text>
           )}
           <Button label="Change plan" variant="text" onPress={() => router.push("/change-plan")} />
           {weeks(view).map((group) => (
@@ -141,11 +132,6 @@ export default function Roadmap() {
           ))}
         </ScrollView>
       )}
-      <StudySeal
-        topic={sealed?.topic ?? null}
-        caption={sealed?.caption ?? ""}
-        onClose={closeSeal}
-      />
     </Screen>
   );
 }
