@@ -59,6 +59,7 @@ export default function NameBuddy() {
         </View>
       </View>
       <ScrollView
+        showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerClassName="grow justify-center gap-[28px] px-6 py-8"
       >

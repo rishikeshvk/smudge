@@ -94,7 +94,7 @@ export default function Roadmap() {
       <ScreenHeader title="Roadmap" />
       <LoadState isPending={roadmap.isPending} error={roadmap.error} />
       {view && (
-        <ScrollView contentContainerClassName="gap-2 pb-6">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-2 pb-6">
           <Hero view={view} buddyName={buddyName} />
           {next && (
             // Named, because a check-in can't be undone and marks topics in plan order.

@@ -49,7 +49,7 @@ export default function Notebook() {
       />
       <LoadState isPending={notebook.isPending} error={notebook.error} />
       {notebook.data && (
-        <ScrollView contentContainerClassName="gap-2 pb-6 pt-1">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-2 pb-6 pt-1">
           {notes.map((note) =>
             fogged(note) ? (
               <View key={note.note_id} className="gap-3">

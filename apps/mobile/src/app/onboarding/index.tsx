@@ -68,6 +68,7 @@ export default function OnboardingChat() {
     <KeyboardAvoidingView behavior="padding" className="flex-1 bg-ambient-day">
       <BuddyHeader name="Your study buddy" status="setting up · openly an AI" avatar="idle" />
       <ScrollView
+        showsVerticalScrollIndicator={false}
         ref={scrollRef}
         onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
         keyboardShouldPersistTaps="handled"

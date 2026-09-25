@@ -148,7 +148,7 @@ export function TraceSheet({ turnId, buddyName, onClose }: Props) {
         </Text>
         {trace.data && <XrayBadge parts={badgeParts(trace.data)} />}
       </View>
-      <ScrollView contentContainerClassName="gap-4 pb-2">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-4 pb-2">
         <LoadState isPending={trace.isPending} error={trace.error} />
         {trace.data && <Trace trace={trace.data} buddyName={buddyName} />}
       </ScrollView>

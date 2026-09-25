@@ -132,6 +132,7 @@ export default function Chat() {
           </View>
         ) : (
           <FlatList
+            showsVerticalScrollIndicator={false}
             inverted
             data={rows}
             keyExtractor={(row) => String(row.message.id)}

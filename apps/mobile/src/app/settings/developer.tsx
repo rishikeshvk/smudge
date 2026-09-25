@@ -49,6 +49,7 @@ export default function Developer() {
         caption="Dev builds only. Moves Kindred's Clock, not your phone's."
       />
       <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerClassName="gap-4 px-4"
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         keyboardShouldPersistTaps="handled"

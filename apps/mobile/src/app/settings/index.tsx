@@ -86,7 +86,7 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
 
   return (
     <KeyboardAvoidingView behavior="padding" className="flex-1">
-      <ScrollView contentContainerClassName="gap-6 px-4 pb-4" keyboardShouldPersistTaps="handled">
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-6 px-4 pb-4" keyboardShouldPersistTaps="handled">
         <View className="gap-3">
           <Eyebrow text="Model endpoint" />
           <TextField

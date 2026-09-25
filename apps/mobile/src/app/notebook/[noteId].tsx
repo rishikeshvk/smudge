@@ -29,7 +29,7 @@ export default function NoteDetail() {
   return (
     <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
       <BackHeader title="Note" />
-      <ScrollView contentContainerClassName="gap-4 px-4" contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="gap-4 px-4" contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
         <LoadState isPending={note.isPending} error={note.error} />
         {note.data && (
           <>
