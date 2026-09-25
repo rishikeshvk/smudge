@@ -136,8 +136,8 @@ the Zen endpoint. The prompts weren't tuned to it.
   - Expo's dev launcher crashed once when the app was reopened over another app ("App react context shouldn't be
     created before"). A cold start fixed it.
 
-**Seal feedback** (added after the check, on a new development build): as the stamp lands, a generated 0.24 s thunk
-plays through `expo-audio` (set to playback only, mixing with other audio) and a heavy haptic fires. On the phone the
-sound played in full; Android ignored the haptic because the phone's touch feedback setting is off.
+**Seal feedback**, tried after the check and reverted: a generated stamp sound through `expo-audio`, with the haptic
+moved to the moment the stamp lands. It didn't sound right, so the seal is back to one medium haptic. That same pass
+hid Android's scroll bars, which showed over the cards' right edge while scrolling.
 
 Still to do: re-run the probe on the Go models after the weekly limit resets, so the numbers compare with M1's.
