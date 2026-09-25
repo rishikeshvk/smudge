@@ -1,12 +1,15 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-from kindred_api.dependencies import LLMRuntimeDep, SessionDep
+from kindred_api.dependencies import LLMRuntimeDep, SessionDep, get_owner
 from kindred_api.llm_clients import build_llm
 from kindred_api.llm_settings import effective, save, view
 from kindred_contracts import ConnectionCheck, LLMSettingsUpdate, LLMSettingsView
 from kindred_llm import LLMUnavailableError, RateLimitedError
 
-router = APIRouter(prefix="/settings", tags=["settings"])
+# One endpoint serves everyone, so only the owner may see or change it.
+router = APIRouter(
+    prefix="/settings", tags=["settings"], dependencies=[Depends(get_owner)]
+)
 
 
 @router.get("")

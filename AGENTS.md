@@ -16,6 +16,8 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 5. No buddy message is sent without an audit pass.
 6. When unsure whether content is locked, fail closed and deflect.
 7. API keys live only on the backend. Never log them, never return them to the app.
+8. The user comes only from the auth token, never from a path or a body. Any row fetched
+   by id is checked against that user, and another user's row is a 404.
 
 ## Stack and layout
 - `apps/api` — FastAPI, Python 3.12, uv.
@@ -70,7 +72,12 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make test` — pytest and the app's jest tests
 - `make check` — ruff, mypy, expo lint and the app's TypeScript check
 - `make fmt` — ruff format and autofix
+- `make invite` — a one-use invite code for a new friend; `ARGS='--user 1'` for an existing user (a new phone,
+  or after sign-out), `ARGS='--owner'` to create the owner on a fresh database
+- `make users` — who has an account, a buddy, a plan, and how many phones are signed in
+- `make revoke ARGS='--user 3'` — sign a user out on every phone and stop their pushes
 - `make llm-ping` — one real call to the configured LLM endpoint
+- `make icons` — render the app icon, splash and notification icon from `apps/mobile/assets/brand` (native: rebuild after)
 - `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
 - `make mobile-build` — build the Android development build (EAS) that push notifications need; install its APK
 - `make mobile` — Expo dev server for the development build (press `s` to switch to Expo Go, which has no push)

@@ -23,6 +23,8 @@ TABLES = {
     "llm_settings",
     "shaky_resolutions",
     "reflection_days",
+    "invites",
+    "auth_tokens",
 }
 
 
@@ -111,3 +113,46 @@ def test_shaky_resolutions_are_append_only(
         connection.execute(text(statement))
 
     assert connection.scalar(text("SELECT insight FROM shaky_resolutions")) == "Insight"
+
+
+def test_the_first_user_becomes_the_owner_and_keeps_their_phones(
+    database_url: str, migrations: Config
+) -> None:
+    command.downgrade(migrations, "ccb22226e028")
+    engine = create_engine(database_url)
+    with engine.begin() as connection:
+        connection.execute(text("INSERT INTO users (timezone) VALUES ('UTC'), ('UTC')"))
+        connection.execute(
+            text(
+                "INSERT INTO push_tokens (token, registered_at)"
+                " VALUES ('ExponentPushToken[a]', '2026-10-01T00:00Z')"
+            )
+        )
+    try:
+        command.upgrade(migrations, "head")
+        with engine.connect() as connection:
+            owners = connection.execute(
+                text("SELECT id, is_owner FROM users ORDER BY id")
+            ).all()
+            phone_owner = connection.scalar(text("SELECT user_id FROM push_tokens"))
+    finally:
+        engine.dispose()
+        command.downgrade(migrations, "base")
+        command.upgrade(migrations, "head")
+
+    assert [is_owner for _, is_owner in owners] == [True, False]
+    assert phone_owner == owners[0][0]
+
+
+def test_there_is_only_one_owner(connection: Connection) -> None:
+    connection.execute(
+        text("INSERT INTO users (timezone, is_owner) VALUES ('UTC', true)")
+    )
+
+    with (
+        pytest.raises(DBAPIError, match="uq_users_one_owner"),
+        connection.begin_nested(),
+    ):
+        connection.execute(
+            text("INSERT INTO users (timezone, is_owner) VALUES ('UTC', true)")
+        )

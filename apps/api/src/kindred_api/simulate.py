@@ -18,7 +18,7 @@ from kindred_api.config import Settings, get_settings
 from kindred_api.director import RitualSchedule
 from kindred_api.ingest import USER_AGENT, ingest_sources
 from kindred_api.llm_runtime import LLMRuntime
-from kindred_api.onboarding import accept_plan, ensure_user, onboarding_turn
+from kindred_api.onboarding import accept_plan, onboarding_turn
 from kindred_api.plans import CurrentPlan, load_current_plan
 from kindred_api.progress import check_in, studied_slugs
 from kindred_api.push import Pusher
@@ -34,6 +34,7 @@ from kindred_db import (
     StudySession,
     TopicNode,
     Turn,
+    User,
     create_engine,
     session_factory,
 )
@@ -140,8 +141,9 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
         Pusher(push_client, settings.expo_push_url),
     )
     try:
-        onboarding = await _onboard(sessions, clock, llm)
-        plan = await _plan(sessions)
+        user_id = await _add_user(sessions)
+        onboarding = await _onboard(sessions, clock, llm, user_id)
+        plan = await _plan(sessions, user_id)
         await _ingest(sessions, plan, settings)
         topics = await _topics(sessions, plan.id)
         for day in range(1, days + 1):
@@ -163,13 +165,25 @@ async def run_simulation(settings: Settings, days: int, per_day: int) -> Report:
     )
 
 
+async def _add_user(sessions: async_sessionmaker[AsyncSession]) -> int:
+    async with sessions() as session, session.begin():
+        user = User(timezone=TIMEZONE.key, is_owner=True)
+        session.add(user)
+        await session.flush()
+        return user.id
+
+
 async def _onboard(
-    sessions: async_sessionmaker[AsyncSession], clock: FixedClock, llm: LLMRuntime
+    sessions: async_sessionmaker[AsyncSession],
+    clock: FixedClock,
+    llm: LLMRuntime,
+    user_id: int,
 ) -> list[str]:
     transcript: list[str] = []
     planning = llm.planning()
     async with sessions() as session:
-        user = await ensure_user(session, TIMEZONE.key)
+        user = await session.get(User, user_id)
+        assert user is not None
         for text in ONBOARDING:
             clock.advance(timedelta(minutes=1))
             reply = await onboarding_turn(session, user, text, clock.now(), planning)
@@ -188,9 +202,11 @@ async def _onboard(
     raise SystemExit("onboarding never proposed a plan:\n" + "\n".join(transcript))
 
 
-async def _plan(sessions: async_sessionmaker[AsyncSession]) -> CurrentPlan:
+async def _plan(
+    sessions: async_sessionmaker[AsyncSession], user_id: int
+) -> CurrentPlan:
     async with sessions() as session:
-        plan = await load_current_plan(session)
+        plan = await load_current_plan(session, user_id)
     assert plan is not None
     return plan
 

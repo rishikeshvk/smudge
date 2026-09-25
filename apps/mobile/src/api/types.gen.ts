@@ -67,6 +67,16 @@ export type AuditVerdict = {
 };
 
 /**
+ * AuthToken
+ */
+export type AuthToken = {
+    /**
+     * Token
+     */
+    token: string;
+};
+
+/**
  * BuddyStatus
  */
 export type BuddyStatus = {
@@ -315,6 +325,16 @@ export type LlmSettingsView = {
 };
 
 /**
+ * Me
+ */
+export type Me = {
+    /**
+     * Is Owner
+     */
+    is_owner: boolean;
+};
+
+/**
  * MessageStatus
  */
 export type MessageStatus = {
@@ -554,6 +574,16 @@ export type PushRegistration = {
 };
 
 /**
+ * RedeemInvite
+ */
+export type RedeemInvite = {
+    /**
+     * Code
+     */
+    code: string;
+};
+
+/**
  * ResetClock
  */
 export type ResetClock = {
@@ -713,6 +743,16 @@ export type SendMessage = {
      * Text
      */
     text: string;
+};
+
+/**
+ * SignOut
+ */
+export type SignOut = {
+    /**
+     * Push Token
+     */
+    push_token?: string | null;
 };
 
 /**
@@ -926,6 +966,72 @@ export type HealthResponses = {
 };
 
 export type HealthResponse2 = HealthResponses[keyof HealthResponses];
+
+export type RedeemInviteData = {
+    body: RedeemInvite;
+    path?: never;
+    query?: never;
+    url: '/auth/redeem';
+};
+
+export type RedeemInviteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RedeemInviteError = RedeemInviteErrors[keyof RedeemInviteErrors];
+
+export type RedeemInviteResponses = {
+    /**
+     * Successful Response
+     */
+    200: AuthToken;
+};
+
+export type RedeemInviteResponse = RedeemInviteResponses[keyof RedeemInviteResponses];
+
+export type ReadMeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/me';
+};
+
+export type ReadMeResponses = {
+    /**
+     * Successful Response
+     */
+    200: Me;
+};
+
+export type ReadMeResponse = ReadMeResponses[keyof ReadMeResponses];
+
+export type SignOutData = {
+    body: SignOut;
+    path?: never;
+    query?: never;
+    url: '/auth/sign-out';
+};
+
+export type SignOutErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SignOutError = SignOutErrors[keyof SignOutErrors];
+
+export type SignOutResponses = {
+    /**
+     * Successful Response
+     */
+    204: void;
+};
+
+export type SignOutResponse = SignOutResponses[keyof SignOutResponses];
 
 export type ReadClockData = {
     body?: never;

@@ -6,14 +6,18 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.plans import CurrentPlan, load_current_plan
-from kindred_db import Plan
+from kindred_db import Plan, User
 
 AddPlan = Callable[[date, str], Awaitable[Plan]]
 
 
 @pytest.mark.anyio
 async def test_no_plan_before_onboarding(session: AsyncSession) -> None:
-    assert await load_current_plan(session) is None
+    user = User(timezone="UTC")
+    session.add(user)
+    await session.flush()
+
+    assert await load_current_plan(session, user.id) is None
 
 
 @pytest.mark.anyio
@@ -22,7 +26,7 @@ async def test_current_plan_carries_the_users_timezone(
 ) -> None:
     plan = await add_plan(date(2026, 10, 1), "Asia/Kolkata")
 
-    assert await load_current_plan(session) == CurrentPlan(
+    assert await load_current_plan(session, plan.user_id) == CurrentPlan(
         id=plan.id,
         user_id=plan.user_id,
         curriculum_slug="t",

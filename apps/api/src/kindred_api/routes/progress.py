@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 
 from kindred_api.chat import post_message
-from kindred_api.dependencies import ClockDep, SessionDep, WorkerDep
+from kindred_api.dependencies import ClockDep, CurrentUserDep, SessionDep, WorkerDep
 from kindred_api.plans import load_current_plan
 from kindred_api.progress import check_in, checkin_text
 from kindred_contracts import CheckIn, CheckinCard, TopicRef
@@ -11,11 +11,15 @@ router = APIRouter(prefix="/progress", tags=["progress"])
 
 @router.post("/checkins")
 async def add_checkin(
-    body: CheckIn, session: SessionDep, clock: ClockDep, worker: WorkerDep
+    body: CheckIn,
+    session: SessionDep,
+    clock: ClockDep,
+    worker: WorkerDep,
+    user: CurrentUserDep,
 ) -> TopicRef:
     """ "I studied today": marks the user's next topic done, and tells the buddy how it
     went so it can compare notes."""
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, user.id)
     if plan is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "there is no plan yet")
     now = clock.now()

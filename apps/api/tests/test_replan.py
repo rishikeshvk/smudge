@@ -23,11 +23,11 @@ NOW = datetime(2026, 10, 2, 6, 30, tzinfo=UTC)
 async def course(
     session: AsyncSession, add_course: AddCourse, days: int
 ) -> CurrentPlan:
-    await add_course(days)
+    course = await add_course(days)
     day_1 = await node(session, "topic-1")
     session.add(StudySession(node_id=day_1.id, status="written", at=NOW, attempts=[]))
     await session.flush()
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, course.user_id)
     assert plan is not None
     return plan
 

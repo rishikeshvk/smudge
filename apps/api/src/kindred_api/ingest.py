@@ -1,22 +1,26 @@
 import asyncio
+import logging
 from dataclasses import dataclass
 from datetime import datetime
 from importlib.metadata import version
+from pathlib import Path
 
 import httpx2
 import trafilatura
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.catalog import load_curriculum
-from kindred_api.clock import SystemClock
+from kindred_api.clock import Clock, SystemClock
 from kindred_api.config import get_settings
-from kindred_api.plans import load_current_plan
+from kindred_api.plans import CurrentPlan, load_active_plans
 from kindred_contracts import Curriculum
 from kindred_db import SourceDocument, TopicNode, create_engine, session_factory
 
+logger = logging.getLogger(__name__)
+
 FETCH_CONCURRENCY = 4
-USER_AGENT = f"kindred/{version('kindred-api')} (study notes; single user)"
+USER_AGENT = f"kindred/{version('kindred-api')} (study notes)"
 
 
 @dataclass(frozen=True)
@@ -115,35 +119,78 @@ async def ingest_sources(
     )
 
 
-async def run() -> IngestReport:
+class SourceFetcher:
+    """Fetches a new plan's pages in the background, so its buddy can study on the
+    first night without anyone running `make ingest`."""
+
+    def __init__(
+        self,
+        sessions: async_sessionmaker[AsyncSession],
+        client: httpx2.AsyncClient,
+        curricula_dir: Path,
+        clock: Clock,
+    ) -> None:
+        self._sessions = sessions
+        self._client = client
+        self._curricula_dir = curricula_dir
+        self._clock = clock
+
+    async def fetch_for(self, plan_id: int, curriculum_slug: str) -> None:
+        curriculum = load_curriculum(self._curricula_dir / f"{curriculum_slug}.yaml")
+        async with self._sessions() as session:
+            report = await ingest_sources(
+                session, plan_id, curriculum, self._client, self._clock.now()
+            )
+            await session.commit()
+        # Failed pages are fetched again by `make ingest`.
+        logger.info(
+            "plan %s: stored %s pages, %s failed",
+            plan_id,
+            report.stored,
+            len(report.failed),
+        )
+
+
+def source_client() -> httpx2.AsyncClient:
+    return httpx2.AsyncClient(
+        headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=30
+    )
+
+
+async def run() -> list[tuple[CurrentPlan, IngestReport]]:
     settings = get_settings()
     engine = create_engine(settings.database_url)
+    reports = []
     try:
         async with (
             session_factory(engine)() as session,
-            session.begin(),
-            httpx2.AsyncClient(
-                headers={"User-Agent": USER_AGENT}, follow_redirects=True, timeout=30
-            ) as client,
+            source_client() as client,
         ):
-            plan = await load_current_plan(session)
-            if plan is None:
-                raise SystemExit("no plan yet; run `make seed` first")
-            curriculum = load_curriculum(
-                settings.curricula_dir / f"{plan.curriculum_slug}.yaml"
-            )
-            return await ingest_sources(
-                session, plan.id, curriculum, client, SystemClock().now()
-            )
+            for plan in await load_active_plans(session):
+                curriculum = load_curriculum(
+                    settings.curricula_dir / f"{plan.curriculum_slug}.yaml"
+                )
+                report = await ingest_sources(
+                    session, plan.id, curriculum, client, SystemClock().now()
+                )
+                await session.commit()
+                reports.append((plan, report))
     finally:
         await engine.dispose()
+    return reports
 
 
 def main() -> None:
-    report = asyncio.run(run())
-    print(f"stored {report.stored} pages, {report.skipped} already stored")
-    for url in report.failed:
-        print(f"failed: {url}")
+    reports = asyncio.run(run())
+    if not reports:
+        raise SystemExit("no plans yet; run `make seed` or onboard in the app first")
+    for plan, report in reports:
+        print(
+            f"plan {plan.id} (user {plan.user_id}): stored {report.stored} pages,"
+            f" {report.skipped} already stored"
+        )
+        for url in report.failed:
+            print(f"failed: {url}")
 
 
 if __name__ == "__main__":

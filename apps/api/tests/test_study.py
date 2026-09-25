@@ -73,6 +73,12 @@ class FakeEmbedder:
         return [[0.5] * EMBEDDING_DIMENSIONS for _ in texts]
 
 
+async def owner_of(session: AsyncSession, plan_id: int) -> int:
+    user_id = await session.scalar(select(Plan.user_id).where(Plan.id == plan_id))
+    assert user_id is not None
+    return user_id
+
+
 async def course(session: AsyncSession, add_course: AddCourse) -> list[TopicNode]:
     """Two topics; day 1 has a source page and day 2 owns the term "Glacier"."""
     await add_course(2)
@@ -118,7 +124,7 @@ async def test_a_topic_is_due_once_its_session_ends_and_only_once(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
     day_1, _ = await course(session, add_course)
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, await owner_of(session, day_1.plan_id))
     assert plan is not None
     session_end = DAY_1 + plan.session_length
 
@@ -140,7 +146,7 @@ async def test_a_failed_night_is_retried_once_after_its_day(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
     day_1, _ = await course(session, add_course)
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, await owner_of(session, day_1.plan_id))
     assert plan is not None
     failed_at = DAY_1 + plan.session_length
     # Local midnight after day 1 in Kolkata.

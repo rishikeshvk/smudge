@@ -26,19 +26,32 @@ class CurrentPlan:
         return timedelta(minutes=self.session_minutes)
 
 
-async def load_current_plan(session: AsyncSession) -> CurrentPlan | None:
-    """The one plan the single hardcoded user has, if onboarding has made it."""
+async def load_current_plan(session: AsyncSession, user_id: int) -> CurrentPlan | None:
+    """The user's plan, if onboarding has made it."""
     row = (
         await session.execute(
             select(Plan, User.timezone)
             .join(User, Plan.user_id == User.id)
+            .where(Plan.user_id == user_id)
             .order_by(Plan.id)
             .limit(1)
         )
     ).first()
-    if row is None:
-        return None
-    plan, timezone = row
+    return _current(*row) if row is not None else None
+
+
+async def load_active_plans(session: AsyncSession) -> list[CurrentPlan]:
+    """Every user's plan, for the work the ticker does on everyone's behalf."""
+    rows = await session.execute(
+        select(Plan, User.timezone)
+        .join(User, Plan.user_id == User.id)
+        .distinct(Plan.user_id)
+        .order_by(Plan.user_id, Plan.id)
+    )
+    return [_current(plan, timezone) for plan, timezone in rows.tuples()]
+
+
+def _current(plan: Plan, timezone: str) -> CurrentPlan:
     return CurrentPlan(
         id=plan.id,
         user_id=plan.user_id,

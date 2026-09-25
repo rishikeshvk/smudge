@@ -2,13 +2,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "expo-router";
 import { ChevronRight } from "lucide-react-native";
 import { useState } from "react";
-import { KeyboardAvoidingView, Pressable, ScrollView, Switch, Text, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Pressable, ScrollView, Switch, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   readClockOptions,
+  readMeOptions,
   readSettingsOptions,
   readSettingsQueryKey,
+  signOutMutation,
   testConnectionMutation,
   updateSettingsMutation,
 } from "@/api/@tanstack/react-query.gen";
@@ -21,6 +23,8 @@ import { SegmentedControl } from "@/components/SegmentedControl";
 import { SettingRow } from "@/components/SettingRow";
 import { TextField } from "@/components/TextField";
 import { usePref } from "@/prefs";
+import { registeredPushToken } from "@/push";
+import { forgetSession } from "@/session";
 import { formFrom, formProblem, ROLES, settingsUpdate } from "@/settingsForm";
 import { THEME_CHOICES } from "@/theme/preference";
 import { useThemeColor } from "@/theme/useTheme";
@@ -58,15 +62,122 @@ function ConnectionTest({ dirty }: { dirty: boolean }) {
   );
 }
 
-function SettingsForm({ saved }: { saved: LlmSettingsView }) {
-  const insets = useSafeAreaInsets();
-  const queryClient = useQueryClient();
+function DisplaySection({ developer }: { developer: boolean }) {
   const you = useThemeColor("you");
   const lineStrong = useThemeColor("line-strong");
   const raised = useThemeColor("surface-raised");
   const ink = useThemeColor("ink");
   const xray = usePref("xray");
   const theme = usePref("theme");
+
+  return (
+    <View className="gap-1">
+      <Eyebrow text="Display" />
+      <SettingRow label="Theme">
+        <SegmentedControl
+          label="Theme"
+          options={THEME_CHOICES}
+          value={theme.value ?? "system"}
+          onChange={theme.set}
+        />
+      </SettingRow>
+      <SettingRow label="X-ray view">
+        <Switch
+          value={xray.value === true}
+          onValueChange={(on) => xray.set(on)}
+          accessibilityLabel="X-ray view"
+          trackColor={{ true: you, false: lineStrong }}
+          thumbColor={raised}
+        />
+      </SettingRow>
+      {developer && (
+        <Link href="/settings/developer" asChild>
+          <Pressable accessibilityRole="button">
+            <SettingRow label="Developer · time controls">
+              <ChevronRight size={20} strokeWidth={1.75} color={ink} />
+            </SettingRow>
+          </Pressable>
+        </Link>
+      )}
+    </View>
+  );
+}
+
+function AccountSection() {
+  const out = useMutation({
+    ...signOutMutation(),
+    onSuccess: () => forgetSession(),
+  });
+
+  const confirm = () =>
+    Alert.alert("Sign out?", "You'll need a new invite code to sign back in.", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Sign out",
+        style: "destructive",
+        onPress: () => out.mutate({ body: { push_token: registeredPushToken() } }),
+      },
+    ]);
+
+  return (
+    <View className="gap-[10px]">
+      <Eyebrow text="Account" />
+      <View className="self-start">
+        <Button
+          label={out.isPending ? "Signing out…" : "Sign out"}
+          onPress={confirm}
+          disabled={out.isPending}
+        />
+      </View>
+      <Text className="font-meta text-meta text-ink-muted">
+        {out.isError
+          ? "Couldn't reach Kindred to sign out. Try again in a bit."
+          : "Your buddy and notes stay here. To sign back in you'll need a new invite code."}
+      </Text>
+    </View>
+  );
+}
+
+// Friends share the owner's model, so they see what it means for them instead of its settings.
+function FriendSettings() {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerClassName="gap-6 px-4"
+      contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
+    >
+      <DisplaySection developer={false} />
+      <View className="gap-2">
+        <Eyebrow text="The model" />
+        <Text className="font-body text-body text-ink-muted">
+          Your buddy runs on a free AI model, shared by everyone testing Kindred. It may keep what
+          you write, so leave out anything private. If it hits its limits, your buddy shows as away
+          and answers once it&apos;s back.
+        </Text>
+      </View>
+      <AccountSection />
+    </ScrollView>
+  );
+}
+
+function OwnerSettings() {
+  const settings = useQuery(readSettingsOptions());
+
+  return (
+    <>
+      <View className="px-4">
+        <LoadState isPending={settings.isPending} error={settings.error} />
+      </View>
+      {settings.data && <SettingsForm saved={settings.data} />}
+    </>
+  );
+}
+
+function SettingsForm({ saved }: { saved: LlmSettingsView }) {
+  const insets = useSafeAreaInsets();
+  const queryClient = useQueryClient();
   // Developer controls exist only while the API runs in dev mode; elsewhere it answers 404.
   const devClock = useQuery({ ...readClockOptions(), retry: false });
   const [form, setForm] = useState(() => formFrom(saved));
@@ -144,35 +255,8 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
             ))}
           </View>
         </View>
-        <View className="gap-1">
-          <Eyebrow text="Display" />
-          <SettingRow label="Theme">
-            <SegmentedControl
-              label="Theme"
-              options={THEME_CHOICES}
-              value={theme.value ?? "system"}
-              onChange={theme.set}
-            />
-          </SettingRow>
-          <SettingRow label="X-ray view">
-            <Switch
-              value={xray.value === true}
-              onValueChange={(on) => xray.set(on)}
-              accessibilityLabel="X-ray view"
-              trackColor={{ true: you, false: lineStrong }}
-              thumbColor={raised}
-            />
-          </SettingRow>
-          {devClock.data && (
-            <Link href="/settings/developer" asChild>
-              <Pressable accessibilityRole="button">
-                <SettingRow label="Developer · time controls">
-                  <ChevronRight size={20} strokeWidth={1.75} color={ink} />
-                </SettingRow>
-              </Pressable>
-            </Link>
-          )}
-        </View>
+        <DisplaySection developer={devClock.data !== undefined} />
+        <AccountSection />
       </ScrollView>
       <View
         className="gap-2 border-t border-line bg-surface-raised px-4 pt-3"
@@ -198,15 +282,15 @@ function SettingsForm({ saved }: { saved: LlmSettingsView }) {
 
 export default function Settings() {
   const insets = useSafeAreaInsets();
-  const settings = useQuery(readSettingsOptions());
+  const me = useQuery(readMeOptions());
 
   return (
     <View className="flex-1 bg-surface" style={{ paddingTop: insets.top }}>
       <BackHeader title="Settings" />
       <View className="px-4">
-        <LoadState isPending={settings.isPending} error={settings.error} />
+        <LoadState isPending={me.isPending} error={me.error} />
       </View>
-      {settings.data && <SettingsForm saved={settings.data} />}
+      {me.data && (me.data.is_owner ? <OwnerSettings /> : <FriendSettings />)}
     </View>
   );
 }

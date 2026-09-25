@@ -13,6 +13,7 @@ from sqlalchemy import Connection, create_engine, select, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from kindred_api.auth import hash_secret
 from kindred_api.clock import Clock
 from kindred_api.config import get_settings
 from kindred_api.dependencies import get_clock, get_session, get_worker
@@ -24,6 +25,7 @@ from kindred_api.turn_worker import TurnWorker
 from kindred_contracts import NoteDraft
 from kindred_db import (
     EMBEDDING_DIMENSIONS,
+    AuthToken,
     Buddy,
     Plan,
     StudySession,
@@ -110,9 +112,25 @@ async def session(
 
 
 @pytest.fixture
-def add_plan(session: AsyncSession) -> Callable[[date, str], Awaitable[Plan]]:
-    async def add(start_date: date, timezone: str) -> Plan:
-        user = User(timezone=timezone)
+def add_user(session: AsyncSession) -> Callable[..., Awaitable[User]]:
+    async def add(*, owner: bool = False) -> User:
+        user = User(timezone="UTC", is_owner=owner)
+        session.add(user)
+        await session.flush()
+        return user
+
+    return add
+
+
+@pytest.fixture
+def add_plan(session: AsyncSession) -> Callable[..., Awaitable[Plan]]:
+    """A plan for a new user, or for the given one."""
+
+    async def add(start_date: date, timezone: str, user_id: int | None = None) -> Plan:
+        user = User() if user_id is None else await session.get(User, user_id)
+        assert user is not None
+        # A plan runs in its user's time zone.
+        user.timezone = timezone
         session.add(user)
         await session.flush()
         plan = Plan(
@@ -183,12 +201,13 @@ def sent_prompt() -> Callable[[httpx2.Request], tuple[str, str]]:
 
 @pytest.fixture
 def add_course(
-    session: AsyncSession, add_plan: Callable[[date, str], Awaitable[Plan]]
-) -> Callable[[int], Awaitable[Plan]]:
-    """A plan from 1 Oct 2026 in Kolkata with a buddy and topics unlocking at 19:00."""
+    session: AsyncSession, add_plan: Callable[..., Awaitable[Plan]]
+) -> Callable[..., Awaitable[Plan]]:
+    """A plan from 1 Oct 2026 in Kolkata with a buddy and topics unlocking at 19:00,
+    for a new user or the given one."""
 
-    async def add(days: int) -> Plan:
-        plan = await add_plan(date(2026, 10, 1), "Asia/Kolkata")
+    async def add(days: int, user_id: int | None = None) -> Plan:
+        plan = await add_plan(date(2026, 10, 1), "Asia/Kolkata", user_id)
         session.add(Buddy(user_id=plan.user_id, name="Juno"))
         session.add_all(
             TopicNode(
@@ -220,8 +239,13 @@ def add_study(session: AsyncSession) -> Callable[..., Awaitable[None]]:
         *,
         failed: bool = False,
         shaky: list[str] | None = None,
+        plan_id: int | None = None,
     ) -> None:
-        node = await session.scalar(select(TopicNode).where(TopicNode.day == day))
+        # Without a plan, the day is looked up in the only plan there is.
+        days = select(TopicNode).where(TopicNode.day == day)
+        if plan_id is not None:
+            days = days.where(TopicNode.plan_id == plan_id)
+        [node] = await session.scalars(days)
         assert node is not None
         note_id = None
         if not failed:
@@ -253,21 +277,37 @@ def add_study(session: AsyncSession) -> Callable[..., Awaitable[None]]:
     return add
 
 
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 
 
 @pytest.fixture
 async def api(session: AsyncSession) -> AsyncIterator[ApiClient]:
-    """A client for the app on the test session, with the given clock and worker."""
+    """A client for the app on the test session, with the given clock and worker,
+    signed in as the given user with a real token (or not signed in, for None)."""
     clients: list[httpx.AsyncClient] = []
 
-    def connect(clock: Clock, worker: TurnWorker | None) -> httpx.AsyncClient:
+    def connect(
+        clock: Clock, worker: TurnWorker | None, user_id: int | None
+    ) -> httpx.AsyncClient:
         app.dependency_overrides[get_session] = lambda: session
         app.dependency_overrides[get_clock] = lambda: clock
         if worker is not None:
             app.dependency_overrides[get_worker] = lambda: worker
+        headers = {}
+        if user_id is not None:
+            token = f"test-token-{len(clients)}-{user_id}"
+            session.add(
+                AuthToken(
+                    user_id=user_id,
+                    token_hash=hash_secret(token),
+                    created_at=clock.now(),
+                )
+            )
+            headers["Authorization"] = f"Bearer {token}"
         client = httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://test"
+            transport=httpx.ASGITransport(app=app),
+            base_url="http://test",
+            headers=headers,
         )
         clients.append(client)
         return client

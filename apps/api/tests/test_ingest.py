@@ -1,12 +1,19 @@
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
+from pathlib import Path
 
 import httpx2
 import pytest
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from kindred_api.ingest import extract_page, ingest_sources, reading_list
+from kindred_api.clock import FixedClock
+from kindred_api.ingest import (
+    SourceFetcher,
+    extract_page,
+    ingest_sources,
+    reading_list,
+)
 from kindred_contracts import Curriculum
 from kindred_db import Plan, SourceDocument, TopicNode
 
@@ -123,3 +130,23 @@ async def test_stored_pages_are_not_fetched_again(
 
     assert fetched == [GONE]
     assert (report.stored, report.skipped) == (0, 3)
+
+
+@pytest.mark.anyio
+async def test_a_new_plan_gets_its_pages_in_the_background(
+    session: AsyncSession,
+    sessions: async_sessionmaker[AsyncSession],
+    add_course: AddCourse,
+    tmp_path: Path,
+) -> None:
+    plan = await add_course(2)
+    await session.commit()
+    (tmp_path / "t.yaml").write_text(CURRICULUM.model_dump_json())
+    client, _ = site()
+
+    await SourceFetcher(sessions, client, tmp_path, FixedClock(NOW)).fetch_for(
+        plan.id, "t"
+    )
+
+    urls = await session.scalars(select(SourceDocument.url).order_by(SourceDocument.id))
+    assert sorted(set(urls)) == [SHARED, S3]

@@ -25,12 +25,13 @@ from kindred_contracts import (
     ReflectionBrief,
     StudyBrief,
 )
-from kindred_db import Plan
+from kindred_db import Plan, User
 from kindred_gate import TopicMap, TurnComponents
 
 NO_NETWORK = httpx2.MockTransport(lambda request: httpx2.Response(500))
 AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+AddUser = Callable[..., Awaitable[User]]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
 
 
@@ -86,8 +87,8 @@ def ticker(sessions: async_sessionmaker[AsyncSession]) -> Ticker:
 async def test_buddy_reports_its_name_and_what_it_is_doing(
     api: ApiClient, worker: TurnWorker, add_course: AddCourse
 ) -> None:
-    await add_course(1)
-    client = api(FixedClock(NOW), worker)
+    plan = await add_course(1)
+    client = api(FixedClock(NOW), worker, plan.user_id)
 
     assert (await client.get("/buddy")).json() == {
         "name": "Juno",
@@ -105,11 +106,11 @@ async def test_buddy_reports_its_name_and_what_it_is_doing(
 async def test_the_buddy_is_studying_during_its_session(
     api: ApiClient, worker: TurnWorker, add_course: AddCourse
 ) -> None:
-    await add_course(1)
+    plan = await add_course(1)
     # 19:30 in Kolkata on day 1: half an hour into the hour from 19:00.
     during = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
 
-    status = (await api(FixedClock(during), worker).get("/buddy")).json()
+    status = (await api(FixedClock(during), worker, plan.user_id).get("/buddy")).json()
 
     assert status["studying"] == {
         "topic": {"slug": "topic-1", "title": "Topic 1", "day": 1},
@@ -120,9 +121,11 @@ async def test_the_buddy_is_studying_during_its_session(
 
 @pytest.mark.anyio
 async def test_no_buddy_before_onboarding(
-    api: ApiClient, worker: TurnWorker, ticker: Ticker
+    api: ApiClient, worker: TurnWorker, ticker: Ticker, add_user: AddUser
 ) -> None:
-    response = await api(FixedClock(NOW), worker).get("/buddy")
+    user = await add_user()
+
+    response = await api(FixedClock(NOW), worker, user.id).get("/buddy")
 
     assert response.status_code == 404
 
@@ -131,13 +134,15 @@ async def test_no_buddy_before_onboarding(
 async def test_the_user_can_study_along_only_during_a_session(
     api: ApiClient, worker: TurnWorker, add_course: AddCourse
 ) -> None:
-    await add_course(1)
+    plan = await add_course(1)
     during = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
 
-    refused = await api(FixedClock(during - timedelta(hours=1)), worker).post(
+    refused = await api(
+        FixedClock(during - timedelta(hours=1)), worker, plan.user_id
+    ).post("/buddy/study-together")
+    joined = await api(FixedClock(during), worker, plan.user_id).post(
         "/buddy/study-together"
     )
-    joined = await api(FixedClock(during), worker).post("/buddy/study-together")
 
     assert refused.status_code == 409
     message = joined.json()

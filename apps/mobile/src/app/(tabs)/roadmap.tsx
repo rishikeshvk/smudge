@@ -20,7 +20,7 @@ import {
   topicMeta,
   weeks,
 } from "@/roadmapProgress";
-import { useRefetchOnScreenFocus } from "@/queryClient";
+import { useRefetchOnScreenFocus } from "@/refetch";
 import { streakNumber } from "@/rituals";
 
 function Hero({ view, buddyName }: { view: RoadmapView; buddyName: string }) {

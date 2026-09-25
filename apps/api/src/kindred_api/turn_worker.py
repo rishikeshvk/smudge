@@ -69,7 +69,7 @@ class TurnWorker:
                 self.available = True
 
     async def _answer(self, session: AsyncSession, message: Message) -> None:
-        plan = await load_current_plan(session)
+        plan = await load_current_plan(session, message.user_id)
         if plan is None:
             raise LookupError("a message was queued before there was a plan")
         now = self._clock.now()

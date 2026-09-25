@@ -1,9 +1,11 @@
 from kindred_db.engine import create_engine, session_factory
 from kindred_db.models import (
     EMBEDDING_DIMENSIONS,
+    AuthToken,
     Base,
     Buddy,
     DevClock,
+    Invite,
     LedgerNote,
     LLMSettings,
     Message,
@@ -26,9 +28,11 @@ from kindred_db.models import (
 
 __all__ = [
     "EMBEDDING_DIMENSIONS",
+    "AuthToken",
     "Base",
     "Buddy",
     "DevClock",
+    "Invite",
     "LLMSettings",
     "LedgerNote",
     "Message",

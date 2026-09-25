@@ -17,11 +17,12 @@ from kindred_contracts import (
     RetrievedNote,
     Verdict,
 )
-from kindred_db import Message, Plan
+from kindred_db import Message, Plan, User
 from kindred_gate import TurnComponents
 
-AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+AddCourse = Callable[..., Awaitable[Plan]]
+AddUser = Callable[..., Awaitable[User]]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
 
 
@@ -62,15 +63,25 @@ def worker(sessions: async_sessionmaker[AsyncSession], clock: FixedClock) -> Tur
 
 
 @pytest.fixture
-def client(api: ApiClient, clock: FixedClock, worker: TurnWorker) -> httpx.AsyncClient:
-    return api(clock, worker)
+async def me(add_user: AddUser) -> User:
+    return await add_user()
+
+
+@pytest.fixture
+def client(
+    api: ApiClient, clock: FixedClock, worker: TurnWorker, me: User
+) -> httpx.AsyncClient:
+    return api(clock, worker, me.id)
 
 
 @pytest.mark.anyio
 async def test_a_message_is_queued_then_answered(
-    client: httpx.AsyncClient, worker: TurnWorker, add_course: AddCourse
+    client: httpx.AsyncClient,
+    worker: TurnWorker,
+    add_course: AddCourse,
+    me: User,
 ) -> None:
-    await add_course(3)
+    await add_course(3, me.id)
 
     sent = await client.post("/chat/messages", json={"text": "hi"})
 
@@ -91,9 +102,12 @@ async def test_a_message_is_queued_then_answered(
 
 @pytest.mark.anyio
 async def test_the_thread_lists_both_sides_oldest_first(
-    client: httpx.AsyncClient, worker: TurnWorker, add_course: AddCourse
+    client: httpx.AsyncClient,
+    worker: TurnWorker,
+    add_course: AddCourse,
+    me: User,
 ) -> None:
-    await add_course(3)
+    await add_course(3, me.id)
     await client.post("/chat/messages", json={"text": "hi"})
     await worker.drain()
 
@@ -107,9 +121,12 @@ async def test_the_thread_lists_both_sides_oldest_first(
 
 @pytest.mark.anyio
 async def test_rituals_come_with_their_card(
-    client: httpx.AsyncClient, session: AsyncSession, add_course: AddCourse
+    client: httpx.AsyncClient,
+    session: AsyncSession,
+    add_course: AddCourse,
+    me: User,
 ) -> None:
-    plan = await add_course(3)
+    plan = await add_course(3, me.id)
     topic = {"slug": "topic-3", "title": "Topic 3", "day": 3}
     card = {"kind": "study_share", "day": 3, "topic": topic, "shaky": ["?"]}
     session.add(
@@ -130,9 +147,12 @@ async def test_rituals_come_with_their_card(
 
 @pytest.mark.anyio
 async def test_the_thread_hides_messages_after_a_clock_rewind(
-    client: httpx.AsyncClient, clock: FixedClock, add_course: AddCourse
+    client: httpx.AsyncClient,
+    clock: FixedClock,
+    add_course: AddCourse,
+    me: User,
 ) -> None:
-    await add_course(3)
+    await add_course(3, me.id)
     await client.post("/chat/messages", json={"text": "hi"})
 
     clock.set(NOW - timedelta(days=1))
@@ -149,9 +169,11 @@ async def test_chat_needs_a_plan(client: httpx.AsyncClient) -> None:
 
 @pytest.mark.anyio
 async def test_empty_messages_are_rejected(
-    client: httpx.AsyncClient, add_course: AddCourse
+    client: httpx.AsyncClient,
+    add_course: AddCourse,
+    me: User,
 ) -> None:
-    await add_course(3)
+    await add_course(3, me.id)
 
     assert (await client.post("/chat/messages", json={"text": ""})).status_code == 422
 

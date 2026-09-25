@@ -11,10 +11,11 @@ from kindred_api.ledger import append_note
 from kindred_api.progress import check_in
 from kindred_api.turn_worker import TurnWorker
 from kindred_contracts import NoteDraft
-from kindred_db import EMBEDDING_DIMENSIONS, Plan, TopicNode
+from kindred_db import EMBEDDING_DIMENSIONS, Plan, TopicNode, User
 
 AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+AddUser = Callable[..., Awaitable[User]]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 # The evening of day 2 in Kolkata.
 DAY_2_EVENING = datetime(2026, 10, 2, 14, 0, tzinfo=UTC)
 
@@ -46,7 +47,9 @@ async def test_the_roadmap_shows_both_learners_on_every_topic(
     await write_note(session, 2, DAY_2_EVENING)
     await check_in(session, plan.id, DAY_2_EVENING)
 
-    roadmap = (await api(FixedClock(DAY_2_EVENING), None).get("/roadmap")).json()
+    roadmap = (
+        await api(FixedClock(DAY_2_EVENING), None, plan.user_id).get("/roadmap")
+    ).json()
 
     assert (roadmap["plan_title"], roadmap["day"]) == ("T", 2)
     assert (roadmap["streak"], roadmap["gap"]) == (1, 1)
@@ -61,8 +64,10 @@ async def test_the_roadmap_shows_both_learners_on_every_topic(
 
 
 @pytest.mark.anyio
-async def test_no_roadmap_before_a_plan(api: ApiClient) -> None:
-    response = await api(FixedClock(DAY_2_EVENING), None).get("/roadmap")
+async def test_no_roadmap_before_a_plan(api: ApiClient, add_user: AddUser) -> None:
+    user = await add_user()
+
+    response = await api(FixedClock(DAY_2_EVENING), None, user.id).get("/roadmap")
 
     assert response.status_code == 404
 
@@ -71,9 +76,11 @@ async def test_no_roadmap_before_a_plan(api: ApiClient) -> None:
 async def test_pulling_a_topic_earlier_reshapes_the_roadmap(
     api: ApiClient, add_course: AddCourse
 ) -> None:
-    await add_course(3)
+    plan = await add_course(3)
     # The morning of day 1: every topic is still ahead, so day 1 is the free slot.
-    client = api(FixedClock(DAY_2_EVENING - timedelta(days=1, hours=6)), None)
+    client = api(
+        FixedClock(DAY_2_EVENING - timedelta(days=1, hours=6)), None, plan.user_id
+    )
 
     before = (await client.get("/roadmap")).json()
     after = await client.post("/roadmap/pull", json={"slug": "topic-3"})
@@ -93,8 +100,8 @@ async def test_pulling_a_topic_earlier_reshapes_the_roadmap(
 async def test_pausing_moves_the_plan_back(
     api: ApiClient, add_course: AddCourse
 ) -> None:
-    await add_course(2)
-    client = api(FixedClock(DAY_2_EVENING), None)
+    plan = await add_course(2)
+    client = api(FixedClock(DAY_2_EVENING), None, plan.user_id)
 
     paused = await client.post("/plan/pause", json={"days": 3})
     moved = await client.put("/plan/study-time", json={"study_time": "07:00:00"})
@@ -108,8 +115,10 @@ async def test_pausing_moves_the_plan_back(
 async def test_a_pause_moves_the_finish_day(
     api: ApiClient, add_course: AddCourse
 ) -> None:
-    await add_course(3)
-    client = api(FixedClock(DAY_2_EVENING - timedelta(days=1, hours=6)), None)
+    plan = await add_course(3)
+    client = api(
+        FixedClock(DAY_2_EVENING - timedelta(days=1, hours=6)), None, plan.user_id
+    )
 
     paused = (await client.post("/plan/pause", json={"days": 1})).json()
 

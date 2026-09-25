@@ -118,6 +118,24 @@ class PushRegistration(Contract):
     token: str = Field(pattern=r"^Expo(nent)?PushToken\[.+\]$")
 
 
+class RedeemInvite(Contract):
+    # Case, dashes and spaces don't matter; the server normalises the code.
+    code: str = Field(min_length=1, max_length=64)
+
+
+class AuthToken(Contract):
+    token: str
+
+
+class Me(Contract):
+    is_owner: bool
+
+
+class SignOut(Contract):
+    # This phone's push token, so the rituals stop arriving on it.
+    push_token: str | None = None
+
+
 class SealedDay(Contract):
     """A day whose note isn't written yet: only its day and date, never its content."""
 

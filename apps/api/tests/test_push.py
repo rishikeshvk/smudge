@@ -44,10 +44,10 @@ async def test_a_ritual_goes_to_every_phone_from_the_buddy(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
     message = await ritual(session, add_course)
-    await register_token(session, PHONE, NOW)
+    await register_token(session, message.user_id, PHONE, NOW)
     pusher, sent = expo(httpx2.Response(200, json={"data": [{"status": "ok"}]}))
 
-    await pusher.push(session, [message])
+    await pusher.push(session, message.user_id, [message])
 
     assert sent == [
         [
@@ -66,12 +66,12 @@ async def test_a_phone_that_is_gone_is_forgotten(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
     message = await ritual(session, add_course)
-    await register_token(session, OLD_PHONE, NOW)
-    await register_token(session, PHONE, NOW)
+    await register_token(session, message.user_id, OLD_PHONE, NOW)
+    await register_token(session, message.user_id, PHONE, NOW)
     gone = {"status": "error", "details": {"error": "DeviceNotRegistered"}}
     pusher, _ = expo(httpx2.Response(200, json={"data": [gone, {"status": "ok"}]}))
 
-    await pusher.push(session, [message])
+    await pusher.push(session, message.user_id, [message])
 
     assert await tokens(session) == [PHONE]
 
@@ -81,10 +81,10 @@ async def test_a_failed_push_is_only_logged(
     session: AsyncSession, add_course: AddCourse
 ) -> None:
     message = await ritual(session, add_course)
-    await register_token(session, PHONE, NOW)
+    await register_token(session, message.user_id, PHONE, NOW)
     pusher, _ = expo(httpx2.Response(503))
 
-    await pusher.push(session, [message])
+    await pusher.push(session, message.user_id, [message])
 
     assert await tokens(session) == [PHONE]
 
@@ -96,16 +96,34 @@ async def test_without_phones_nothing_is_sent(
     message = await ritual(session, add_course)
     pusher, sent = expo(httpx2.Response(200, json={"data": []}))
 
-    await pusher.push(session, [message])
+    await pusher.push(session, message.user_id, [message])
 
     assert sent == []
 
 
 @pytest.mark.anyio
-async def test_registering_a_phone_twice_keeps_one_token(
-    session: AsyncSession,
+async def test_a_ritual_skips_another_users_phone(
+    session: AsyncSession, add_course: AddCourse
 ) -> None:
-    await register_token(session, PHONE, NOW)
-    await register_token(session, PHONE, NOW)
+    message = await ritual(session, add_course)
+    other = await add_course(1)
+    await register_token(session, other.user_id, PHONE, NOW)
+    pusher, sent = expo(httpx2.Response(200, json={"data": []}))
+
+    await pusher.push(session, message.user_id, [message])
+
+    assert sent == []
+
+
+@pytest.mark.anyio
+async def test_a_phone_follows_the_user_who_signed_in_last(
+    session: AsyncSession, add_course: AddCourse
+) -> None:
+    first, second = await add_course(1), await add_course(1)
+
+    await register_token(session, first.user_id, PHONE, NOW)
+    await register_token(session, first.user_id, PHONE, NOW)
+    await register_token(session, second.user_id, PHONE, NOW)
 
     assert await tokens(session) == [PHONE]
+    assert list(await session.scalars(select(PushToken.user_id))) == [second.user_id]

@@ -9,7 +9,7 @@ from kindred_api.chat import (
     read_thread,
     to_contract,
 )
-from kindred_api.dependencies import ClockDep, SessionDep, WorkerDep
+from kindred_api.dependencies import ClockDep, CurrentUserDep, SessionDep, WorkerDep
 from kindred_api.plans import load_current_plan
 from kindred_contracts import ChatMessage, MessageStatus, SendMessage
 from kindred_db import Message
@@ -19,10 +19,14 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 @router.post("/messages", status_code=status.HTTP_202_ACCEPTED)
 async def send_message(
-    body: SendMessage, session: SessionDep, clock: ClockDep, worker: WorkerDep
+    body: SendMessage,
+    session: SessionDep,
+    clock: ClockDep,
+    worker: WorkerDep,
+    user: CurrentUserDep,
 ) -> ChatMessage:
     """Queue a message; poll its status for the stages and the audited reply."""
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, user.id)
     if plan is None:
         raise HTTPException(status.HTTP_409_CONFLICT, "there is no plan yet")
     message = await post_message(session, plan.user_id, body.text, clock.now())
@@ -35,10 +39,11 @@ async def send_message(
 async def list_messages(
     session: SessionDep,
     clock: ClockDep,
+    user: CurrentUserDep,
     before_id: int | None = None,
     limit: Annotated[int, Query(ge=1, le=200)] = 50,
 ) -> list[ChatMessage]:
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, user.id)
     if plan is None:
         return []
     messages = await read_thread(
@@ -53,9 +58,12 @@ async def list_messages(
 
 
 @router.get("/messages/{message_id}")
-async def message_status(message_id: int, session: SessionDep) -> MessageStatus:
+async def message_status(
+    message_id: int, session: SessionDep, user: CurrentUserDep
+) -> MessageStatus:
     message = await session.get(Message, message_id)
-    if message is None:
+    # Another user's message is as absent as one that doesn't exist.
+    if message is None or message.user_id != user.id:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     reply = await read_reply(session, message)
     return MessageStatus(

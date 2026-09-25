@@ -1,0 +1,125 @@
+# Multi-user spec
+
+2026-09-25 · Status: **done** on branch `multi-user`; the phone check passed, and it waits for approval to merge
+
+A pass between buddy feel and M5, with no milestone number. Kindred is finished for one person. Before the public
+demo, a few friends get to use it. That means three things:
+- The backend keeps each person's buddy apart from everyone else's.
+- Each friend has a way in.
+- The app opens on its own screen, with a real logo instead of Expo's scaffold.
+
+It is done when **two users on one local API each onboard, chat and get their nights, and neither can see anything of
+the other's**.
+
+Background: [plan.md](plan.md). Input: [multi-user-brief.md](multi-user-brief.md). Previous module:
+[buddy-feel-spec.md](buddy-feel-spec.md).
+
+**Isolation is the new invariant (8 in `AGENTS.md`).** The user comes only from the auth token, never from a path or
+a body. Any row fetched by id is checked against that user, and another user's row is a 404. A leak between users is
+worse than a leak from the future. The gate doesn't move: retrieval still filters by `plan_id`, and the plan now comes
+from the signed-in user.
+
+## Decisions
+
+| Question | Decision | Rejected |
+| --- | --- | --- |
+| LLM | The free `space-bunny-free` model on the Zen endpoint, for every role and every user, set server-wide | Per-user bring-your-own-key; the Go key with a cap per user |
+| Login | Invite codes minted by the owner. A code is redeemed once for a long-lived token, kept in `expo-secure-store` | Email and password; Google sign-in |
+| Where users come from | `make invite` creates the user and a one-use code bound to it. `--user N` mints a new code for an existing user (after sign-out, or for the owner's phone). `--owner` creates the owner on a fresh database. Onboarding sets the timezone, as before | Creating the user at redeem, which needs a nullable owner on the invite and a timezone in the redeem body |
+| Code format | 8 characters from an alphabet with no 0, O, 1 or I, shown as `ABCD-EFGH` and normalised before hashing. Codes expire after `invite_days` (7). A redeem is one atomic `UPDATE … RETURNING` | No expiry; rate limiting, which isn't needed for a few friends: there are about 10¹² codes and each works once |
+| Tokens | `secrets.token_urlsafe(32)`, stored only as a SHA-256 hash. Tokens don't expire. Sign-out deletes the token, and `make revoke` deletes a user's tokens and push tokens | bcrypt or argon2, which only help against guessing low-entropy secrets; a token expiry, which makes friends ask for new codes |
+| Auth failures | No token, or a bad one: 401. Owner-only routes: 403 for friends. Another user's row: 404, the same as a missing row | 403 for another user's row, which confirms that the row exists |
+| No route missed | Every router except `health` and `auth` is included with a current-user dependency. A test walks `app.routes` and expects 401 without a token | Relying on each handler to take the user |
+| Who the app is | `GET /auth/me` returns `Me { is_owner }`, and the app hides LLM settings and Developer for friends | A field on `BuddyStatus`, which 404s before onboarding |
+| Push tokens | Each token belongs to a user. Registering upserts and rebinds the token to the caller, so a shared phone follows whoever is signed in. Sign-out also deletes the phone's push token | `on conflict do nothing`, which would leave a phone bound to the previous user |
+| Background work | The ticker loops over every user's current plan, each in its own session, so an LLM outage rolls back only that plan. Pushes go only to that user's phones | One session for all plans, where one failure would stop everyone's night |
+| Server-wide controls | The LLM settings and `/dev` are owner-only. The dev clock stays global, so fast-forwarding moves every user | A clock per user |
+| Source pages | Still fetched per plan, since sharing them would touch the gate | Sharing pages across plans |
+| Opening screen | Shows on every cold start, for as long as real start-up takes (token check, `/auth/me`, `/buddy`), with a 600 ms floor so it never just flashes. No tap to skip | First launch only; a fixed 1.5 s |
+| Sign-out | In Settings, for everyone | Leaving it out |
+| Logo | Three directions grown from the lamp disc, on the Claude Design canvas; the user picks one | Going straight to one mark |
+
+## Steps
+
+Each step is built, tested and committed on its own.
+
+| Step | Delivers |
+| --- | --- |
+| 1 Spec | This document, and invariant 8 in `AGENTS.md` |
+| 2 Design | A "Welcome, sign-in and brand" row on the Kindred Screens canvas: three logo directions, the opening screen, the code screen, and a friend's Settings |
+| 3 Invites and tokens | `users.is_owner`, `invites`, `auth_tokens`, `push_tokens.user_id`; `make invite`, `make users`, `make revoke` |
+| 4 Auth in the API | `POST /auth/redeem`, `GET /auth/me`, `POST /auth/sign-out`, the current-user dependency on every other router |
+| 5 Scope every route | `load_current_plan` takes the user; by-id routes return 404 for another user's rows; onboarding uses the signed-in user |
+| 6 Background work per user | The ticker loops over plans, pushes go per user, the turn worker uses the message's user, and the CLIs name their user |
+| 7 Owner-only controls | Settings and `/dev` require the owner |
+| 8 Isolation tests | Two users, through the public endpoints: neither can read, list or act on the other's rows |
+| 9 App sign-in | The code screen, the token in secure store, the auth header, a 401 back to the code screen, sign-out, Settings for friends |
+| 10 Brand assets | Icon, adaptive and monochrome icons, splash and notification icon from the chosen mark; a new development build |
+| 11 Opening screen | The avatar screen between the splash and the app |
+| 12 Phone check | Two users on the local API, with results recorded here |
+
+## Changed during build
+
+- Steps 3 and 4 landed as one commit: once push tokens belong to a user, registering one needs the signed-in user.
+- Steps 5 and 6 landed as one commit: `load_current_plan` taking the user changes the routes, the ticker, the worker
+  and the CLIs at once. `/dev` became owner-only in the same commit, since its view needs the owner's plan.
+- **A new plan's source pages are fetched in the background** when onboarding accepts it (`SourceFetcher`). A friend
+  has nobody to run `make ingest`, and without pages the buddy never studies. `make ingest` now covers every plan and
+  retries failed pages. Rejected: leaving it to the owner after each friend onboards.
+- `make seed` seeds for the owner and creates one if there is none. `make turn` takes `--user` and defaults to the
+  owner. The probe runner is unchanged: its eval database holds exactly one plan by construction.
+- The owner and `/dev` checks are router-level dependencies, so they run before anything else a route needs.
+- In the app, the token goes out through the generated client's `auth` option. The API marks each signed-in route
+  with bearer security in its OpenAPI schema, so the header is sent exactly where it's needed. `queryClient.ts` now
+  holds only the client (the refetch hooks moved to `refetch.ts`), which avoids an import cycle through the session.
+- The opening screen was built before the logo pick. It shows the lamp disc, which is also logo direction A.
+
+## Results
+
+**API smoke test** (local API on `kindred_mu`, a copy of `kindred_bf` migrated to the new schema, free model).
+- The existing user became the owner.
+- `make invite ARGS='--user 1'` minted a code for the owner and `make invite` one for a new friend.
+- Redeeming both worked, with the friend's code typed in lower case. A second use of the code returned 404.
+- Without a token, `/buddy` returned 401.
+- `/auth/me` said owner for one token and friend for the other.
+- With the friend's token:
+  - the owner's note, message and turn by id all returned 404 (200 for the owner);
+  - the chat list was empty;
+  - `/settings` and `/dev/clock` returned 403.
+- The friend onboarded through the API: one Planner exchange, then accept (201) with the buddy named Sol. Their plan's
+  82 source pages arrived in the background within seconds.
+
+**Phone check** (development build `bf3a63d8` with expo-secure-store and the new icons, on `kindred_mu`, free
+model, driven over adb).
+- **Opening.** On a cold start the native splash shows the lamp disc on the dark ground. The opening screen then
+  lights the lamp with the "Kindred" wordmark and fades into the next screen. In a development build, the dev
+  client's own loading screen sits between the two while the bundle reloads.
+- **Owner.**
+  - A code for user 1, typed in lower case without a dash, formatted itself as `JZHN-67XT`.
+  - Continue opened Juno's existing chat, and the phone registered for pushes.
+  - Settings showed the endpoint, the models, Developer and Sign out.
+  - Sign out asked first, went back to the code screen, and deleted the phone's push token.
+- **Friend.**
+  - A new code (user 3) went through the keyboard's Go key to an empty onboarding, not the owner's transcript.
+  - The Planner proposed 14 days from 10 Oct. Accepted with the buddy named Wren; the plan's 82 pages arrived in the
+    background.
+  - Settings showed Display, the note on the free model and Sign out.
+  - The friend stayed signed in across a cold start.
+- **Nights.**
+  - Moving the dev clock showed Wren studying, with 3 minutes left and the lamp glow on.
+  - After the session, all three users had their nights: the owner's day 9 (share and a small ask), the curl
+    friend's day 1 and Wren's day 1, each in its own chat.
+  - Only Wren's share reached the phone, with the new lamp notification icon. The owner's share didn't, since the
+    phone belonged to the friend by then.
+- **Launcher.** The icon is the lamp disc on the dark ground.
+- **Fixed on the phone.**
+  - A friend's app got 403 reading `/dev/clock`, so on a dev API it would show real time instead of the server's.
+    Anyone signed in can now read the clock, with their own plan's day; only the owner moves it.
+  - The friend's Settings had no space between sections: `gap-7` isn't in the spacing scale.
+- **Rate limits.** The free model answered every call in the check: two Planner turns and three nights with their
+  audits.
+
+## Carried over, not in this pass
+
+See the brief's list. It covers the leak follow-ups, the teach-back probe category, the probe re-run on the Go models,
+the 7-day simulation, and the deploy and APK. All of them are in M5.

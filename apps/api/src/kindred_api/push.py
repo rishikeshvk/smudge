@@ -25,27 +25,40 @@ class ExpoReply(BaseModel):
     data: list[ExpoTicket]
 
 
-async def register_token(session: AsyncSession, token: str, now: datetime) -> None:
+async def register_token(
+    session: AsyncSession, user_id: int, token: str, now: datetime
+) -> None:
+    # A phone follows whoever signed in on it last, so no one gets another's rituals.
+    statement = insert(PushToken).values(
+        user_id=user_id, token=token, registered_at=now
+    )
     await session.execute(
-        insert(PushToken)
-        .values(token=token, registered_at=now)
-        .on_conflict_do_nothing(index_elements=[PushToken.token])
+        statement.on_conflict_do_update(
+            index_elements=[PushToken.token],
+            set_={"user_id": user_id, "registered_at": now},
+        )
     )
 
 
 class Pusher:
-    """Sends the buddy's rituals to the user's phones through Expo's push service."""
+    """Sends a buddy's rituals to its user's phones through Expo's push service."""
 
     def __init__(self, client: httpx2.AsyncClient, url: str) -> None:
         self._client = client
         self._url = url
 
-    async def push(self, session: AsyncSession, messages: list[Message]) -> None:
+    async def push(
+        self, session: AsyncSession, user_id: int, messages: list[Message]
+    ) -> None:
         """Best effort: a failed push is logged, and the message stays in the chat."""
-        tokens = list(await session.scalars(select(PushToken.token)))
+        tokens = list(
+            await session.scalars(
+                select(PushToken.token).where(PushToken.user_id == user_id)
+            )
+        )
         if not tokens or not messages:
             return
-        name = await session.scalar(select(Buddy.name).order_by(Buddy.id).limit(1))
+        name = await session.scalar(select(Buddy.name).where(Buddy.user_id == user_id))
         notifications = [
             {
                 "to": token,

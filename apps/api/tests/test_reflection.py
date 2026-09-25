@@ -78,7 +78,7 @@ async def explained(
     session: AsyncSession, add_course: AddCourse, add_study: AddStudy
 ) -> CurrentPlan:
     """Day 1 studied with two shaky points, sourced, and the user explaining one."""
-    await add_course(2)
+    course = await add_course(2)
     await add_study(
         1, EVENING - timedelta(hours=1), shaky=["why regions?", "what's an AZ?"]
     )
@@ -93,7 +93,7 @@ async def explained(
             fetched_at=EVENING,
         )
     )
-    plan = await load_current_plan(session)
+    plan = await load_current_plan(session, course.user_id)
     assert plan is not None
     await record_turn(
         session,

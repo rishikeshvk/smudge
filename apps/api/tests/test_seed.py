@@ -221,3 +221,20 @@ async def test_without_reference_notes_the_ledger_starts_empty(
 
     assert await session.scalar(select(TopicNode.id).limit(1)) is not None
     assert await session.scalar(select(LedgerNote.id).limit(1)) is None
+
+
+@pytest.mark.anyio
+async def test_seeding_makes_the_owner_or_seeds_for_them(
+    session: AsyncSession, curriculum: Curriculum
+) -> None:
+    friend = User(timezone="UTC")
+    owner = User(timezone="UTC", is_owner=True)
+    session.add_all([friend, owner])
+    await session.flush()
+
+    await seed_plan(
+        session, curriculum, START, KOLKATA, "Juno", reference_embedder=None
+    )
+
+    assert await session.scalar(select(Plan.user_id)) == owner.id
+    assert owner.timezone == "Asia/Kolkata"

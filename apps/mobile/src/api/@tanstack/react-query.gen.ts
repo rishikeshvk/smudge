@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { accept, addCheckin, addPushToken, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readNote, readNotebook, readRoadmap, readSettings, readTurn, sendMessage, sendOnboardingMessage, studyNow, studyTogether, testConnection, updateSettings } from '../sdk.gen';
-import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinError, AddCheckinResponse, AddPushTokenData, AddPushTokenError, AddPushTokenResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, StudyNowData, StudyNowResponse, StudyTogetherData, StudyTogetherResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
+import { accept, addCheckin, addPushToken, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readMe, readNote, readNotebook, readRoadmap, readSettings, readTurn, redeemInvite, sendMessage, sendOnboardingMessage, signOut, studyNow, studyTogether, testConnection, updateSettings } from '../sdk.gen';
+import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinError, AddCheckinResponse, AddPushTokenData, AddPushTokenError, AddPushTokenResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadMeData, ReadMeResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, RedeemInviteData, RedeemInviteError, RedeemInviteResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, SignOutData, SignOutError, SignOutResponse, StudyNowData, StudyNowResponse, StudyTogetherData, StudyTogetherResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -57,6 +57,62 @@ export const healthOptions = (options?: Options<HealthData>) => queryOptions<Hea
     queryKey: healthQueryKey(options)
 });
 
+/**
+ * Redeem Invite
+ *
+ * Trade a one-use invite code for this phone's token.
+ */
+export const redeemInviteMutation = (options?: Partial<Options<RedeemInviteData>>): UseMutationOptions<RedeemInviteResponse, RedeemInviteError, Options<RedeemInviteData>> => {
+    const mutationOptions: UseMutationOptions<RedeemInviteResponse, RedeemInviteError, Options<RedeemInviteData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await redeemInvite({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const readMeQueryKey = (options?: Options<ReadMeData>) => createQueryKey('readMe', options);
+
+/**
+ * Read Me
+ */
+export const readMeOptions = (options?: Options<ReadMeData>) => queryOptions<ReadMeResponse, DefaultError, ReadMeResponse, ReturnType<typeof readMeQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await readMe({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: readMeQueryKey(options)
+});
+
+/**
+ * Sign Out
+ *
+ * End this phone's session and stop its pushes.
+ */
+export const signOutMutation = (options?: Partial<Options<SignOutData>>): UseMutationOptions<SignOutResponse, SignOutError, Options<SignOutData>> => {
+    const mutationOptions: UseMutationOptions<SignOutResponse, SignOutError, Options<SignOutData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await signOut({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
 export const readClockQueryKey = (options?: Options<ReadClockData>) => createQueryKey('readClock', options);
 
 /**
@@ -95,8 +151,8 @@ export const changeClockMutation = (options?: Partial<Options<ChangeClockData>>)
 /**
  * Study Now
  *
- * Run tonight's study: move to the end of today's session if it's later, then
- * tick.
+ * Run tonight's study, by the owner's plan: move to the end of today's session
+ * if it's later, then tick everyone's plans.
  */
 export const studyNowMutation = (options?: Partial<Options<StudyNowData>>): UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> => {
     const mutationOptions: UseMutationOptions<StudyNowResponse, DefaultError, Options<StudyNowData>> = {
@@ -321,7 +377,7 @@ export const addCheckinMutation = (options?: Partial<Options<AddCheckinData>>): 
 /**
  * Add Push Token
  *
- * A phone that should get the buddy's rituals; registering again is harmless.
+ * A phone that should get this user's rituals; registering again is harmless.
  */
 export const addPushTokenMutation = (options?: Partial<Options<AddPushTokenData>>): UseMutationOptions<AddPushTokenResponse, AddPushTokenError, Options<AddPushTokenData>> => {
     const mutationOptions: UseMutationOptions<AddPushTokenResponse, AddPushTokenError, Options<AddPushTokenData>> = {
