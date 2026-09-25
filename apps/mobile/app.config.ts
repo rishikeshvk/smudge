@@ -1,7 +1,7 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
 
 // The development build gets its own package, name and scheme, so it installs beside the
-// friends' app instead of replacing it.
+// preview app instead of replacing it.
 const isDevelopmentBuild = process.env.APP_VARIANT === "development";
 
 // The Firebase file for push isn't committed. EAS builds get it from the GOOGLE_SERVICES_JSON

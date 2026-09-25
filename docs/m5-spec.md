@@ -61,8 +61,8 @@ Canvas rows:
 6. Design the landing page, the replay states, the parked leak artboard and the video storyboard.
 7. `apps/site`: the static landing page, `make site` and `make site-deploy`.
 8. The display rename and a new preview APK.
-9. The Oracle move, in `docs/deploy.md`: the live database becomes `kindred_live`, and the role "friend" becomes
-   "member".
+9. The Oracle move, in `docs/hosting.md`: the live database becomes `kindred_live`. (The role "friend" became
+   "member" ahead of it, on 2026-09-25.)
 10. The demo video.
 11. The README.
 12. A secrets scan, then the repo goes public.

@@ -60,7 +60,7 @@ async def list_users(session: AsyncSession) -> list[str]:
         .order_by(User.id)
     )
     return [
-        f"{user_id:>4}  {'owner' if is_owner else 'friend':<6}  {name or '-':<10}"
+        f"{user_id:>4}  {'owner' if is_owner else 'member':<6}  {name or '-':<10}"
         f"  {start or 'no plan'!s:<10}  {count or 0} signed in"
         for user_id, is_owner, name, start, count in rows
     ]
@@ -83,11 +83,11 @@ async def run(args: argparse.Namespace) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Invite friends and manage who is signed in."
+        description="Invite members and manage who is signed in."
     )
     commands = parser.add_subparsers(dest="command", required=True)
     invite_parser = commands.add_parser(
-        "invite", help="mint a one-use code; a new friend unless --user or --owner"
+        "invite", help="mint a one-use code; a new member unless --user or --owner"
     )
     who = invite_parser.add_mutually_exclusive_group()
     who.add_argument("--user", type=int, help="a new code for this existing user")

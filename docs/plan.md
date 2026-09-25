@@ -117,7 +117,7 @@ The MVP is the full core idea as a working Android app; only infrastructure and 
 
 **Deferred:**
 
-- Full authentication and public sign-up. The multi-user pass adds invite codes for a few friends.
+- Full authentication and public sign-up. The multi-user pass adds invite codes for a few invited members.
 - Shared code sandbox, the one part of the original idea that isn't cheap.
 - iOS and web versions; Telegram/WhatsApp.
 - Non-tech domains.

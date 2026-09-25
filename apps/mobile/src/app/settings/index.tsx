@@ -138,8 +138,8 @@ function AccountSection() {
   );
 }
 
-// Friends share the owner's model, so they see what it means for them instead of its settings.
-function FriendSettings() {
+// Members share the owner's model, so they see what it means for them instead of its settings.
+function MemberSettings() {
   const insets = useSafeAreaInsets();
 
   return (
@@ -290,7 +290,7 @@ export default function Settings() {
       <View className="px-4">
         <LoadState isPending={me.isPending} error={me.error} />
       </View>
-      {me.data && (me.data.is_owner ? <OwnerSettings /> : <FriendSettings />)}
+      {me.data && (me.data.is_owner ? <OwnerSettings /> : <MemberSettings />)}
     </View>
   );
 }

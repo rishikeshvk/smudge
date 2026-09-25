@@ -43,7 +43,7 @@ class User(Base):
     is_owner: Mapped[bool] = mapped_column(server_default="false")
 
 
-# A one-use code the owner hands a friend; redeeming it signs that user in.
+# A one-use code the owner hands a new member; redeeming it signs that user in.
 class Invite(Base):
     __tablename__ = "invites"
 
