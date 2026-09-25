@@ -1,4 +1,4 @@
-.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types mobile mobile-tunnel mobile-usb mobile-build
+.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types invite users revoke mobile mobile-tunnel mobile-usb mobile-build
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -59,6 +59,17 @@ check:
 fmt:
 	uv run ruff format .
 	uv run ruff check --fix .
+
+# make invite: a code for a new friend; ARGS='--user 1' for an existing user, '--owner' on a fresh database.
+invite:
+	uv run python -m kindred_api.accounts invite $(ARGS)
+
+users:
+	uv run python -m kindred_api.accounts users
+
+# make revoke ARGS='--user 3': signs them out on every phone and stops their pushes.
+revoke:
+	uv run python -m kindred_api.accounts revoke $(ARGS)
 
 llm-ping:
 	uv run python -m kindred_api.llm_ping

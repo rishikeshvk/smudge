@@ -1,6 +1,7 @@
 from kindred_contracts.api import (
     AcceptPlan,
     AdvanceClock,
+    AuthToken,
     BuddyStatus,
     ChatMessage,
     CheckIn,
@@ -10,6 +11,7 @@ from kindred_contracts.api import (
     JumpToDay,
     LLMSettingsUpdate,
     LLMSettingsView,
+    Me,
     MessageStatus,
     ModelsPerRole,
     NotebookView,
@@ -19,11 +21,13 @@ from kindred_contracts.api import (
     PausePlan,
     PullTopic,
     PushRegistration,
+    RedeemInvite,
     ResetClock,
     RoadmapTopic,
     RoadmapView,
     SealedDay,
     SendMessage,
+    SignOut,
     StudyTimeChange,
 )
 from kindred_contracts.cards import (
@@ -116,7 +120,11 @@ from kindred_contracts.turn import (
 __all__ = [
     "PausePlan",
     "PullTopic",
+    "AuthToken",
+    "Me",
     "PushRegistration",
+    "RedeemInvite",
+    "SignOut",
     "StudyTimeChange",
     "AskCard",
     "MorningCard",

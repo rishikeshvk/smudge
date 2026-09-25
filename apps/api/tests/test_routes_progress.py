@@ -9,11 +9,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from kindred_api.clock import Clock, FixedClock
 from kindred_api.turn_worker import TurnWorker
 from kindred_contracts import PersonaContext
-from kindred_db import Plan, StudyCheckin
+from kindred_db import Plan, StudyCheckin, User
 from kindred_gate import TurnComponents
 
 AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+AddUser = Callable[..., Awaitable[User]]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
 
 
@@ -36,8 +37,8 @@ def worker(sessions: async_sessionmaker[AsyncSession]) -> TurnWorker:
 async def test_each_check_in_marks_the_next_topic(
     api: ApiClient, worker: TurnWorker, add_course: AddCourse
 ) -> None:
-    await add_course(2)
-    client = api(FixedClock(NOW), worker)
+    plan = await add_course(2)
+    client = api(FixedClock(NOW), worker, plan.user_id)
 
     first = await client.post("/progress/checkins", json=OKAY)
     second = await client.post("/progress/checkins", json=OKAY)
@@ -49,8 +50,14 @@ async def test_each_check_in_marks_the_next_topic(
 
 
 @pytest.mark.anyio
-async def test_check_ins_need_a_plan(api: ApiClient, worker: TurnWorker) -> None:
-    response = await api(FixedClock(NOW), worker).post("/progress/checkins", json=OKAY)
+async def test_check_ins_need_a_plan(
+    api: ApiClient, worker: TurnWorker, add_user: AddUser
+) -> None:
+    user = await add_user()
+
+    response = await api(FixedClock(NOW), worker, user.id).post(
+        "/progress/checkins", json=OKAY
+    )
 
     assert response.status_code == 409
 
@@ -59,8 +66,8 @@ async def test_check_ins_need_a_plan(api: ApiClient, worker: TurnWorker) -> None
 async def test_a_check_in_tells_the_buddy_how_it_went(
     api: ApiClient, worker: TurnWorker, session: AsyncSession, add_course: AddCourse
 ) -> None:
-    await add_course(1)
-    client = api(FixedClock(NOW), worker)
+    plan = await add_course(1)
+    client = api(FixedClock(NOW), worker, plan.user_id)
 
     await client.post(
         "/progress/checkins", json={"feeling": "rough", "fuzzy": "why regions?"}

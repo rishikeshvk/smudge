@@ -175,7 +175,9 @@ async def test_a_ritual_is_pushed_to_the_phone(
     add_course: AddCourse,
 ) -> None:
     await sourced_course(session, add_course, 2)
-    await register_token(session, "ExponentPushToken[phone]", DAY_1)
+    user_id = await session.scalar(select(Plan.user_id))
+    assert user_id is not None
+    await register_token(session, user_id, "ExponentPushToken[phone]", DAY_1)
     await session.commit()
     pushed: list[str] = []
 

@@ -3,13 +3,16 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from kindred_api.auth import user_for_token
 from kindred_api.clock import Clock, OffsetClock
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.onboarding import Planning
 from kindred_api.ticker import Ticker
 from kindred_api.turn_worker import TurnWorker
+from kindred_db import User
 
 
 @dataclass(frozen=True)
@@ -60,7 +63,47 @@ def get_dev_clock(clock: Annotated[Clock, Depends(get_clock)]) -> OffsetClock:
     return clock
 
 
+bearer = HTTPBearer(auto_error=False)
+
+
+def unauthorized() -> HTTPException:
+    return HTTPException(
+        status.HTTP_401_UNAUTHORIZED,
+        "sign in with an invite code",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
+def get_token(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer)],
+) -> str:
+    if credentials is None:
+        raise unauthorized()
+    return credentials.credentials
+
+
+async def get_current_user(
+    session: Annotated[AsyncSession, Depends(get_session)],
+    token: Annotated[str, Depends(get_token)],
+) -> User:
+    """The signed-in user: the only source of who is asking (invariant 8)."""
+    user = await user_for_token(session, token)
+    if user is None:
+        raise unauthorized()
+    return user
+
+
+def get_owner(user: Annotated[User, Depends(get_current_user)]) -> User:
+    # LLM settings and the dev clock are server-wide, so only the owner touches them.
+    if not user.is_owner:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "only the owner can do that")
+    return user
+
+
 SessionDep = Annotated[AsyncSession, Depends(get_session)]
+TokenDep = Annotated[str, Depends(get_token)]
+CurrentUserDep = Annotated[User, Depends(get_current_user)]
+OwnerDep = Annotated[User, Depends(get_owner)]
 ClockDep = Annotated[Clock, Depends(get_clock)]
 DevClockDep = Annotated[OffsetClock, Depends(get_dev_clock)]
 WorkerDep = Annotated[TurnWorker, Depends(get_worker)]

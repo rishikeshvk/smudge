@@ -96,4 +96,4 @@ class Ticker:
         await session.commit()
         for message in sent:
             logger.info("sent a ritual: %s", message.text)
-        await self._pusher.push(session, sent)
+        await self._pusher.push(session, plan.user_id, sent)

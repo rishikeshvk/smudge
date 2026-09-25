@@ -5,6 +5,7 @@ from sqlalchemy import (
     CheckConstraint,
     DateTime,
     ForeignKey,
+    Index,
     MetaData,
     Text,
     UniqueConstraint,
@@ -30,9 +31,38 @@ class Base(DeclarativeBase):
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = (
+        Index(
+            "uq_users_one_owner", "is_owner", unique=True, postgresql_where="is_owner"
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     timezone: Mapped[str]
+    # The one person who runs this server: only they see its LLM settings and dev clock.
+    is_owner: Mapped[bool] = mapped_column(server_default="false")
+
+
+# A one-use code the owner hands a friend; redeeming it signs that user in.
+class Invite(Base):
+    __tablename__ = "invites"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    code_hash: Mapped[str] = mapped_column(unique=True)
+    created_at: Mapped[datetime]
+    expires_at: Mapped[datetime]
+    redeemed_at: Mapped[datetime | None]
+
+
+# A signed-in phone. Only the hash is kept, so a database dump signs nobody in.
+class AuthToken(Base):
+    __tablename__ = "auth_tokens"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(unique=True)
+    created_at: Mapped[datetime]
 
 
 # One persona per user, kept across every goal they take on.
@@ -243,11 +273,12 @@ class Ritual(Base):
     shaky: Mapped[str | None]
 
 
-# A phone that gets the buddy's rituals as push notifications, via Expo.
+# A phone that gets its user's rituals as push notifications, via Expo.
 class PushToken(Base):
     __tablename__ = "push_tokens"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     token: Mapped[str] = mapped_column(unique=True)
     registered_at: Mapped[datetime]
 

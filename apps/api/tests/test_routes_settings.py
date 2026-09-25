@@ -1,4 +1,4 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime
 
 import httpx
@@ -11,8 +11,10 @@ from kindred_api.dependencies import get_llm
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.main import app
 from kindred_api.turn_worker import TurnWorker
+from kindred_db import User
 
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+AddUser = Callable[..., Awaitable[User]]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 9, 23, 9, 0, tzinfo=UTC)
 KEY = "sk-never-shown-9f2c"
 
@@ -29,8 +31,11 @@ def runtime() -> LLMRuntime:
 
 
 @pytest.fixture
-def client(api: ApiClient, runtime: LLMRuntime) -> httpx.AsyncClient:
-    return api(FixedClock(NOW), None)
+async def client(
+    api: ApiClient, runtime: LLMRuntime, add_user: AddUser
+) -> httpx.AsyncClient:
+    owner = await add_user(owner=True)
+    return api(FixedClock(NOW), None, owner.id)
 
 
 @pytest.mark.anyio

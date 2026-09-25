@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     ritual_daily_cap: int = Field(default=4, ge=1)
     expo_push_url: str = "https://exp.host/--/api/v2/push/send"
 
+    # How long an unredeemed invite code works.
+    invite_days: int = Field(default=7, ge=1)
+
     # Swaps real time for the persisted dev clock and enables /dev time controls.
     dev_mode: bool = False
 

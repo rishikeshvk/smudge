@@ -13,7 +13,7 @@ from kindred_contracts import NoteDraft
 from kindred_db import EMBEDDING_DIMENSIONS, Plan, TopicNode
 
 AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 DAY_1_EVENING = datetime(2026, 10, 1, 14, 0, tzinfo=UTC)
 
 
@@ -39,10 +39,12 @@ async def write_note(session: AsyncSession, day: int, at: datetime) -> int:
 async def test_the_notebook_shows_written_notes_and_seals_the_rest(
     api: ApiClient, session: AsyncSession, add_course: AddCourse
 ) -> None:
-    await add_course(3)
+    plan = await add_course(3)
     await write_note(session, 1, DAY_1_EVENING)
 
-    notebook = (await api(FixedClock(DAY_1_EVENING), None).get("/notebook")).json()
+    notebook = (
+        await api(FixedClock(DAY_1_EVENING), None, plan.user_id).get("/notebook")
+    ).json()
 
     assert [(n["topic"]["day"], n["body"]) for n in notebook["notes"]] == [
         (1, "day 1 notes")
@@ -57,11 +59,11 @@ async def test_the_notebook_shows_written_notes_and_seals_the_rest(
 async def test_a_note_opens_only_once_it_is_visible(
     api: ApiClient, session: AsyncSession, add_course: AddCourse
 ) -> None:
-    await add_course(2)
+    plan = await add_course(2)
     later = DAY_1_EVENING + timedelta(days=1)
     note_id = await write_note(session, 2, later)
     clock = FixedClock(DAY_1_EVENING)
-    client = api(clock, None)
+    client = api(clock, None, plan.user_id)
 
     assert (await client.get(f"/notebook/{note_id}")).status_code == 404
 

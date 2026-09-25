@@ -19,7 +19,7 @@ from kindred_contracts import (
 from kindred_db import Plan
 
 AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 10, 3, 15, 0, tzinfo=UTC)
 
 
@@ -42,13 +42,17 @@ async def test_a_turn_returns_its_full_trace(
     )
     turn = await record_turn(session, trace, plan_id=plan.id, session_id="s")
 
-    response = await api(FixedClock(NOW), None).get(f"/turns/{turn.id}")
+    response = await api(FixedClock(NOW), None, plan.user_id).get(f"/turns/{turn.id}")
 
     assert TurnTrace.model_validate(response.json()) == trace
 
 
 @pytest.mark.anyio
-async def test_unknown_turns_are_not_found(api: ApiClient) -> None:
-    response = await api(FixedClock(NOW), None).get("/turns/999999")
+async def test_unknown_turns_are_not_found(
+    api: ApiClient, add_course: AddCourse
+) -> None:
+    plan = await add_course(1)
+
+    response = await api(FixedClock(NOW), None, plan.user_id).get("/turns/999999")
 
     assert response.status_code == 404

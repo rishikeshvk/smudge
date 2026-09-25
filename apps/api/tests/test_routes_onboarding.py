@@ -18,11 +18,12 @@ from kindred_contracts import (
     PlannerDraft,
     Verdict,
 )
-from kindred_db import Plan
+from kindred_db import Plan, User
 from kindred_gate import TopicMap
 
 AddCourse = Callable[[int], Awaitable[Plan]]
-ApiClient = Callable[[Clock, TurnWorker | None], httpx.AsyncClient]
+AddUser = Callable[..., Awaitable[User]]
+ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 9, 23, 9, 0, tzinfo=UTC)
 
 TINY = Curriculum.model_validate(
@@ -72,12 +73,13 @@ class Scripted:
 
 
 @pytest.fixture
-def client(api: ApiClient) -> httpx.AsyncClient:
+async def client(api: ApiClient, add_user: AddUser) -> httpx.AsyncClient:
+    user = await add_user()
     scripted = Scripted()
     app.dependency_overrides[get_planning] = lambda: Planning(
         courses=[TINY], planner=scripted, auditor=scripted
     )
-    return api(FixedClock(NOW), None)
+    return api(FixedClock(NOW), None, user.id)
 
 
 @pytest.mark.anyio
