@@ -1,7 +1,6 @@
 # Multi-user spec
 
-2026-09-25 · Status: **in progress** on branch `multi-user`. Steps 1–11 are built; step 12, the phone check, waits for
-the new development build
+2026-09-25 · Status: **done** on branch `multi-user`; the phone check passed, and it waits for approval to merge
 
 A pass between buddy feel and M5, with no milestone number. Kindred is finished for one person. Before the public
 demo, a few friends get to use it. That means three things:
@@ -90,7 +89,35 @@ Each step is built, tested and committed on its own.
 - The friend onboarded through the API: one Planner exchange, then accept (201) with the buddy named Sol. Their plan's
   82 source pages arrived in the background within seconds.
 
-**Phone check:** waits for the development build with expo-secure-store and the new icons.
+**Phone check** (development build `bf3a63d8` with expo-secure-store and the new icons, on `kindred_mu`, free
+model, driven over adb).
+- **Opening.** On a cold start the native splash shows the lamp disc on the dark ground. The opening screen then
+  lights the lamp with the "Kindred" wordmark and fades into the next screen. In a development build, the dev
+  client's own loading screen sits between the two while the bundle reloads.
+- **Owner.**
+  - A code for user 1, typed in lower case without a dash, formatted itself as `JZHN-67XT`.
+  - Continue opened Juno's existing chat, and the phone registered for pushes.
+  - Settings showed the endpoint, the models, Developer and Sign out.
+  - Sign out asked first, went back to the code screen, and deleted the phone's push token.
+- **Friend.**
+  - A new code (user 3) went through the keyboard's Go key to an empty onboarding, not the owner's transcript.
+  - The Planner proposed 14 days from 10 Oct. Accepted with the buddy named Wren; the plan's 82 pages arrived in the
+    background.
+  - Settings showed Display, the note on the free model and Sign out.
+  - The friend stayed signed in across a cold start.
+- **Nights.**
+  - Moving the dev clock showed Wren studying, with 3 minutes left and the lamp glow on.
+  - After the session, all three users had their nights: the owner's day 9 (share and a small ask), the curl
+    friend's day 1 and Wren's day 1, each in its own chat.
+  - Only Wren's share reached the phone, with the new lamp notification icon. The owner's share didn't, since the
+    phone belonged to the friend by then.
+- **Launcher.** The icon is the lamp disc on the dark ground.
+- **Fixed on the phone.**
+  - A friend's app got 403 reading `/dev/clock`, so on a dev API it would show real time instead of the server's.
+    Anyone signed in can now read the clock, with their own plan's day; only the owner moves it.
+  - The friend's Settings had no space between sections: `gap-7` isn't in the spacing scale.
+- **Rate limits.** The free model answered every call in the check: two Planner turns and three nights with their
+  audits.
 
 ## Carried over, not in this pass
 
