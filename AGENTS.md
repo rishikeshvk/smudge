@@ -58,6 +58,9 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-packages`.
 - `make up` — Postgres (Docker), migrations, and the API with hot reload on :8000
 - `make down` — stop Postgres
+- `make serve` — the private beta's API on its own `kindred_friends` database, on real time, at 127.0.0.1:8100
+  for the Tailscale Funnel ([private-beta.md](docs/private-beta.md)); add `ON=friends` to `invite`, `users`, `revoke`
+  or `migrate` to reach that database
 - `make migrate` — apply alembic migrations
 - `make db-reset` — rebuild the schema, wiping dev data (the ledger can't be deleted from)
 - `make embed-model` — pull the Ollama embedding model (first run only)
@@ -79,6 +82,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make llm-ping` — one real call to the configured LLM endpoint
 - `make icons` — render the app icon, splash and notification icon from `apps/mobile/assets/brand` (native: rebuild after)
 - `make api-types` — regenerate the app's TS types (`apps/mobile/src/api`) from the API's OpenAPI schema
+- `make mobile-preview` — build the standalone APK friends install (EAS `preview` environment and channel)
+- `make mobile-update MSG='...'` — send JS changes to installed preview APKs, no reinstall
 - `make mobile-build` — build the Android development build (EAS) that push notifications need; install its APK
 - `make mobile` — Expo dev server for the development build (press `s` to switch to Expo Go, which has no push)
 - `make mobile-tunnel` — same over an ngrok tunnel, for networks where the phone can't reach the PC

@@ -57,6 +57,12 @@
         "projectId": "dcd3eb19-09f4-4d8c-99bc-c337baba369d"
       }
     },
-    "owner": "rishikeshvk"
+    "owner": "rishikeshvk",
+    "updates": {
+      "url": "https://u.expo.dev/dcd3eb19-09f4-4d8c-99bc-c337baba369d"
+    },
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    }
   }
 }

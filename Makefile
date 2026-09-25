@@ -1,9 +1,25 @@
-.PHONY: up down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build
+.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
+# The friends' server has its own database and runs on real time. `make serve` always uses it;
+# ON=friends points migrate, invite, users and revoke at it too.
+FRIENDS_DB = kindred_friends
+ifneq ($(filter friends,$(ON))$(filter serve,$(MAKECMDGOALS)),)
+export DATABASE_URL = postgresql+psycopg://kindred:kindred@localhost:5432/$(FRIENDS_DB)
+export DEV_MODE = false
+endif
+
 up: migrate
 	uv run fastapi dev --host 0.0.0.0 apps/api/src/kindred_api/main.py
+
+# Only the tunnel reaches it, on :8100, so `make up` can run beside it on :8000.
+serve:
+	docker compose up -d --wait db ollama
+	docker compose exec -T db psql -U kindred -tAc "select 1 from pg_database where datname = '$(FRIENDS_DB)'" | grep -q 1 \
+		|| docker compose exec -T db createdb -U kindred $(FRIENDS_DB)
+	$(ALEMBIC) upgrade head
+	uv run fastapi run --host 127.0.0.1 --port 8100 apps/api/src/kindred_api/main.py
 
 down:
 	docker compose down
@@ -106,3 +122,11 @@ mobile-usb:
 # The development build with push notifications; install the APK it links to on the phone.
 mobile-build:
 	cd apps/mobile && npx eas-cli@latest build --profile development --platform android
+
+# The standalone APK friends install; it reaches the API at the preview environment's EXPO_PUBLIC_API_URL.
+mobile-preview:
+	cd apps/mobile && npx eas-cli@latest build --profile preview --platform android
+
+# make mobile-update MSG='Fix the notebook fog': JS changes to installed preview APKs, no reinstall.
+mobile-update:
+	cd apps/mobile && npx eas-cli@latest update --channel preview --environment preview --platform android --message "$(MSG)"
