@@ -145,7 +145,7 @@ function FriendSettings() {
   return (
     <ScrollView
       showsVerticalScrollIndicator={false}
-      contentContainerClassName="gap-7 px-4"
+      contentContainerClassName="gap-6 px-4"
       contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
     >
       <DisplaySection developer={false} />

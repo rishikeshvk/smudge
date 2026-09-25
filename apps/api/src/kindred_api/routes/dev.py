@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.clock import OffsetClock
 from kindred_api.dependencies import (
+    CurrentUserDep,
     DevClockDep,
     OwnerDep,
     SessionDep,
@@ -23,18 +24,20 @@ from kindred_contracts import (
     ResetClock,
 )
 
-# The dev clock is server-wide; checked first, before any other dependency.
-router = APIRouter(prefix="/dev", tags=["dev"], dependencies=[Depends(get_owner)])
+router = APIRouter(prefix="/dev", tags=["dev"])
+# The clock is server-wide: everyone reads it, so every app follows it, but only the
+# owner moves it. Checked before any other dependency.
+OWNER_ONLY = [Depends(get_owner)]
 
 
 @router.get("/clock")
 async def read_clock(
-    clock: DevClockDep, session: SessionDep, owner: OwnerDep
+    clock: DevClockDep, session: SessionDep, user: CurrentUserDep
 ) -> ClockView:
-    return await _view(clock, session, owner.id)
+    return await _view(clock, session, user.id)
 
 
-@router.post("/clock")
+@router.post("/clock", dependencies=OWNER_ONLY)
 async def change_clock(
     change: ClockChange, clock: DevClockDep, session: SessionDep, owner: OwnerDep
 ) -> ClockView:
@@ -54,7 +57,7 @@ async def change_clock(
     return await _view(clock, session, owner.id)
 
 
-@router.post("/study-now")
+@router.post("/study-now", dependencies=OWNER_ONLY)
 async def study_now(
     clock: DevClockDep, session: SessionDep, ticker: TickerDep, owner: OwnerDep
 ) -> ClockView:
@@ -76,7 +79,7 @@ async def study_now(
     return await _view(clock, session, owner.id)
 
 
-@router.post("/next-ritual")
+@router.post("/next-ritual", dependencies=OWNER_ONLY)
 async def next_ritual(
     clock: DevClockDep, session: SessionDep, ticker: TickerDep, owner: OwnerDep
 ) -> ClockView:
@@ -91,10 +94,10 @@ async def next_ritual(
     return await _view(clock, session, owner.id)
 
 
-async def _view(clock: OffsetClock, session: AsyncSession, owner_id: int) -> ClockView:
+async def _view(clock: OffsetClock, session: AsyncSession, user_id: int) -> ClockView:
     now = clock.now()
-    # The clock is global; the owner's plan gives it a day number.
-    plan = await load_current_plan(session, owner_id)
+    # The clock is global; the reader's own plan gives it a day number.
+    plan = await load_current_plan(session, user_id)
     return ClockView(
         now=now,
         real_time=clock.offset == timedelta(),
