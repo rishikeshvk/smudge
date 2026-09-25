@@ -1,6 +1,6 @@
 # Buddy feel spec
 
-2026-09-25 · Status: **done**; the probe gets a re-run on the Go models once their weekly limit resets
+2026-09-25 · Status: **done** and merged into `main`
 
 A module between M4 and M5. M0–M4 work end to end, but the buddy still reads as a polite bot: every reply is 60–70
 upbeat words that end in a question, the rituals repeat full topic titles, its "studying" lasts one LLM call, and
@@ -140,4 +140,7 @@ the Zen endpoint. The prompts weren't tuned to it.
 moved to the moment the stamp lands. It didn't sound right, so the seal is back to one medium haptic. That same pass
 hid Android's scroll bars, which showed over the cards' right edge while scrolling.
 
-Still to do: re-run the probe on the Go models after the weekly limit resets, so the numbers compare with M1's.
+## Closing (2026-09-25)
+
+Accepted as done after the phone check, and merged into `main`. The probe re-run on the Go models, so the numbers
+compare with M1's, moves to the list of carried-over items in [multi-user-brief.md](multi-user-brief.md).
