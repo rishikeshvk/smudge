@@ -8,7 +8,8 @@ has already studied.
 **[smudge.expo.app](https://smudge.expo.app)** tells one real week with a buddy called Juno. The Android app is
 invite-only for now.
 
-> The codebase still uses the working name, Kindred: packages are `kindred_*` and the app id is `dev.kindred.app`.
+> Smudge was called Kindred while it was built, and the code keeps that name: the Python packages are `kindred_*`, the
+> app id is `dev.kindred.app`, and the databases are `kindred*`.
 
 ## Why a peer, not a tutor
 
@@ -89,6 +90,7 @@ docs/          the plan, and one spec per milestone
 You need Docker, [uv](https://docs.astral.sh/uv/) and Node. For the app, an Android phone with the development build.
 
 ```sh
+git clone git@github.com:rishikeshvk/smudge.git && cd smudge
 cp .env.example .env          # add an OpenAI-compatible base URL, API key and a model per role
 uv sync --all-packages
 make embed-model              # first run only: pulls the embedding model into Ollama

@@ -1,6 +1,7 @@
 # M5 Portfolio spec
 
-2026-09-25 · Status: **in progress** on branch `m5-portfolio`
+2026-09-25 · Status: **in progress**. Steps 1–8 and 11 are merged into `main`. The film (10), going public (12) and
+the Oracle move (9) come next, in that order.
 
 The last milestone makes Kindred something **someone else can install or watch**, at no cost. Kindred already runs as
 an invite-only hosted instance, but its API lives on one PC. M5 adds:
@@ -52,6 +53,16 @@ Canvas rows:
 5. The video storyboard and title cards.
 
 ## Steps
+
+Done so far:
+- Steps 1–3: the name is Smudge; the canvas is "Smudge Showcase".
+- Step 4: the 7-day run.
+- Step 5: `make replay`.
+- Steps 6–7: the story-led page, live at https://smudge.expo.app.
+- Step 8: the rename. The repo is now `rishikeshvk/smudge`.
+- Step 11: the README.
+- The member wording from step 9.
+
 
 1. This spec, the branch and the memories.
 2. Leak numbers from the committed probe runs, kept in memory.
