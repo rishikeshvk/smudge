@@ -1,0 +1,34 @@
+@font-face { font-family: Onest; src: url("../fonts/Onest.ttf"); font-weight: 100 900; }
+@font-face { font-family: Parkinsans; src: url("../fonts/Parkinsans.ttf"); font-weight: 300 800; }
+@font-face { font-family: "JetBrains Mono"; src: url("../fonts/JetBrainsMono.ttf"); font-weight: 100 800; }
+
+:root {
+  --ink: #E6EBE8;
+  --muted: #A0AAA6;
+  --line: #39433F;
+  --line-strong: #6E7974;
+  --lamp: #F0B24F;
+  --lamp-ink: #F2BE68;
+  --lamp-glow: #F0B24F38;
+  --lamp-glow-end: #F0B24F00;
+  --you: #93A7EC;
+  --fog: #262E2C;
+  --pencil-soft: #463F33;
+  --night: #0F1320;
+}
+
+html, body { margin: 0; background: transparent; }
+body { font-family: Onest, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+.frame { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+
+.wordmark { display: flex; align-items: baseline; font-family: Parkinsans, sans-serif; font-weight: 700; letter-spacing: -0.03em; }
+.wordmark .smu { position: relative; }
+.wordmark .smu::before {
+  content: ""; position: absolute; left: -0.08em; right: -0.05em; top: 0.48em; height: 0.38em;
+  background: var(--pencil-soft); border-radius: 0.05em 0.18em 0.06em 0.15em; transform: rotate(-2deg);
+}
+.wordmark .smu span { position: relative; }
+.wordmark .dot { width: 0.24em; height: 0.24em; margin-left: 0.06em; border-radius: 50%; background: var(--lamp); }
+.glow-top { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 55% at 68% 0%, var(--lamp-glow), var(--lamp-glow-end) 70%); }
+.light { font-weight: 300; }
+.bold { font-weight: 700; }

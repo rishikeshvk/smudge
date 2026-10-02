@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="film.css">
+<style>
+.words { position: absolute; left: 160px; top: 0; bottom: 0; width: 960px; display: flex; flex-direction: column; justify-content: center; gap: 22px; }
+.meta { font: 500 22px/28px "JetBrains Mono", monospace; color: var(--muted); }
+.caption { margin: 0; font-size: 60px; line-height: 78px; font-weight: 500; letter-spacing: -0.01em; }
+.caption mark {
+  background: var(--pencil-soft); color: inherit; border-radius: 6px; padding: 0 8px;
+  white-space: nowrap;
+}
+.week { position: absolute; left: 160px; bottom: 72px; display: flex; flex-direction: column; gap: 12px; }
+.rail { position: relative; width: 336px; height: 14px; }
+.rail .line { position: absolute; left: 7px; right: 7px; top: 6px; height: 2px; background: var(--line); }
+.rail .done { position: absolute; left: 7px; top: 6px; height: 2px; background: var(--lamp); }
+.stations { position: absolute; inset: 0; display: flex; justify-content: space-between; }
+.stations span { width: 14px; height: 14px; box-sizing: border-box; border-radius: 50%; border: 2px solid var(--line); background: var(--fog); }
+.stations .buddy { background: var(--lamp); border-color: var(--lamp); }
+.stations .you { border-color: var(--you); }
+.labels { display: flex; gap: 20px; font: 500 15px/20px "JetBrains Mono", monospace; }
+.labels .you { color: var(--you); }
+.labels .buddy { color: var(--lamp-ink); }
+</style></head>
+<body><div class="frame">
+<div class="words"><span class="meta">$meta</span><p class="caption">$caption</p></div>
+<div class="week">
+<div class="rail"><div class="line"></div><div class="done" style="width: $done_width"></div><div class="stations">$stations</div></div>
+<div class="labels"><span class="you">you · day $you_day</span><span class="buddy">$buddy · day $buddy_day</span></div>
+</div>
+</div></body></html>
