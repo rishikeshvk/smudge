@@ -164,7 +164,8 @@ class Phone:
         if self._recording is None:
             raise RuntimeError("no recording is running")
         time.sleep(1)
-        _adb("shell", "pkill", "-INT", "screenrecord")
+        # It may have stopped already, at its time limit.
+        subprocess.run(["adb", "shell", "pkill", "-INT", "screenrecord"], check=False)
         self._recording.wait(timeout=30)
         self._recording = None
         # The file is finalised just after the process exits.

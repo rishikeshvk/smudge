@@ -28,7 +28,7 @@ def _token_path() -> Path:
     return get_settings().raw_dir / ".owner-token"
 
 
-def _new_owner_code() -> str:
+def new_owner_code() -> str:
     settings = get_settings()
     database_url = (
         f"postgresql+psycopg://kindred:kindred@localhost:5432/{settings.database}"
@@ -59,7 +59,7 @@ class FilmApi:
             return path.read_text().strip()
         response = self._client.post(
             "/auth/redeem",
-            json=RedeemInvite(code=_new_owner_code()).model_dump(),
+            json=RedeemInvite(code=new_owner_code()).model_dump(),
         )
         response.raise_for_status()
         token = AuthToken.model_validate(response.json()).token

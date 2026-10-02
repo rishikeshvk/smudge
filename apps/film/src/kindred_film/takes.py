@@ -8,18 +8,23 @@ import subprocess
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from zoneinfo import ZoneInfo
 
 from kindred_contracts import ClockView
-from kindred_film.api import FilmApi
+from kindred_film.api import FilmApi, new_owner_code
 from kindred_film.assemble import take_path, taps_path
-from kindred_film.phone import Phone
+from kindred_film.phone import Phone, PhoneTimeout
 from kindred_film.settings import get_settings
 
 APP = "dev.kindred.app.dev"
 DEV_URL = "kindred-dev://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081"
 BUDDY_NAME = "Juno"
 REPLY_TIMEOUT = 180
+# Longer than a timestamp or a button, shorter than any real reply.
+REPLY_LENGTH = 30
+ECHO = 0.8
+LEARN = "What do you want to learn?"
 
 
 @dataclass(frozen=True)
@@ -52,36 +57,56 @@ def walk_to(api: FilmApi, day: int, hour: int) -> ClockView:
     return view
 
 
-def send(phone: Phone, text: str) -> None:
-    phone.tap_text("Message")
+def send(phone: Phone, text: str, field: str = "Message") -> None:
+    """Types into the composer, found by its placeholder, then waits for the reply."""
+    before = {element.text for element in phone.elements()}
+    phone.tap_text(field)
     time.sleep(0.4)
     phone.type(text)
     time.sleep(0.6)
     phone.tap_text("Send")
+    wait_reply(phone, before, text)
 
 
-def wait_reply(phone: Phone) -> None:
-    # The buddy answers only after the audit, so this can take a while.
-    time.sleep(2)
-    for status in ("Typing", "Writing", "Checking it's not a spoiler"):
-        phone.wait_gone(status, REPLY_TIMEOUT)
+def echoes(shown: str, sent: str) -> bool:
+    """Whether a bubble is the line just sent, after the keyboard's autocorrect."""
+    return SequenceMatcher(None, shown.lower(), sent.lower()).ratio() > ECHO
+
+
+def wait_reply(phone: Phone, seen: set[str], sent: str = "") -> None:
+    """Waits for a new bubble from the buddy; it only lands after the audit."""
+    deadline = time.monotonic() + REPLY_TIMEOUT
+    while time.monotonic() < deadline:
+        texts = {element.text for element in phone.elements()}
+        busy = texts & {"Typing", "Writing", "Checking it's not a spoiler"}
+        fresh = [
+            text
+            for text in texts - seen
+            if len(text) > REPLY_LENGTH and not echoes(text, sent)
+        ]
+        if not busy and fresh:
+            return
+        time.sleep(1)
+    raise PhoneTimeout(f"no reply in {REPLY_TIMEOUT} s")
 
 
 def no_setup(api: FilmApi) -> None:
     pass
 
 
-def onboard(phone: Phone, api: FilmApi, cue: Cue) -> None:
-    phone.wait_for("What do you want to learn?")
+def onboard_ask(phone: Phone, api: FilmApi, cue: Cue) -> None:
+    phone.wait_for(LEARN)
     time.sleep(2)
-    send(phone, "hi! I want to learn AWS in two weeks, maybe 3 hours a day")
-    wait_reply(phone)
-    time.sleep(4)
+    send(phone, "hi! I want to learn AWS in two weeks, maybe 3 hours a day", LEARN)
+    time.sleep(5)
+
+
+def onboard_agree(phone: Phone, api: FilmApi, cue: Cue) -> None:
+    time.sleep(2)
     if phone.find("Looks good") is None:
         send(
-            phone, "ok, an hour a day is more realistic. let's start tomorrow at 19:00"
+            phone, "ok, an hour a day is more realistic. start tomorrow at 19:00", LEARN
         )
-        wait_reply(phone)
     phone.wait_for("Looks good", REPLY_TIMEOUT)
     time.sleep(4)
     phone.tap_text("Looks good")
@@ -97,14 +122,14 @@ def onboard(phone: Phone, api: FilmApi, cue: Cue) -> None:
 
 
 def morning(phone: Phone, api: FilmApi, cue: Cue) -> None:
-    time.sleep(2)
-    api.next_ritual()
-    phone.wait_for("I studied today", 60)
-    time.sleep(4)
+    time.sleep(5)
     if cue.say:
         send(phone, cue.say)
-        wait_reply(phone)
     time.sleep(3)
+
+
+def to_morning(api: FilmApi) -> None:
+    api.next_ritual()
 
 
 def study_share(api: FilmApi) -> None:
@@ -121,13 +146,28 @@ def notebook(phone: Phone, api: FilmApi, cue: Cue) -> None:
     time.sleep(2)
     phone.tap(fogged.x, fogged.y)
     time.sleep(3)
-    phone.tap_text("Day 1,")
+    phone.tap_text(f"Day {local(api.now())[0]},")
     time.sleep(4)
     phone.swipe(540, 1700, 540, 1000, 1200)
     time.sleep(4)
 
 
-def to_ask(api: FilmApi) -> None:
+def shaky_part(phone: Phone, api: FilmApi, cue: Cue) -> None:
+    phone.tap_text("Notebook")
+    time.sleep(1.5)
+    phone.tap_text(f"Day {local(api.now())[0]},")
+    phone.wait_for("Sources")
+    time.sleep(2)
+    while phone.find("STILL SHAKY") is None:
+        phone.swipe(540, 1900, 540, 1100, 900)
+        time.sleep(0.8)
+    phone.swipe(540, 1900, 540, 1300, 900)
+    time.sleep(6)
+
+
+def to_day_two_share(api: FilmApi) -> None:
+    """The second note is the first to arrive after the notebook's first visit, so
+    it's the one that comes in under fog."""
     walk_to(api, 2, 20)
     api.check_in()
 
@@ -139,7 +179,6 @@ def explain_back(phone: Phone, api: FilmApi, cue: Cue) -> None:
     phone.tap_text("Talk about this note")
     time.sleep(1.5)
     send(phone, cue.say)
-    wait_reply(phone)
     time.sleep(5)
 
 
@@ -168,8 +207,6 @@ def ask_ahead(phone: Phone, api: FilmApi, cue: Cue) -> None:
     title = tomorrow.topic.title.replace("&", "and")
     time.sleep(2)
     send(phone, f"quick one before tonight: what's {title} about?")
-    phone.wait_for("Checking it's not a spoiler", 60)
-    wait_reply(phone)
     time.sleep(6)
 
 
@@ -219,10 +256,12 @@ def catch_up(phone: Phone, api: FilmApi, cue: Cue) -> None:
 TAKES = {
     take.id: take
     for take in (
-        Take("02", no_setup, onboard, cold_start=True),
-        Take("03", no_setup, morning),
-        Take("04", study_share, notebook),
-        Take("05a", to_ask, explain_back),
+        Take("02", no_setup, onboard_ask, cold_start=True),
+        Take("02b", no_setup, onboard_agree),
+        Take("03", to_morning, morning),
+        Take("04", to_day_two_share, notebook),
+        Take("04b", no_setup, shaky_part),
+        Take("05a", no_setup, explain_back),
         Take("05b", to_day_three, sorted_note),
         Take("06", to_day_four_morning, ask_ahead),
         Take("07", to_study_time, both_lamps),
@@ -274,16 +313,21 @@ def open_app(cold: bool) -> None:
 
 
 def sign_in(code: str) -> None:
-    """Signs the phone in as the film's owner, unfilmed, and moves to the morning."""
+    """Signs the phone in as the film's owner, unfilmed; before a plan, moves to the
+    morning, so onboarding happens by day."""
     phone = Phone()
     open_app(cold=True)
     phone.tap_text("ABCD-EFGH", 120)
     phone.type(code)
     phone.hide_keyboard()
     phone.tap_text("Continue")
-    phone.wait_for("What do you want to learn?", 60)
     api = FilmApi()
-    _, hour, _ = local(api.now())
+    view = api.now()
+    if view.day is not None:
+        print("signed in; clock", local(view))
+        return
+    phone.wait_for(LEARN, 60)
+    _, hour, _ = local(view)
     api.advance((9 - hour) % 24 or 24)
     print("signed in; clock", local(api.now()))
 
@@ -320,7 +364,7 @@ def main() -> None:
     )
     args = parser.parse_args()
     if args.take == "sign-in":
-        sign_in(args.code)
+        sign_in(args.code or new_owner_code())
         return
     shoot(args.take, Cue(say=args.say), prepare=not args.no_prepare)
 
