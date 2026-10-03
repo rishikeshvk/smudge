@@ -17,6 +17,7 @@ class FilmSettings(BaseSettings):
     templates_dir: Path = FILM_DIR / "templates"
     raw_dir: Path = FILM_DIR / "raw"
     out_dir: Path = FILM_DIR / "out"
+    voice_dir: Path = FILM_DIR / "voice"
 
 
 @lru_cache

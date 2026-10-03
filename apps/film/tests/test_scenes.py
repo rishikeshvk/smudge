@@ -43,3 +43,7 @@ def test_a_shot_lasts_as_long_as_its_cuts() -> None:
         scene for scene in SCENES if isinstance(scene, Shot) and len(scene.cuts) > 1
     )
     assert shot.seconds == sum(cut.end - cut.start for cut in shot.cuts)
+
+
+def test_every_scene_has_a_spoken_line() -> None:
+    assert all(scene.voice.strip() for scene in SCENES)

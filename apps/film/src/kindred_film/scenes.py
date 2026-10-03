@@ -32,6 +32,7 @@ class Card:
     id: str
     template: Literal["card-open", "card-end"]
     seconds: float
+    voice: str
 
 
 @dataclass(frozen=True)
@@ -41,6 +42,7 @@ class Shot:
     meta: str
     caption: str
     wash: str
+    voice: str
     you_day: int
     buddy_day: int
     cuts: tuple[Cut, ...]
@@ -60,21 +62,32 @@ class Shot:
 Scene = Card | Shot
 
 SCENES: tuple[Scene, ...] = (
-    Card(id="01", template="card-open", seconds=7),
+    Card(
+        id="01",
+        template="card-open",
+        seconds=7,
+        voice="This is Smudge. A study buddy… that’s learning it too.",
+    ),
     Shot(
         id="02",
         ground="dawn",
         meta="day 0 · 09:27",
         caption="you set the goal. it pushes back if it isn’t realistic.",
         wash="it pushes back",
+        voice=(
+            "You tell it what you want to learn. A-W-S, in two weeks, three hours a"
+            " day. It pushes back — that’s a lot to keep up. So you settle on an "
+            "hour, every evening at seven. It drafts the plan with you, and you "
+            "give it a name."
+        ),
         you_day=0,
         buddy_day=0,
         cuts=(
-            Cut("02", 27, 34),
-            Cut("02b", 10.5, 15),
-            Cut("02b", 26, 30),
-            Cut("02b", 41, 47),
-            Cut("02b", 59, 64),
+            Cut("02", 24, 33),
+            Cut("02b", 13.5, 16.5),
+            Cut("02b", 18, 22.5),
+            Cut("02b", 44, 46.5),
+            Cut("02b", 59, 62.5),
         ),
     ),
     Shot(
@@ -83,9 +96,13 @@ SCENES: tuple[Scene, ...] = (
         meta="day 1 · 08:00",
         caption="every morning, it says when it’s studying.",
         wash="",
+        voice=(
+            "Every morning, it shares what’s on today, and when it’s planning to "
+            "study. You tell it when you will."
+        ),
         you_day=1,
         buddy_day=1,
-        cuts=(Cut("03", 17.5, 22.5), Cut("03", 27, 33), Cut("03", 49, 56)),
+        cuts=(Cut("03", 17.5, 22), Cut("03", 25, 30), Cut("03", 51, 53.5)),
     ),
     Shot(
         id="04",
@@ -93,9 +110,13 @@ SCENES: tuple[Scene, ...] = (
         meta="day 2 · 20:04",
         caption="its notes have smudges. honest ones.",
         wash="smudges",
+        voice=(
+            "Then it actually studies, from the real A-W-S docs, and writes up its "
+            "notes. Where it’s unsure, it leaves a smudge."
+        ),
         you_day=2,
         buddy_day=2,
-        cuts=(Cut("04", 21, 27), Cut("04b", 26, 37)),
+        cuts=(Cut("04", 21, 26.5), Cut("04b", 27.5, 33.5)),
     ),
     Shot(
         id="05",
@@ -103,13 +124,17 @@ SCENES: tuple[Scene, ...] = (
         meta="day 2 · 20:38",
         caption="it asks for a hand. explain it back.",
         wash="explain it back.",
+        voice=(
+            "Sometimes it asks you about one. Explaining it back is the best way to"
+            " learn it yourself."
+        ),
         you_day=2,
         buddy_day=2,
         cuts=(
-            Cut("05a", 18, 23.5),
-            Cut("05a", 45, 49),
-            Cut("05a", 84, 88.5),
-            Cut("05a", 129.5, 137),
+            Cut("05a", 18, 22),
+            Cut("05a", 45, 48),
+            Cut("05a", 84.5, 88),
+            Cut("05a", 130, 135),
         ),
     ),
     Shot(
@@ -118,6 +143,10 @@ SCENES: tuple[Scene, ...] = (
         meta="day 3 · 08:07",
         caption="if you’re right, it’s sorted. and it’s yours.",
         wash="it’s yours.",
+        voice=(
+            "Overnight, it checks what you said against its sources. You were right"
+            " — so the smudge is sorted, and the credit’s yours."
+        ),
         you_day=2,
         buddy_day=2,
         cuts=(Cut("05b", 17.5, 21.5), Cut("05b", 40, 46)),
@@ -128,6 +157,11 @@ SCENES: tuple[Scene, ...] = (
         meta="day 4 · 10:01",
         caption="ask about tomorrow, and it can’t tell you. it hasn’t studied it.",
         wash="it hasn’t studied it.",
+        voice=(
+            "Now ask about tomorrow’s topic… It can’t tell you. Not won’t — can’t. "
+            "It only knows what it’s studied so far, and every reply is checked for"
+            " spoilers before you see it."
+        ),
         you_day=4,
         buddy_day=4,
         cuts=(Cut("06", 28, 38), Cut("06", 64, 80)),
@@ -139,6 +173,10 @@ SCENES: tuple[Scene, ...] = (
         meta="day 4 · 19:00",
         caption="19:00. tap study with me. both lamps on.",
         wash="both lamps on.",
+        voice=(
+            "At seven, its lamp comes on. Tap study with me… and you’re both at "
+            "your desks."
+        ),
         you_day=4,
         buddy_day=4,
         cuts=(Cut("07", 0, 16),),
@@ -151,6 +189,10 @@ SCENES: tuple[Scene, ...] = (
         meta="day 5 · 22:31",
         caption="skip a day and it keeps going. no guilt. no waiting.",
         wash="it keeps going.",
+        voice=(
+            "Skip a day, and it won’t wait. No guilt trip — it just keeps going, "
+            "and the gap shows on the roadmap."
+        ),
         you_day=4,
         buddy_day=5,
         cuts=(Cut("08", 0, 5), Cut("08", 8, 16)),
@@ -161,6 +203,9 @@ SCENES: tuple[Scene, ...] = (
         meta="day 7 · 20:10",
         caption="catch up, and you’re level again.",
         wash="level",
+        voice=(
+            "Catch up, and you’re level again. Same plan, same pace — side by side."
+        ),
         you_day=7,
         buddy_day=7,
         cuts=(
@@ -171,7 +216,15 @@ SCENES: tuple[Scene, ...] = (
             Cut("09b", 7.6, 12.6),
         ),
     ),
-    Card(id="10", template="card-end", seconds=8),
+    Card(
+        id="10",
+        template="card-end",
+        seconds=8,
+        voice=(
+            "Smudge is invite-only, for now. Watch the full week at smudge dot expo"
+            " dot app."
+        ),
+    ),
 )
 
 # The landing page's muted loop: phone footage only, about 24 s.

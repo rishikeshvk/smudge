@@ -26,6 +26,15 @@ RING_SIZE = 96
 RING_SECONDS = 0.35
 LOOP_SIZE = (540, 1200)
 LOOP_CROSSFADE = 0.3
+# A line starts once its caption has risen, and ends a beat before the cut.
+VOICE_IN = 0.6
+VOICE_TAIL = 0.8
+# YouTube's loudness target.
+LOUDNESS = "loudnorm=I=-14:TP=-1.5:LRA=11"
+
+
+class VoiceTooLong(Exception):
+    pass
 
 
 @dataclass(frozen=True)
@@ -51,6 +60,14 @@ def scene_path(scene_id: str) -> Path:
 
 def film_path() -> Path:
     return get_settings().out_dir / "smudge-film.mp4"
+
+
+def picture_path() -> Path:
+    return get_settings().out_dir / "smudge-film-picture.mp4"
+
+
+def voice_path(scene_id: str) -> Path:
+    return get_settings().voice_dir / f"{scene_id}.mp3"
 
 
 def loop_path(suffix: str) -> Path:
@@ -247,6 +264,72 @@ def join_command(
     ]
 
 
+def scene_starts(durations: list[float], overlap: float) -> list[float]:
+    """When each scene starts on the joined timeline."""
+    return [0.0, *xfade_offsets(durations, overlap)]
+
+
+def check_voice_fits(scene_id: str, scene_seconds: float, voice_seconds: float) -> None:
+    needed = VOICE_IN + voice_seconds + VOICE_TAIL
+    if needed > scene_seconds:
+        raise VoiceTooLong(
+            f"scene {scene_id}: its line needs {needed:.2f}s "
+            f"but the scene runs {scene_seconds}s"
+        )
+
+
+def voice_command(
+    picture: Path, voices: list[Path], starts: list[float], out: Path
+) -> list[str]:
+    """Lays each scene's line onto the finished picture, without re-encoding it."""
+    inputs = ["-i", str(picture)]
+    for voice in voices:
+        inputs += ["-i", str(voice)]
+    graph = []
+    for index, start in enumerate(starts):
+        delay = round((start + VOICE_IN) * 1000)
+        graph.append(f"[{index + 1}:a]adelay=delays={delay}:all=1[v{index}]")
+    placed = "".join(f"[v{index}]" for index in range(len(voices)))
+    graph.append(
+        f"{placed}amix=inputs={len(voices)}:duration=longest:normalize=0,"
+        f"{LOUDNESS},aresample=48000[voice]"
+    )
+    return [
+        "ffmpeg",
+        "-y",
+        "-loglevel",
+        "error",
+        *inputs,
+        "-filter_complex",
+        ";".join(graph),
+        "-map",
+        "0:v",
+        "-map",
+        "[voice]",
+        "-c:v",
+        "copy",
+        "-c:a",
+        "aac",
+        "-b:a",
+        "192k",
+        "-shortest",
+        "-movflags",
+        "+faststart",
+        str(out),
+    ]
+
+
+def media_seconds(path: Path) -> float:
+    probe = subprocess.run(
+        [
+            "ffprobe", "-v", "error", "-show_entries", "format=duration",
+            "-of", "csv=p=0", str(path),
+        ],
+        check=True, capture_output=True, text=True,
+    )  # fmt: skip
+    return float(probe.stdout)
+
+
 def loop_clip_command(cut: Cut, out: Path) -> list[str]:
     width, height = LOOP_SIZE
     return [
@@ -294,10 +377,21 @@ def build_scenes() -> list[Path]:
     return clips
 
 
+def check_voices() -> list[Path]:
+    voices = [voice_path(scene.id) for scene in SCENES]
+    for scene, voice in zip(SCENES, voices, strict=True):
+        check_voice_fits(scene.id, scene.seconds, media_seconds(voice))
+    return voices
+
+
 def build_film() -> Path:
+    # Checked first, so a line that doesn't fit stops the build before the slow render.
+    voices = check_voices()
     clips = build_scenes()
     durations = [scene.seconds for scene in SCENES]
-    _run(join_command(clips, durations, CROSSFADE, film_path()))
+    _run(join_command(clips, durations, CROSSFADE, picture_path()))
+    starts = scene_starts(durations, CROSSFADE)
+    _run(voice_command(picture_path(), voices, starts, film_path()))
     return film_path()
 
 
