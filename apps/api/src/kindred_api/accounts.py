@@ -53,17 +53,30 @@ async def list_users(session: AsyncSession) -> list[str]:
         .subquery()
     )
     rows = await session.execute(
-        select(User.id, User.is_owner, Buddy.name, Plan.start_date, tokens.c.count)
+        select(
+            User.id,
+            User.is_owner,
+            User.is_demo,
+            Buddy.name,
+            Plan.start_date,
+            tokens.c.count,
+        )
         .outerjoin(Buddy, Buddy.user_id == User.id)
         .outerjoin(Plan, Plan.user_id == User.id)
         .outerjoin(tokens, tokens.c.user_id == User.id)
         .order_by(User.id)
     )
     return [
-        f"{user_id:>4}  {'owner' if is_owner else 'member':<6}  {name or '-':<10}"
+        f"{user_id:>4}  {_role(is_owner, is_demo):<6}  {name or '-':<10}"
         f"  {start or 'no plan'!s:<10}  {count or 0} signed in"
-        for user_id, is_owner, name, start, count in rows
+        for user_id, is_owner, is_demo, name, start, count in rows
     ]
+
+
+def _role(is_owner: bool, is_demo: bool) -> str:
+    if is_owner:
+        return "owner"
+    return "demo" if is_demo else "member"
 
 
 async def run(args: argparse.Namespace) -> None:

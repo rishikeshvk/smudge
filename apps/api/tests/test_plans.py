@@ -5,10 +5,10 @@ from zoneinfo import ZoneInfo
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from kindred_api.plans import CurrentPlan, load_current_plan
+from kindred_api.plans import CurrentPlan, load_active_plans, load_current_plan
 from kindred_db import Plan, User
 
-AddPlan = Callable[[date, str], Awaitable[Plan]]
+AddPlan = Callable[..., Awaitable[Plan]]
 
 
 @pytest.mark.anyio
@@ -36,3 +36,16 @@ async def test_current_plan_carries_the_users_timezone(
         session_minutes=60,
         tz=ZoneInfo("Asia/Kolkata"),
     )
+
+
+@pytest.mark.anyio
+async def test_the_ticker_works_for_every_user_but_the_demo(
+    session: AsyncSession, add_plan: AddPlan
+) -> None:
+    member = await add_plan(date(2026, 10, 1), "UTC")
+    demo = User(timezone="UTC", is_demo=True)
+    session.add(demo)
+    await session.flush()
+    await add_plan(date(2026, 10, 1), "UTC", demo.id)
+
+    assert [plan.id for plan in await load_active_plans(session)] == [member.id]

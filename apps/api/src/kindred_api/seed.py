@@ -19,6 +19,7 @@ from kindred_db import (
     Buddy,
     LedgerNote,
     NoteEmbedding,
+    Plan,
     TopicNode,
     User,
     create_engine,
@@ -35,32 +36,25 @@ class AlreadySeededError(Exception):
 
 async def seed_plan(
     session: AsyncSession,
+    user: User,
     curriculum: Curriculum,
     start_date: date,
     tz: ZoneInfo,
     buddy_name: str,
     *,
     reference_embedder: DocumentEmbedder | None,
-) -> None:
-    """Seed the owner (made if there is none yet), their buddy and a plan. With an
-    embedder it also stores the curriculum's hand-written notes, as evals do;
-    otherwise the Curator writes them."""
-    owner = await session.scalar(select(User).where(User.is_owner))
-    if owner is None:
-        owner = User(timezone=tz.key, is_owner=True)
-        session.add(owner)
-        await session.flush()
+) -> Plan:
+    """Seed the user's buddy and a plan. With an embedder it also stores the
+    curriculum's hand-written notes, as evals do; otherwise the Curator writes them."""
     # Seeded notes can't be removed from the ledger, so never seed on top of a plan.
-    elif await load_current_plan(session, owner.id) is not None:
-        raise AlreadySeededError(
-            "the owner already has a plan; run `make db-reset` first"
-        )
-    owner.timezone = tz.key
-    if await session.scalar(select(Buddy.id).where(Buddy.user_id == owner.id)) is None:
-        session.add(Buddy(user_id=owner.id, name=buddy_name))
+    if await load_current_plan(session, user.id) is not None:
+        raise AlreadySeededError("that user already has a plan; run `make db-reset`")
+    user.timezone = tz.key
+    if await session.scalar(select(Buddy.id).where(Buddy.user_id == user.id)) is None:
+        session.add(Buddy(user_id=user.id, name=buddy_name))
     plan = await create_plan(
         session,
-        owner.id,
+        user.id,
         curriculum,
         start_date,
         curriculum.study_time,
@@ -69,6 +63,17 @@ async def seed_plan(
     )
     if reference_embedder is not None:
         await _store_reference_notes(session, plan.id, curriculum, reference_embedder)
+    return plan
+
+
+async def ensure_owner(session: AsyncSession, tz: ZoneInfo) -> User:
+    """The owner, made if there is none yet."""
+    user = await session.scalar(select(User).where(User.is_owner))
+    if user is None:
+        user = User(timezone=tz.key, is_owner=True)
+        session.add(user)
+        await session.flush()
+    return user
 
 
 async def _store_reference_notes(
@@ -127,6 +132,7 @@ async def run(
         async with session_factory(engine)() as session, session.begin():
             await seed_plan(
                 session,
+                await ensure_owner(session, tz),
                 curriculum,
                 start,
                 tz,

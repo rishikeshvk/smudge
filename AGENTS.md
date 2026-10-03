@@ -67,6 +67,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make embed-model` — pull the Ollama embedding model (first run only)
 - `make seed` — seed the AWS curriculum; the Curator writes the notes as topics unlock (`--reference-notes`
   stores the hand-written ones instead, as evals do)
+- `make demo-seed` — seed the landing page's demo buddy (a flagged user the ticker skips) with the hand-written notes;
+  `ON=live` on the VM
 - `make ingest` — fetch each topic's source pages (from the curriculum's note citations) into the database
 - `make turn ARGS='"message" --day 3 --time 10:00'` — run one message through the gate and print the trace;
   add `--user-through 1` to play a user who is behind the buddy

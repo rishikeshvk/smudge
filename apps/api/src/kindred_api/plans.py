@@ -41,10 +41,11 @@ async def load_current_plan(session: AsyncSession, user_id: int) -> CurrentPlan 
 
 
 async def load_active_plans(session: AsyncSession) -> list[CurrentPlan]:
-    """Every user's plan, for the work the ticker does on everyone's behalf."""
+    """Every real user's plan, for the work the ticker does on everyone's behalf."""
     rows = await session.execute(
         select(Plan, User.timezone)
         .join(User, Plan.user_id == User.id)
+        .where(~User.is_demo)
         .distinct(Plan.user_id)
         .order_by(Plan.user_id, Plan.id)
     )

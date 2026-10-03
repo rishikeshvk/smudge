@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from kindred_api.catalog import load_curriculum
-from kindred_api.seed import AlreadySeededError, seed_plan
+from kindred_api.seed import AlreadySeededError, ensure_owner, seed_plan
 from kindred_contracts import Curriculum
 from kindred_db import (
     EMBEDDING_DIMENSIONS,
@@ -79,6 +79,7 @@ async def test_seed_writes_plan_nodes_with_unlock_times(
 ) -> None:
     await seed_plan(
         session,
+        await ensure_owner(session, KOLKATA),
         curriculum,
         START,
         KOLKATA,
@@ -103,6 +104,7 @@ async def test_seed_links_prerequisites_and_vocabulary(
 ) -> None:
     await seed_plan(
         session,
+        await ensure_owner(session, KOLKATA),
         curriculum,
         START,
         KOLKATA,
@@ -130,6 +132,7 @@ async def test_seeded_notes_are_written_when_their_topic_unlocks(
 ) -> None:
     await seed_plan(
         session,
+        await ensure_owner(session, KOLKATA),
         curriculum,
         START,
         KOLKATA,
@@ -153,6 +156,7 @@ async def test_seeding_twice_is_refused(
 ) -> None:
     await seed_plan(
         session,
+        await ensure_owner(session, KOLKATA),
         curriculum,
         START,
         KOLKATA,
@@ -163,6 +167,7 @@ async def test_seeding_twice_is_refused(
     with pytest.raises(AlreadySeededError):
         await seed_plan(
             session,
+            await ensure_owner(session, KOLKATA),
             curriculum,
             START,
             KOLKATA,
@@ -178,7 +183,13 @@ async def test_seed_embeds_each_note_with_its_topic_title(
     embedder = FakeEmbedder()
 
     await seed_plan(
-        session, curriculum, START, KOLKATA, "Juno", reference_embedder=embedder
+        session,
+        await ensure_owner(session, KOLKATA),
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=embedder,
     )
 
     embeddings = (await session.scalars(select(NoteEmbedding))).all()
@@ -193,6 +204,7 @@ async def test_seed_gives_the_user_their_buddy(
 ) -> None:
     await seed_plan(
         session,
+        await ensure_owner(session, KOLKATA),
         curriculum,
         START,
         KOLKATA,
@@ -212,6 +224,7 @@ async def test_without_reference_notes_the_ledger_starts_empty(
 ) -> None:
     await seed_plan(
         session,
+        await ensure_owner(session, KOLKATA),
         curriculum,
         START,
         KOLKATA,
@@ -233,7 +246,13 @@ async def test_seeding_makes_the_owner_or_seeds_for_them(
     await session.flush()
 
     await seed_plan(
-        session, curriculum, START, KOLKATA, "Juno", reference_embedder=None
+        session,
+        await ensure_owner(session, KOLKATA),
+        curriculum,
+        START,
+        KOLKATA,
+        "Juno",
+        reference_embedder=None,
     )
 
     assert await session.scalar(select(Plan.user_id)) == owner.id
