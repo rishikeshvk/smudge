@@ -9,7 +9,7 @@ https://smudge.expo.app (`make site-deploy`).
 | Part | What it is |
 | --- | --- |
 | API | `make serve`: the `kindred_friends` database on real time (`DEV_MODE` off), at 127.0.0.1:8100 |
-| Address | `https://kindred.tail028abe.ts.net`, a Tailscale Funnel on machine `kindred` that proxies to :8100 |
+| Address | `https://kindred.<tailnet>.ts.net`, a Tailscale Funnel on machine `kindred` that proxies to :8100 |
 | APK | `make mobile-preview`: package `dev.kindred.app`, shown as Smudge, built with the EAS `preview` environment, whose `EXPO_PUBLIC_API_URL` is the address above |
 | Fixes | `make mobile-update MSG='...'`: JavaScript changes reach installed APKs on the `preview` channel. A native change needs a new APK, since the runtime version follows the native fingerprint |
 | Development build | `dev.kindred.app.dev` ("Smudge Dev", scheme `kindred-dev`), installed beside the preview app |

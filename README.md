@@ -96,7 +96,7 @@ docs/          the plan, and one spec per milestone
 You need Docker, [uv](https://docs.astral.sh/uv/) and Node. For the app, an Android phone with the development build.
 
 ```sh
-git clone git@github.com:rishikeshvk/smudge.git && cd smudge
+git clone https://github.com/rishikeshvk/smudge.git && cd smudge
 cp .env.example .env          # add an OpenAI-compatible base URL, API key and a model per role
 uv sync --all-packages
 make embed-model              # first run only: pulls the embedding model into Ollama
@@ -120,3 +120,7 @@ Simulations and probes make real LLM calls, so keep runs small on a paid endpoin
 In milestones, each with its own spec in [docs/](docs): the knowledge gate and its evals first, then the buddy's
 brain, the app, the daily rituals, the buddy's voice, multiple users, and this portfolio pass. It was built with
 Claude Code, working from `AGENTS.md` and a plan-first loop: a design is agreed before each module is written.
+
+## License
+
+[MIT](LICENSE).
