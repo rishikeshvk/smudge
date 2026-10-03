@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="styles.css">
 <script src="theme.js"></script>
 <script src="film.js" defer></script>
+<script src="try.js" defer></script>
 </head>
 <body>
 
@@ -23,6 +24,7 @@
   <nav>
     <a class="hide-small" href="#film">The film</a>
     <a class="hide-small" href="#story">The story</a>
+    <a class="hide-small" href="#try">Try it</a>
     <a class="hide-small" href="https://github.com/rishikeshvk/smudge">Code</a>
     <a class="button quiet" href="#invite"><span class="hide-small">Have an invite? </span>Get the app</a>
     <button class="theme" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg></button>
@@ -151,6 +153,32 @@
   </div>
 </section>
 
+<section id="try" class="chapter offset ground-dusk glow">
+  <div class="words">
+    <p class="when"><svg class="sun night" viewBox="0 0 44 26" aria-hidden="true"><path d="M4 22A18 18 0 0 1 40 22"/><line x1="1" y1="22" x2="43" y2="22"/><circle cx="40" cy="22" r="4"/></svg>your turn · any evening of the two weeks</p>
+    <h2><span class="light">don't take our word for it. </span>ask Juno yourself.</h2>
+    <p>Pick a day of Juno's two-week AWS plan. Ask about that day's topic, or try to get tomorrow's out of it. Every reply is checked before you see it, and the x-ray underneath shows what happened on the way.</p>
+    <p class="meta">A real AI, with a few dozen questions a day shared by everyone. Questions are kept to improve the buddy, so leave out anything personal.</p>
+  </div>
+  <div class="moment try" data-api>
+    <noscript><p class="meta">The demo needs JavaScript.</p></noscript>
+    <div class="card day" hidden>
+      <label class="band" for="try-day">Day <output id="try-day-out">3</output> of 14, evening</label>
+      <input id="try-day" type="range" min="1" max="14" value="3">
+      <p class="meta"><span class="pip buddy"></span>studied today: <strong id="try-today"></strong></p>
+      <p class="meta"><span class="pip locked"></span>tomorrow, still locked: <strong id="try-tomorrow"></strong></p>
+    </div>
+    <div class="thread" aria-live="polite"></div>
+    <div class="suggest" hidden></div>
+    <form class="ask" hidden>
+      <label class="visually-hidden" for="try-message">Your message to Juno</label>
+      <input id="try-message" name="message" maxlength="300" autocomplete="off" placeholder="ask Juno something" required>
+      <button class="button" type="submit">Send</button>
+    </form>
+    <p class="meta status"></p>
+  </div>
+</section>
+
 <section class="chapter left ground-night">
   <div class="words">
     <p class="when"><svg class="sun night" viewBox="0 0 44 26" aria-hidden="true"><path d="M4 22A18 18 0 0 1 40 22"/><line x1="1" y1="22" x2="43" y2="22"/><circle cx="40" cy="22" r="4"/></svg>day 4 · 21:45 · the night you skip</p>
@@ -200,7 +228,7 @@
 <footer id="invite" class="ground-night glow-top">
   <div class="words">
     <h2><span class="light">invite-only, </span>for now.</h2>
-    <p class="muted">Smudge is in a small test on Android, for adults. No invite yet? The week above is what it's like.</p>
+    <p class="muted">Smudge is in a small test on Android, for adults. No invite yet? <a href="#try">Ask Juno something</a> above, or <a href="mailto:rishikeshvk2001@gmail.com?subject=Smudge%20invite">ask for an invite</a>.</p>
   </div>
   <div class="card invite">
     <h3>Got an invite code?</h3>

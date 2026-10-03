@@ -6,8 +6,9 @@ you to check its notes, and keeps its own pace whether or not you keep up. It ca
 has already studied.
 
 **[smudge.expo.app](https://smudge.expo.app)** tells one real week with a buddy called Juno, and plays a loop from a
-[two-minute film](https://youtu.be/3tnxHdMNxug) of a fresh account's first week, shot on a real phone. The Android
-app is invite-only for now.
+[two-minute film](https://youtu.be/3tnxHdMNxug) of a fresh account's first week, shot on a real phone. You can also
+[ask Juno something yourself](https://smudge.expo.app/#try) on any day of its two-week plan, and see each reply's
+x-ray. The Android app is invite-only for now; [ask for an invite](mailto:rishikeshvk2001@gmail.com?subject=Smudge%20invite).
 
 ![Four screens from the film: a note with its shaky part washed in pencil, a point sorted with the user's help, a
 question about tomorrow's topic the buddy won't answer yet, and the roadmap back level](docs/media/screens.png)
