@@ -83,10 +83,10 @@ SCENES: tuple[Scene, ...] = (
         you_day=0,
         buddy_day=0,
         cuts=(
-            Cut("02", 24, 33),
-            Cut("02b", 13.5, 16.5),
-            Cut("02b", 18, 22.5),
-            Cut("02b", 44, 46.5),
+            Cut("02", 26, 32.3),
+            Cut("02b", 13.5, 16),
+            Cut("02b", 18.5, 21.5),
+            Cut("02b", 44, 45.5),
             Cut("02b", 59, 62.5),
         ),
     ),
@@ -102,7 +102,7 @@ SCENES: tuple[Scene, ...] = (
         ),
         you_day=1,
         buddy_day=1,
-        cuts=(Cut("03", 17.5, 22), Cut("03", 25, 30), Cut("03", 51, 53.5)),
+        cuts=(Cut("03", 17.5, 21), Cut("03", 26, 30), Cut("03", 51, 53.5)),
     ),
     Shot(
         id="04",
@@ -116,7 +116,7 @@ SCENES: tuple[Scene, ...] = (
         ),
         you_day=2,
         buddy_day=2,
-        cuts=(Cut("04", 21, 26.5), Cut("04b", 27.5, 33.5)),
+        cuts=(Cut("04", 22, 26.5), Cut("04b", 28, 32.5)),
     ),
     Shot(
         id="05",
@@ -131,10 +131,10 @@ SCENES: tuple[Scene, ...] = (
         you_day=2,
         buddy_day=2,
         cuts=(
-            Cut("05a", 18, 22),
-            Cut("05a", 45, 48),
-            Cut("05a", 84.5, 88),
-            Cut("05a", 130, 135),
+            Cut("05a", 18, 21.5),
+            Cut("05a", 45, 47),
+            Cut("05a", 85.5, 88),
+            Cut("05a", 131, 134.5),
         ),
     ),
     Shot(
@@ -144,7 +144,7 @@ SCENES: tuple[Scene, ...] = (
         caption="if you’re right, it’s sorted. and it’s yours.",
         wash="it’s yours.",
         voice=(
-            "Overnight, it checks what you said against its sources. You were right"
+            "Overnight, it checks what you told it against its sources. You were right"
             " — so the smudge is sorted, and the credit’s yours."
         ),
         you_day=2,
@@ -164,8 +164,8 @@ SCENES: tuple[Scene, ...] = (
         ),
         you_day=4,
         buddy_day=4,
-        cuts=(Cut("06", 28, 38), Cut("06", 64, 80)),
-        push=(16, 24),
+        cuts=(Cut("06", 30, 35.5), Cut("06", 70, 80)),
+        push=(9, 15),
     ),
     Shot(
         id="07",
@@ -179,9 +179,9 @@ SCENES: tuple[Scene, ...] = (
         ),
         you_day=4,
         buddy_day=4,
-        cuts=(Cut("07", 0, 16),),
+        cuts=(Cut("07", 4.5, 14.5),),
         glow=True,
-        push=(8, 14),
+        push=(4, 9),
     ),
     Shot(
         id="08",
@@ -195,7 +195,7 @@ SCENES: tuple[Scene, ...] = (
         ),
         you_day=4,
         buddy_day=5,
-        cuts=(Cut("08", 0, 5), Cut("08", 8, 16)),
+        cuts=(Cut("08", 0, 4), Cut("08", 7.5, 13.5)),
     ),
     Shot(
         id="09",
@@ -204,16 +204,16 @@ SCENES: tuple[Scene, ...] = (
         caption="catch up, and you’re level again.",
         wash="level",
         voice=(
-            "Catch up, and you’re level again. Same plan, same pace — side by side."
+            "Catch up, and you are level again. Same plan, same pace — side by side."
         ),
         you_day=7,
         buddy_day=7,
         cuts=(
-            Cut("09", 3, 7),
-            Cut("09", 15, 18.5),
-            Cut("09", 19.5, 22),
-            Cut("09", 33, 36),
-            Cut("09b", 7.6, 12.6),
+            Cut("09", 3, 6),
+            Cut("09", 15, 18),
+            Cut("09", 19.5, 21.5),
+            Cut("09", 33, 35.5),
+            Cut("09b", 7.6, 11.6),
         ),
     ),
     Card(

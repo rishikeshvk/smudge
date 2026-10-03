@@ -79,7 +79,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
   smudge.expo.app. Every buddy line on it is tested against `apps/site/replay.json`
 - `make film-take TAKE=02` — shoot one take of the demo film on the USB phone, against the dev API on `kindred_film`
   (`TAKE=sign-in` first; takes spend LLM budget, so ask first)
-- `make film` — render the film, the landing loop and the thumbnail into `apps/film/out` from the takes
+- `make film` — render the film, the landing loop and the thumbnail into `apps/film/out` from the takes, with the
+  narrator lines in `apps/film/voice` (Kokoro `af_heart`, speed 0.95, read from each scene's `voice` in `scenes.py`)
 - `make test` — pytest and the app's jest tests
 - `make check` — ruff, mypy, expo lint and the app's TypeScript check
 - `make fmt` — ruff format and autofix
