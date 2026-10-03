@@ -68,5 +68,5 @@ How this VM was built, for the next move:
    `sudo tailscale up --hostname=kindred` and `sudo tailscale funnel --bg 8100`. The public DNS record can take a
    few minutes to appear.
 
-Members keep the same APK. Before this VM, the API ran on the owner's PC (`kindred-pc` on the tailnet), whose
-`kindred_friends` database is the pre-move copy.
+Members keep the same APK. Before this VM, the API ran on the owner's PC (`kindred-pc` on the tailnet), and the VM's
+`~/backups` now hold the only copies of the live database.
