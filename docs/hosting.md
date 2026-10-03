@@ -30,6 +30,17 @@ Everything on the VM starts by itself. From the repo at `~/smudge`:
 - The ticker catches up on missed ticks, so a night the VM is down runs late rather than never. Messages sent while
   it's down fail.
 
+## The landing page's demo
+
+The site's "ask Juno" section calls `/demo` on this API, the one route without sign-in. It reaches only the demo
+buddy, a flagged user the ticker skips, made once with `make demo-seed ON=live`.
+- Visitors share `DEMO_DAILY_TURNS` (30 a day, reset at midnight UTC), get `DEMO_CLIENT_TURNS_PER_HOUR` (5) each by the
+  address the Funnel forwards, and two run at once. The counts live in memory, so a restart resets them.
+- To turn the demo off, set `DEMO_DAILY_TURNS=0` in `.env` and restart. Demo turns are logged in `turns` under
+  `demo-…` session ids.
+- From a machine on the tailnet, Chrome blocks the page's calls, because MagicDNS resolves the API to a private
+  address. Test from outside the tailnet, such as a phone on mobile data with Tailscale off.
+
 ## Deploying a change
 
 The VM's repo accepts pushes into its checked-out branch (`receive.denyCurrentBranch updateInstead`), so a change
