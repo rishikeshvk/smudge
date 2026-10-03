@@ -1,0 +1,15 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="film.css">
+<style>
+.phone {
+  position: absolute; left: $bezel_x; top: $bezel_y; width: $bezel_w; height: $bezel_h; box-sizing: border-box;
+  border: $bezel_px solid var(--line-strong); border-radius: $bezel_radius; background: #000;
+  box-shadow: 0 24px 64px #000000B3;
+}
+.mark { position: absolute; left: 160px; top: 72px; font-size: 30px; line-height: 30px; color: var(--muted); }
+</style></head>
+<body><div class="frame" style="background: $ground">
+$glow
+<div class="wordmark mark"><span class="smu"><span>smu</span></span><span>dge</span><span class="dot"></span></div>
+<div class="phone"></div>
+</div></body></html>

@@ -1,4 +1,4 @@
-.PHONY: up serve down migrate db-reset seed ingest embed-model turn probe simulate replay site site-deploy test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
+.PHONY: film film-take up serve down migrate db-reset seed ingest embed-model turn probe simulate replay site site-deploy test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -74,6 +74,14 @@ site:
 site-deploy:
 	cd apps/mobile && npx eas-cli@latest deploy --export-dir ../site/public --prod
 
+# The demo film: takes on the USB phone against the API on kindred_film, then the cut.
+# make film-take TAKE=sign-in ARGS='--code ABCD-EFGH', then TAKE=02 … 09
+film-take:
+	uv run python -m kindred_film.takes $(TAKE) $(ARGS)
+
+film:
+	uv run python -m kindred_film.assemble
+
 test:
 	docker compose up -d --wait db
 	uv run pytest
@@ -82,7 +90,7 @@ test:
 check:
 	uv run ruff check .
 	uv run ruff format --check .
-	uv run mypy apps/api packages
+	uv run mypy apps/api apps/film packages
 	uv run mypy conftest.py
 	npm --prefix apps/mobile run lint
 	cd apps/mobile && npx tsc --noEmit

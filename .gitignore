@@ -6,3 +6,5 @@ __pycache__/
 .pytest_cache/
 evals/results/*.partial.jsonl
 apps/mobile/openapi.json
+apps/film/raw/
+apps/film/out/

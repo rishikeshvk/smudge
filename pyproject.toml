@@ -1,5 +1,9 @@
 [tool.uv.workspace]
-members = ["apps/api", "packages/*"]
+members = [
+    "apps/api",
+    "packages/*",
+    "apps/film",
+]
 
 [tool.ruff]
 src = ["apps/*/src", "packages/*/src"]
