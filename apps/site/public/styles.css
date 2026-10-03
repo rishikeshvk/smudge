@@ -184,7 +184,7 @@ a { color: inherit; text-underline-offset: 3px; }
 .hero .words { max-width: 760px; gap: 30px; }
 .eyebrow { font-size: 11px; line-height: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .lede { font-size: clamp(18px, 1.6vw, 22px); line-height: 1.5; max-width: 620px; }
-.hero .button { align-self: flex-start; }
+.hero .button, #film .button { align-self: flex-start; }
 .words > p:not(.when):not(.bubble) { font-size: clamp(17px, 1.4vw, 20px); line-height: 1.55; }
 
 .prologue {
