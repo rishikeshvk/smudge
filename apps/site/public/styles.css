@@ -170,6 +170,7 @@ a { color: inherit; text-underline-offset: 3px; }
 .ground-dusk { background: var(--dusk); }
 .ground-night { background: var(--night); }
 .glow { background-image: radial-gradient(ellipse 45% 60% at 70% 50%, var(--glow), var(--glow-end) 70%); }
+.glow-left { background-image: radial-gradient(ellipse 40% 60% at 30% 50%, var(--glow), var(--glow-end) 70%); }
 .glow-top { background-image: radial-gradient(ellipse 50% 60% at 25% 0%, var(--glow), var(--glow-end) 70%); }
 
 .hero, .chapter, footer {
@@ -314,6 +315,34 @@ footer h2 { font-size: clamp(40px, 4.4vw, 64px); }
 .invite ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 10px; }
 code { font: 500 0.92em "JetBrains Mono", monospace; }
 
+.film { position: relative; flex: none; margin: 0; width: min(300px, 80vw); aspect-ratio: 9 / 20; }
+.film video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 36px;
+  border: 3px solid var(--line-strong);
+  background: #000;
+  box-shadow: 0 24px 64px #0000004D;
+}
+.film .pause {
+  position: absolute;
+  right: -58px;
+  bottom: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.film .pause svg { width: 16px; height: 16px; fill: currentColor; }
+
 @media (max-width: 900px) {
   .hide-small { display: none; }
   .bar nav { gap: 10px; }
@@ -322,7 +351,9 @@ code { font: 500 0.92em "JetBrains Mono", monospace; }
   .chapter.centre { text-align: left; }
   .chapter.centre .words { align-items: stretch; }
   .chapter.centre .when { justify-content: flex-start; }
-  .moment { align-self: center; }
+  .moment, .film { align-self: center; }
+  .film { margin-bottom: 58px; }
+  .film .pause { right: 0; bottom: -58px; }
   .scribble.arrow { position: static; width: auto; align-self: flex-end; }
   .scribble.arrow::after { display: none; }
   .lamp { width: 104px; height: 104px; }

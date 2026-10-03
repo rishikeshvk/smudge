@@ -14,12 +14,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Parkinsans:wght@300;600;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="styles.css">
 <script src="theme.js"></script>
+<script src="film.js" defer></script>
 </head>
 <body>
 
 <header class="bar">
   <a class="wordmark" href="#top" aria-label="Smudge, back to top"><span class="smear">smu</span>dge<i class="dot"></i></a>
   <nav>
+    <a class="hide-small" href="#film">The film</a>
     <a class="hide-small" href="#story">The story</a>
     <a class="button quiet" href="#invite"><span class="hide-small">Have an invite? </span>Get the app</a>
     <button class="theme" type="button" aria-label="Switch theme"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 0 0 16z" fill="currentColor"/></svg></button>
@@ -40,6 +42,21 @@
     <p class="meta gap">Juno, 09:00</p>
     <p class="bubble" data-quote>hey. Shared responsibility &amp; IAM overview today for me, 19:00-ish. same one for you. when are you on it?</p>
   </div>
+</section>
+
+<section id="film" class="chapter left ground-dusk glow-left">
+  <div class="words">
+    <p class="eyebrow">The film · 2:58</p>
+    <h2><span class="light">or watch the week </span>in three minutes.</h2>
+    <p>A fresh account, a real phone and seven days on the clock. Nothing is mocked: every reply was written and checked live.</p>
+  </div>
+  <figure class="film">
+    <video muted loop playsinline preload="metadata" poster="film/smudge-loop-poster.jpg" aria-label="The app on a phone: a morning message, a question about tomorrow's topic the buddy won't answer yet, and both study lamps on.">
+      <source src="film/smudge-loop.webm" type="video/webm">
+      <source src="film/smudge-loop.mp4" type="video/mp4">
+    </video>
+    <button class="pause" type="button" aria-label="Play the film loop"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+  </figure>
 </section>
 
 <section id="story" class="prologue ground-surface">
