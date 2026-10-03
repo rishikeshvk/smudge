@@ -59,7 +59,7 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-packages`.
 - `make up` — Postgres (Docker), migrations, and the API with hot reload on :8000
 - `make down` — stop Postgres
-- `make serve` — the hosted API on its own `kindred_friends` database, on real time, at 127.0.0.1:8100
+- `make serve` — the hosted API on its own `kindred_live` database, on real time, at 127.0.0.1:8100
   for the Tailscale Funnel ([hosting.md](docs/hosting.md)); add `ON=live` to `invite`, `users`, `revoke`
   or `migrate` to reach that database
 - `make migrate` — apply alembic migrations

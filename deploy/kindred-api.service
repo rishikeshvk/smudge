@@ -1,0 +1,16 @@
+[Unit]
+Description=Smudge API (make serve on kindred_live)
+After=docker.service network-online.target
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/smudge
+Environment=PATH=/home/ubuntu/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/make serve
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

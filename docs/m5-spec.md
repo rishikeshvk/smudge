@@ -1,7 +1,6 @@
 # M5 Portfolio spec
 
-2026-09-25 · Status: **in progress**. Steps 1–8 and 10–12 are done.
-The Oracle move (9) is the last step.
+2026-09-25 · Status: **done** on 2026-10-03. All twelve steps are complete.
 
 The last milestone makes Kindred something **someone else can install or watch**, at no cost. Kindred already runs as
 an invite-only hosted instance, but its API lives on one PC. M5 adds:
@@ -69,7 +68,11 @@ Done so far:
 - Step 12: gitleaks found nothing in the full history, and the repo went public on 2026-10-03 under MIT, with the
   film public on YouTube. The APK is the `v1.0.0` GitHub Release, which the landing page downloads, and the page links
   the code. `docs/hosting.md` shows the Funnel address as a placeholder.
-- The member wording from step 9.
+- Step 9: the Oracle move. Free accounts kept hitting "out of host capacity", so the account went pay-as-you-go,
+  still inside the Always Free limits (halved to 2 OCPU and 12 GB on 2026-06-15), and the VM is 1 OCPU and 6 GB. The API
+  runs from a systemd unit on `kindred_live`, restored from `kindred_friends`, with a nightly backup timer. The VM took
+  over the Tailscale node `kindred`, so the APK's URL didn't change. See [hosting.md](hosting.md).
+- The member wording, done ahead of step 9.
 
 
 1. This spec, the branch and the memories.

@@ -4,7 +4,7 @@ ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
 # The hosted server has its own database and runs on real time. `make serve` always uses it;
 # ON=live points migrate, invite, users and revoke at it too.
-LIVE_DB = kindred_friends
+LIVE_DB = kindred_live
 ifneq ($(filter live,$(ON))$(filter serve,$(MAKECMDGOALS)),)
 export DATABASE_URL = postgresql+psycopg://kindred:kindred@localhost:5432/$(LIVE_DB)
 export DEV_MODE = false
