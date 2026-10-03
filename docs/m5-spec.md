@@ -1,7 +1,7 @@
 # M5 Portfolio spec
 
-2026-09-25 · Status: **in progress**. Steps 1–8, 10 and 11 are done.
-Going public (12) and the Oracle move (9) come next, in that order.
+2026-09-25 · Status: **in progress**. Steps 1–8 and 10–12 are done.
+The Oracle move (9) is the last step.
 
 The last milestone makes Kindred something **someone else can install or watch**, at no cost. Kindred already runs as
 an invite-only hosted instance, but its API lives on one PC. M5 adds:
@@ -66,6 +66,9 @@ Done so far:
   (`make film`); the landing page plays a 23 s loop of it. A narrator (Kokoro `af_heart`) reads one line per scene. It's on
   YouTube at https://youtu.be/3tnxHdMNxug.
 - Step 11: the README.
+- Step 12: gitleaks found nothing in the full history, and the repo went public on 2026-10-03 under MIT, with the
+  film public on YouTube. The APK is the `v1.0.0` GitHub Release, which the landing page downloads, and the page links
+  the code. `docs/hosting.md` shows the Funnel address as a placeholder.
 - The member wording from step 9.
 
 
