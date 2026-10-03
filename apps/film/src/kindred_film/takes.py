@@ -20,7 +20,7 @@ from kindred_film.settings import get_settings
 APP = "dev.kindred.app.dev"
 DEV_URL = "kindred-dev://expo-development-client/?url=http%3A%2F%2F127.0.0.1%3A8081"
 BUDDY_NAME = "Juno"
-REPLY_TIMEOUT = 180
+REPLY_TIMEOUT = 300
 # Longer than a timestamp or a button, shorter than any real reply.
 REPLY_LENGTH = 30
 ECHO = 0.8
@@ -40,6 +40,9 @@ class Take:
     prepare: Callable[[FilmApi], None]
     act: Callable[[Phone, FilmApi, Cue], None]
     cold_start: bool = False
+    # What shows once the app has loaded; recording starts after it, since a reload
+    # under screenrecord can stop it capturing.
+    ready: str = "Chat"
 
 
 def local(view: ClockView) -> tuple[int, int, int]:
@@ -62,6 +65,8 @@ def send(phone: Phone, text: str, field: str = "Message") -> None:
     before = {element.text for element in phone.elements()}
     phone.tap_text(field)
     time.sleep(0.4)
+    # A tap puts the cursor where it lands; a draft is added to, not split.
+    phone.cursor_to_end()
     phone.type(text)
     time.sleep(0.6)
     phone.tap_text("Send")
@@ -156,11 +161,9 @@ def shaky_part(phone: Phone, api: FilmApi, cue: Cue) -> None:
     phone.tap_text("Notebook")
     time.sleep(1.5)
     phone.tap_text(f"Day {local(api.now())[0]},")
-    phone.wait_for("Sources")
+    phone.wait_gone(f"{BUDDY_NAME}'s notebook", 30)
     time.sleep(2)
-    while phone.find("STILL SHAKY") is None:
-        phone.swipe(540, 1900, 540, 1100, 900)
-        time.sleep(0.8)
+    phone.scroll_to("STILL SHAKY")
     phone.swipe(540, 1900, 540, 1300, 900)
     time.sleep(6)
 
@@ -173,33 +176,41 @@ def to_day_two_share(api: FilmApi) -> None:
 
 
 def explain_back(phone: Phone, api: FilmApi, cue: Cue) -> None:
-    phone.tap_text(f"Open {BUDDY_NAME}'s note")
-    phone.wait_for("Talk about this note")
-    time.sleep(4)
+    time.sleep(2)
+    phone.scroll_to(f"Open {BUDDY_NAME}'s note", up=True)
+    time.sleep(2)
+    phone.tap_text(f"Open {BUDDY_NAME}'s note", last=True)
+    phone.wait_gone(f"Message {BUDDY_NAME}", 30)
+    time.sleep(2)
+    phone.scroll_to("Talk about this note")
+    time.sleep(3)
     phone.tap_text("Talk about this note")
     time.sleep(1.5)
-    send(phone, cue.say)
+    # The button starts the message with which note it's about.
+    send(phone, cue.say, field="about your day")
     time.sleep(5)
 
 
 def to_day_three(api: FilmApi) -> None:
-    walk_to(api, 3, 9)
+    walk_to(api, 3, 8)
 
 
 def sorted_note(phone: Phone, api: FilmApi, cue: Cue) -> None:
     time.sleep(2)
     phone.tap_text("Notebook")
-    time.sleep(2)
-    phone.tap_text("Day 1,")
     time.sleep(3)
-    phone.swipe(540, 1800, 540, 900, 1400)
-    time.sleep(5)
+    phone.tap_text("Day 1,")
+    phone.wait_gone(f"{BUDDY_NAME}'s notebook", 30)
+    time.sleep(1.5)
+    phone.scroll_to("Sorted with your help")
+    phone.swipe(540, 1900, 540, 1300, 900)
+    time.sleep(6)
 
 
 def to_day_four_morning(api: FilmApi) -> None:
     study_share(api)
-    walk_to(api, 4, 9)
-    api.advance(1)
+    walk_to(api, 4, 8)
+    api.advance(2)
 
 
 def ask_ahead(phone: Phone, api: FilmApi, cue: Cue) -> None:
@@ -236,7 +247,9 @@ def behind(phone: Phone, api: FilmApi, cue: Cue) -> None:
 
 
 def to_day_seven(api: FilmApi) -> None:
-    study_share(api)
+    """Day 5 stays skipped: one check-in on day 6, so day 7 starts two behind."""
+    walk_to(api, 6, 20)
+    api.check_in()
     walk_to(api, 7, 20)
 
 
@@ -253,11 +266,19 @@ def catch_up(phone: Phone, api: FilmApi, cue: Cue) -> None:
     time.sleep(3)
 
 
+def level(phone: Phone, api: FilmApi, cue: Cue) -> None:
+    phone.tap_text("Chat")
+    time.sleep(1)
+    phone.tap_text("Roadmap")
+    phone.wait_for("level with")
+    time.sleep(5)
+
+
 TAKES = {
     take.id: take
     for take in (
-        Take("02", no_setup, onboard_ask, cold_start=True),
-        Take("02b", no_setup, onboard_agree),
+        Take("02", no_setup, onboard_ask, cold_start=True, ready=LEARN),
+        Take("02b", no_setup, onboard_agree, ready=LEARN),
         Take("03", to_morning, morning),
         Take("04", to_day_two_share, notebook),
         Take("04b", no_setup, shaky_part),
@@ -267,6 +288,7 @@ TAKES = {
         Take("07", to_study_time, both_lamps),
         Take("08", skip_day_five, behind),
         Take("09", to_day_seven, catch_up),
+        Take("09b", no_setup, level),
     )
 }
 
@@ -340,6 +362,7 @@ def shoot(take_id: str, cue: Cue, prepare: bool) -> None:
     if prepare:
         take.prepare(api)
     open_app(take.cold_start)
+    phone.wait_for(take.ready, 180)
     _, hour, minute = local(api.now())
     phone.status_bar(f"{hour:02d}{minute:02d}")
     time.sleep(3 if take.cold_start else 2)

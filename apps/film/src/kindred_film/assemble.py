@@ -109,10 +109,14 @@ def shot_command(shot: Shot, taps: list[Tap], out: Path) -> list[str]:
         inputs += ["-i", str(plates.ring_path())]
 
     graph = []
-    for index in range(len(shot.cuts)):
+    for index, cut in enumerate(shot.cuts):
+        # screenrecord writes no frames while the screen is still, so a hold at the
+        # end of a take is cloned from its last frame.
         graph.append(
-            f"[{index + 1}:v]fps={FPS},scale={SCREEN.w}:{SCREEN.h}:flags=lanczos,"
-            f"setpts=PTS-STARTPTS,format=rgba[cut{index}]"
+            f"[{index + 1}:v]fps={FPS},"
+            f"tpad=stop_mode=clone:stop_duration={cut.seconds},"
+            f"trim=duration={cut.seconds},setpts=PTS-STARTPTS,"
+            f"scale={SCREEN.w}:{SCREEN.h}:flags=lanczos,format=rgba[cut{index}]"
         )
     joined = "".join(f"[cut{index}]" for index in range(len(shot.cuts)))
     graph.append(f"{joined}concat=n={len(shot.cuts)}:v=1:a=0[phone]")

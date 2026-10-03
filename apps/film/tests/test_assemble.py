@@ -74,3 +74,9 @@ def test_the_film_has_no_sound() -> None:
     command = join_command([Path("a.mp4"), Path("b.mp4")], [5, 5], 0.5, Path("f.mp4"))
     assert "-an" in command
     assert "xfade=transition=fade:duration=0.5:offset=4.5" in _graph(command)
+
+
+def test_each_cut_holds_its_last_frame_to_its_full_length() -> None:
+    graph = _graph(shot_command(SHOT, [], Path("out.mp4")))
+    assert "tpad=stop_mode=clone:stop_duration=4" in graph
+    assert "trim=duration=4" in graph

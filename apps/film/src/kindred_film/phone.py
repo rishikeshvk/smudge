@@ -57,13 +57,18 @@ class Phone:
         _adb("shell", "uiautomator", "dump", DEVICE_DUMP)
         return parse_elements(_adb("exec-out", "cat", DEVICE_DUMP))
 
-    def find(self, text: str) -> Element | None:
-        return next((e for e in self.elements() if text in e.text), None)
+    def find(self, text: str, last: bool = False) -> Element | None:
+        """The first element showing text, or the last: the newest, in a chat."""
+        # Labels may be shown in capitals, so case doesn't count.
+        matches = [e for e in self.elements() if text.casefold() in e.text.casefold()]
+        if not matches:
+            return None
+        return matches[-1] if last else matches[0]
 
-    def wait_for(self, text: str, timeout: float = 60) -> Element:
+    def wait_for(self, text: str, timeout: float = 60, last: bool = False) -> Element:
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
-            element = self.find(text)
+            element = self.find(text, last)
             if element is not None:
                 return element
             time.sleep(0.5)
@@ -82,8 +87,8 @@ class Phone:
             self.taps.append({"t": time.monotonic() - self._started, "x": x, "y": y})
         _adb("shell", "input", "tap", str(x), str(y))
 
-    def tap_text(self, text: str, timeout: float = 30) -> None:
-        element = self.wait_for(text, timeout)
+    def tap_text(self, text: str, timeout: float = 30, last: bool = False) -> None:
+        element = self.wait_for(text, timeout, last)
         self.tap(element.x, element.y)
 
     def type(self, text: str) -> None:
@@ -96,8 +101,22 @@ class Phone:
             _adb("shell", "input", "text", shlex.quote(chunk))
             time.sleep(random.uniform(0.02, 0.09))
 
+    def scroll_to(self, text: str, up: bool = False, limit: int = 12) -> None:
+        """Reads down the screen, or back up it, a slow swipe at a time, until text
+        shows."""
+        start, end = (1100, 1900) if up else (1900, 1100)
+        for _ in range(limit):
+            if self.find(text) is not None:
+                return
+            self.swipe(540, start, 540, end, 900)
+            time.sleep(0.8)
+        raise PhoneTimeout(f"{text!r} wasn't found by scrolling")
+
     def swipe(self, x1: int, y1: int, x2: int, y2: int, ms: int = 450) -> None:
         _adb("shell", "input", "swipe", str(x1), str(y1), str(x2), str(y2), str(ms))
+
+    def cursor_to_end(self) -> None:
+        _adb("shell", "input", "keyevent", "KEYCODE_MOVE_END")
 
     def back(self) -> None:
         _adb("shell", "input", "keyevent", "KEYCODE_BACK")
