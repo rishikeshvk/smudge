@@ -21,6 +21,7 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 
 ## Stack and layout
 - `apps/api` — FastAPI, Python 3.12, uv.
+- `apps/film` — the demo film's take runner and renderer.
 - `apps/mobile` — React Native + Expo, TypeScript, Android only. Types are
   generated from the API's OpenAPI schema, not hand-written.
 - `packages/` — `contracts` (schemas), `gate` (classifier, retrieval, auditor),
@@ -76,6 +77,9 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
   finished simulation made with `createdb -T kindred_sim kindred_demo`
 - `make site` — the landing page (`apps/site/public`) on http://localhost:8200; `make site-deploy` publishes it to
   smudge.expo.app. Every buddy line on it is tested against `apps/site/replay.json`
+- `make film-take TAKE=02` — shoot one take of the demo film on the USB phone, against the dev API on `kindred_film`
+  (`TAKE=sign-in` first; takes spend LLM budget, so ask first)
+- `make film` — render the film, the landing loop and the thumbnail into `apps/film/out` from the takes
 - `make test` — pytest and the app's jest tests
 - `make check` — ruff, mypy, expo lint and the app's TypeScript check
 - `make fmt` — ruff format and autofix

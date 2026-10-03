@@ -5,8 +5,11 @@ plan, at its own desk. It isn't a tutor. It texts you when it's sitting down to 
 you to check its notes, and keeps its own pace whether or not you keep up. It can't see ahead: it only knows what it
 has already studied.
 
-**[smudge.expo.app](https://smudge.expo.app)** tells one real week with a buddy called Juno. The Android app is
-invite-only for now.
+**[smudge.expo.app](https://smudge.expo.app)** tells one real week with a buddy called Juno, and plays a loop from a
+three-minute film of a fresh account's first week, shot on a real phone. The Android app is invite-only for now.
+
+![Four screens from the film: a note with its shaky part washed in pencil, a point sorted with the user's help, a
+question about tomorrow's topic the buddy won't answer yet, and the roadmap back level](docs/media/screens.png)
 
 > Smudge was called Kindred while it was built, and the code keeps that name: the Python packages are `kindred_*`, the
 > app id is `dev.kindred.app`, and the databases are `kindred*`.
@@ -74,11 +77,13 @@ week can be simulated in minutes), and components exchange typed Pydantic contra
 | Data | Postgres with pgvector; local embeddings with Ollama (`qwen3-embedding:0.6b`) |
 | Models | Any OpenAI-compatible endpoint, one model per role, set in config. Output is schema-validated and retried |
 | Landing page | Plain HTML and CSS on EAS Hosting; a test checks every buddy line on it against the recorded run |
+| Film | Takes driven over adb against a live run, framed and captioned with Playwright plates and ffmpeg (`apps/film`) |
 
 ```
 apps/api       FastAPI app, background ticker, CLIs (simulate, probe, invite, …)
 apps/mobile    the Android app
 apps/site      the landing page and the recorded run it quotes
+apps/film      the demo film: takes on the phone, plates, and the cut
 packages/      contracts · gate (classifier, retrieval, auditor) · buddy (planner, curator, persona, reflector)
                · llm (provider client) · db (models, engine)
 evals/         probe sets and recorded results

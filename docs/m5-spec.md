@@ -1,7 +1,7 @@
 # M5 Portfolio spec
 
-2026-09-25 · Status: **in progress**. Steps 1–8 and 11 are merged into `main`. The film (10), going public (12) and
-the Oracle move (9) come next, in that order.
+2026-09-25 · Status: **in progress**. Steps 1–8, 10 and 11 are done; the film waits only for its YouTube upload.
+Going public (12) and the Oracle move (9) come next, in that order.
 
 The last milestone makes Kindred something **someone else can install or watch**, at no cost. Kindred already runs as
 an invite-only hosted instance, but its API lives on one PC. M5 adds:
@@ -60,6 +60,10 @@ Done so far:
 - Step 5: `make replay`.
 - Steps 6–7: the story-led page, live at https://smudge.expo.app.
 - Step 8: the rename. The repo is now `rishikeshvk/smudge`.
+- Step 10: the film, 2:58, shot on the phone against a fresh account on `kindred_film` (Go models), in clock order:
+  onboarding, the morning, the fog lift and the shaky part, a point explained back and sorted overnight, the spoiler
+  deflection, both lamps on, a skipped day and the catch-up. `apps/film` drives the takes over adb and renders the cut
+  (`make film`); the landing page plays a 23 s loop of it. The YouTube link is added once it's uploaded.
 - Step 11: the README.
 - The member wording from step 9.
 
