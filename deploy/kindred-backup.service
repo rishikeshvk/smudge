@@ -1,0 +1,10 @@
+[Unit]
+Description=Nightly pg_dump of kindred_live, keeping the last 7
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=ubuntu
+WorkingDirectory=/home/ubuntu/smudge
+ExecStart=/bin/sh -c 'mkdir -p /home/ubuntu/backups && docker compose exec -T db pg_dump -U kindred -Fc kindred_live > /home/ubuntu/backups/kindred_live-$(date +%%F).dump && find /home/ubuntu/backups -name "kindred_live-*.dump" -mtime +7 -delete'
