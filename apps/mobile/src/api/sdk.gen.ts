@@ -2,7 +2,7 @@
 
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinErrors, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadMeData, ReadMeResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, RedeemInviteData, RedeemInviteErrors, RedeemInviteResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, SignOutData, SignOutErrors, SignOutResponses, StudyNowData, StudyNowResponses, StudyTogetherData, StudyTogetherResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
+import type { AcceptData, AcceptErrors, AcceptResponses, AddCheckinData, AddCheckinErrors, AddCheckinResponses, AddPushTokenData, AddPushTokenErrors, AddPushTokenResponses, AskData, AskErrors, AskResponses, ChangeClockData, ChangeClockErrors, ChangeClockResponses, ChangePlanStudyTimeData, ChangePlanStudyTimeErrors, ChangePlanStudyTimeResponses, HealthData, HealthResponses, ListMessagesData, ListMessagesErrors, ListMessagesResponses, ListOnboardingMessagesData, ListOnboardingMessagesResponses, MessageStatusData, MessageStatusErrors, MessageStatusResponses, NextRitualData, NextRitualResponses, PausePlanData, PausePlanErrors, PausePlanResponses, PullTopicData, PullTopicErrors, PullTopicResponses, ReadBuddyData, ReadBuddyResponses, ReadClockData, ReadClockResponses, ReadDemoData, ReadDemoResponses, ReadMeData, ReadMeResponses, ReadNotebookData, ReadNotebookResponses, ReadNoteData, ReadNoteErrors, ReadNoteResponses, ReadRoadmapData, ReadRoadmapResponses, ReadSettingsData, ReadSettingsResponses, ReadTurnData, ReadTurnErrors, ReadTurnResponses, RedeemInviteData, RedeemInviteErrors, RedeemInviteResponses, SendMessageData, SendMessageErrors, SendMessageResponses, SendOnboardingMessageData, SendOnboardingMessageErrors, SendOnboardingMessageResponses, SignOutData, SignOutErrors, SignOutResponses, StudyNowData, StudyNowResponses, StudyTogetherData, StudyTogetherResponses, TestConnectionData, TestConnectionResponses, UpdateSettingsData, UpdateSettingsErrors, UpdateSettingsResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -54,6 +54,27 @@ export const readMe = <ThrowOnError extends boolean = false>(options?: Options<R
 export const signOut = <ThrowOnError extends boolean = false>(options: Options<SignOutData, ThrowOnError>): RequestResult<SignOutResponses, SignOutErrors, ThrowOnError> => (options.client ?? client).post<SignOutResponses, SignOutErrors, ThrowOnError>({
     security: [{ scheme: 'bearer', type: 'http' }],
     url: '/auth/sign-out',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
+
+/**
+ * Read Demo
+ *
+ * The demo buddy and its plan's days, for the landing page.
+ */
+export const readDemo = <ThrowOnError extends boolean = false>(options?: Options<ReadDemoData, ThrowOnError>): RequestResult<ReadDemoResponses, unknown, ThrowOnError> => (options?.client ?? client).get<ReadDemoResponses, unknown, ThrowOnError>({ url: '/demo', ...options });
+
+/**
+ * Ask
+ *
+ * One audited reply from the demo buddy, on the plan day the visitor picked.
+ */
+export const ask = <ThrowOnError extends boolean = false>(options: Options<AskData, ThrowOnError>): RequestResult<AskResponses, AskErrors, ThrowOnError> => (options.client ?? client).post<AskResponses, AskErrors, ThrowOnError>({
+    url: '/demo/turns',
     ...options,
     headers: {
         'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 from kindred_contracts.api import (
     AcceptPlan,
     AdvanceClock,
+    AskDemo,
     AuthToken,
     BuddyStatus,
     ChatMessage,
@@ -8,6 +9,9 @@ from kindred_contracts.api import (
     ClockChange,
     ClockView,
     ConnectionCheck,
+    DemoAttempt,
+    DemoInfo,
+    DemoTurn,
     JumpToDay,
     LLMSettingsUpdate,
     LLMSettingsView,
@@ -119,6 +123,10 @@ from kindred_contracts.turn import (
 )
 
 __all__ = [
+    "AskDemo",
+    "DemoAttempt",
+    "DemoInfo",
+    "DemoTurn",
     "Replay",
     "ReplayDay",
     "ReplayMessage",

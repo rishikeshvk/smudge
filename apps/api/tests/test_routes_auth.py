@@ -18,7 +18,12 @@ AddUser = Callable[..., Awaitable[User]]
 ApiClient = Callable[[Clock, TurnWorker | None, int | None], httpx.AsyncClient]
 NOW = datetime(2026, 10, 1, 3, 0, tzinfo=UTC)
 WEEK = timedelta(days=7)
-PUBLIC = {("GET", "/health"), ("POST", "/auth/redeem")}
+PUBLIC = {
+    ("GET", "/health"),
+    ("POST", "/auth/redeem"),
+    ("GET", "/demo"),
+    ("POST", "/demo/turns"),
+}
 
 
 @pytest.mark.anyio

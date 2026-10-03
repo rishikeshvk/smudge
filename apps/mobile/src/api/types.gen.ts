@@ -48,6 +48,20 @@ export type AskCard = {
 };
 
 /**
+ * AskDemo
+ */
+export type AskDemo = {
+    /**
+     * Message
+     */
+    message: string;
+    /**
+     * Day
+     */
+    day: number;
+};
+
+/**
  * AuditVerdict
  */
 export type AuditVerdict = {
@@ -219,6 +233,77 @@ export type ConnectionCheck = {
      * Detail
      */
     detail: string | null;
+};
+
+/**
+ * DemoAttempt
+ */
+export type DemoAttempt = {
+    verdict: Verdict;
+    /**
+     * Leaked Topics
+     */
+    leaked_topics: Array<string>;
+};
+
+/**
+ * DemoInfo
+ *
+ * The landing page's buddy, for strangers to try without an account.
+ */
+export type DemoInfo = {
+    /**
+     * Buddy Name
+     */
+    buddy_name: string;
+    /**
+     * Days
+     */
+    days: Array<TopicRef>;
+    /**
+     * Turns Left
+     */
+    turns_left: number;
+};
+
+/**
+ * DemoTurn
+ */
+export type DemoTurn = {
+    /**
+     * Reply
+     */
+    reply: string;
+    /**
+     * Fell Back
+     */
+    fell_back: boolean;
+    category: Category;
+    route: Route;
+    /**
+     * Answer Topics
+     */
+    answer_topics: Array<TopicRef>;
+    /**
+     * Deflect Topics
+     */
+    deflect_topics: Array<TopicRef>;
+    /**
+     * Notes
+     */
+    notes: Array<TopicRef>;
+    /**
+     * Attempts
+     */
+    attempts: Array<DemoAttempt>;
+    /**
+     * Latency Ms
+     */
+    latency_ms: number;
+    /**
+     * Turns Left
+     */
+    turns_left: number;
 };
 
 /**
@@ -1032,6 +1117,47 @@ export type SignOutResponses = {
 };
 
 export type SignOutResponse = SignOutResponses[keyof SignOutResponses];
+
+export type ReadDemoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/demo';
+};
+
+export type ReadDemoResponses = {
+    /**
+     * Successful Response
+     */
+    200: DemoInfo;
+};
+
+export type ReadDemoResponse = ReadDemoResponses[keyof ReadDemoResponses];
+
+export type AskData = {
+    body: AskDemo;
+    path?: never;
+    query?: never;
+    url: '/demo/turns';
+};
+
+export type AskErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type AskError = AskErrors[keyof AskErrors];
+
+export type AskResponses = {
+    /**
+     * Successful Response
+     */
+    200: DemoTurn;
+};
+
+export type AskResponse = AskResponses[keyof AskResponses];
 
 export type ReadClockData = {
     body?: never;

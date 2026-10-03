@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from kindred_api.auth import user_for_token
 from kindred_api.clock import Clock, OffsetClock
+from kindred_api.demo import DemoBudget
 from kindred_api.ingest import SourceFetcher
 from kindred_api.llm_runtime import LLMRuntime
 from kindred_api.onboarding import Planning
@@ -24,6 +25,7 @@ class Services:
     ticker: Ticker
     llm: LLMRuntime
     sources: SourceFetcher
+    demo: DemoBudget
 
 
 def get_services(request: Request) -> Services:
@@ -56,6 +58,10 @@ def get_sources(services: Annotated[Services, Depends(get_services)]) -> SourceF
 
 def get_llm(services: Annotated[Services, Depends(get_services)]) -> LLMRuntime:
     return services.llm
+
+
+def get_demo_budget(services: Annotated[Services, Depends(get_services)]) -> DemoBudget:
+    return services.demo
 
 
 def get_planning(llm: Annotated[LLMRuntime, Depends(get_llm)]) -> Planning:
@@ -117,3 +123,4 @@ TickerDep = Annotated[Ticker, Depends(get_ticker)]
 PlanningDep = Annotated[Planning, Depends(get_planning)]
 LLMRuntimeDep = Annotated[LLMRuntime, Depends(get_llm)]
 SourcesDep = Annotated[SourceFetcher, Depends(get_sources)]
+DemoBudgetDep = Annotated[DemoBudget, Depends(get_demo_budget)]
