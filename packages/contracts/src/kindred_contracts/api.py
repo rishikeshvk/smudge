@@ -8,7 +8,14 @@ from kindred_contracts.curriculum import Contract
 from kindred_contracts.persona import Mood, Studying
 from kindred_contracts.planning import PlanProposal
 from kindred_contracts.study import NotebookNote
-from kindred_contracts.turn import Speaker, TopicRef, TurnStage
+from kindred_contracts.turn import (
+    Category,
+    Route,
+    Speaker,
+    TopicRef,
+    TurnStage,
+    Verdict,
+)
 
 
 class ClockView(Contract):
@@ -199,3 +206,35 @@ class ConnectionCheck(Contract):
     ok: bool
     models: list[str]
     detail: str | None
+
+
+class DemoInfo(Contract):
+    """The landing page's buddy, for strangers to try without an account."""
+
+    buddy_name: str
+    days: list[TopicRef]
+    turns_left: int
+
+
+class AskDemo(Contract):
+    message: str = Field(min_length=1, max_length=300)
+    day: int = Field(ge=1)
+
+
+class DemoAttempt(Contract):
+    verdict: Verdict
+    # Titles only: a rejected draft's text is exactly what the gate holds back.
+    leaked_topics: list[str]
+
+
+class DemoTurn(Contract):
+    reply: str
+    fell_back: bool
+    category: Category
+    route: Route
+    answer_topics: list[TopicRef]
+    deflect_topics: list[TopicRef]
+    notes: list[TopicRef]
+    attempts: list[DemoAttempt]
+    latency_ms: int
+    turns_left: int

@@ -17,7 +17,8 @@ and only knows what it has already covered. Plan and philosophy: @docs/plan.md
 6. When unsure whether content is locked, fail closed and deflect.
 7. API keys live only on the backend. Never log them, never return them to the app.
 8. The user comes only from the auth token, never from a path or a body. Any row fetched
-   by id is checked against that user, and another user's row is a 404.
+   by id is checked against that user, and another user's row is a 404. The one route without a user, `/demo`,
+   only reaches the demo buddy, found by its flag.
 
 ## Stack and layout
 - `apps/api` — FastAPI, Python 3.12, uv.
@@ -67,6 +68,8 @@ First run: `cp .env.example .env`, fill in the LLM values, then `uv sync --all-p
 - `make embed-model` — pull the Ollama embedding model (first run only)
 - `make seed` — seed the AWS curriculum; the Curator writes the notes as topics unlock (`--reference-notes`
   stores the hand-written ones instead, as evals do)
+- `make demo-seed` — seed the landing page's demo buddy (a flagged user the ticker skips) with the hand-written notes;
+  `ON=live` on the VM
 - `make ingest` — fetch each topic's source pages (from the curriculum's note citations) into the database
 - `make turn ARGS='"message" --day 3 --time 10:00'` — run one message through the gate and print the trace;
   add `--user-through 1` to play a user who is behind the buddy

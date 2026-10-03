@@ -15,7 +15,7 @@ from kindred_api.probes.judge import Judge
 from kindred_api.probes.report import ProbeOutcome, ReplyOutcome
 from kindred_api.schedule import plan_moment
 from kindred_api.scratch_databases import recreate_database, sibling_url
-from kindred_api.seed import seed_plan
+from kindred_api.seed import ensure_owner, seed_plan
 from kindred_api.turn_log import record_turn
 from kindred_contracts import ChatTurn, JudgeVerdict, Probe, Speaker, TurnTrace
 from kindred_db import Plan, session_factory
@@ -38,6 +38,7 @@ async def seed_eval_plan(url: str, curriculum_path: Path, settings: Settings) ->
         async with session_factory(engine)() as session, session.begin():
             await seed_plan(
                 session,
+                await ensure_owner(session, PLAN_TIMEZONE),
                 load_curriculum(curriculum_path),
                 PLAN_START,
                 PLAN_TIMEZONE,

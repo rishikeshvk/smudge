@@ -35,12 +35,15 @@ class User(Base):
         Index(
             "uq_users_one_owner", "is_owner", unique=True, postgresql_where="is_owner"
         ),
+        Index("uq_users_one_demo", "is_demo", unique=True, postgresql_where="is_demo"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
     timezone: Mapped[str]
     # The one person who runs this server: only they see its LLM settings and dev clock.
     is_owner: Mapped[bool] = mapped_column(server_default="false")
+    # The landing page's buddy: visitors chat with it, and the ticker leaves it alone.
+    is_demo: Mapped[bool] = mapped_column(server_default="false")
 
 
 # A one-use code the owner hands a new member; redeeming it signs that user in.

@@ -4,10 +4,12 @@ from contextlib import asynccontextmanager
 
 import httpx2
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.routing import APIRoute
 
 from kindred_api.chat import requeue_interrupted
 from kindred_api.config import get_settings
+from kindred_api.demo import DemoBudget
 from kindred_api.dependencies import Services, get_current_user
 from kindred_api.dev_clock import build_clock
 from kindred_api.director import RitualSchedule
@@ -19,6 +21,7 @@ from kindred_api.routes import (
     auth,
     buddy,
     chat,
+    demo,
     dev,
     health,
     notebook,
@@ -63,6 +66,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         ticker=ticker,
         llm=llm,
         sources=SourceFetcher(sessions, pages_client, base.curricula_dir, clock),
+        demo=DemoBudget(clock, base.demo_daily_turns, base.demo_client_turns_per_hour),
     )
     tasks = [asyncio.create_task(worker.run()), asyncio.create_task(ticker.run())]
     yield
@@ -81,7 +85,14 @@ def operation_id(route: APIRoute) -> str:
 app = FastAPI(
     title="Kindred", lifespan=lifespan, generate_unique_id_function=operation_id
 )
-for public in (health, auth):
+# Only the landing page calls the API from a browser, and only its demo needs no token.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=get_settings().demo_origins,
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
+for public in (health, auth, demo):
     app.include_router(public.router)
 # Everything else needs a signed-in user, so a route can't forget to ask for one.
 for router in (

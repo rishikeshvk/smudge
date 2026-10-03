@@ -3,8 +3,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.gen';
-import { accept, addCheckin, addPushToken, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readMe, readNote, readNotebook, readRoadmap, readSettings, readTurn, redeemInvite, sendMessage, sendOnboardingMessage, signOut, studyNow, studyTogether, testConnection, updateSettings } from '../sdk.gen';
-import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinError, AddCheckinResponse, AddPushTokenData, AddPushTokenError, AddPushTokenResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadMeData, ReadMeResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, RedeemInviteData, RedeemInviteError, RedeemInviteResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, SignOutData, SignOutError, SignOutResponse, StudyNowData, StudyNowResponse, StudyTogetherData, StudyTogetherResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
+import { accept, addCheckin, addPushToken, ask, changeClock, changePlanStudyTime, health, listMessages, listOnboardingMessages, messageStatus, nextRitual, type Options, pausePlan, pullTopic, readBuddy, readClock, readDemo, readMe, readNote, readNotebook, readRoadmap, readSettings, readTurn, redeemInvite, sendMessage, sendOnboardingMessage, signOut, studyNow, studyTogether, testConnection, updateSettings } from '../sdk.gen';
+import type { AcceptData, AcceptError, AcceptResponse, AddCheckinData, AddCheckinError, AddCheckinResponse, AddPushTokenData, AddPushTokenError, AddPushTokenResponse, AskData, AskError, AskResponse, ChangeClockData, ChangeClockError, ChangeClockResponse, ChangePlanStudyTimeData, ChangePlanStudyTimeError, ChangePlanStudyTimeResponse, HealthData, HealthResponse2, ListMessagesData, ListMessagesError, ListMessagesResponse, ListOnboardingMessagesData, ListOnboardingMessagesResponse, MessageStatusData, MessageStatusError, MessageStatusResponse, NextRitualData, NextRitualResponse, PausePlanData, PausePlanError, PausePlanResponse, PullTopicData, PullTopicError, PullTopicResponse, ReadBuddyData, ReadBuddyResponse, ReadClockData, ReadClockResponse, ReadDemoData, ReadDemoResponse, ReadMeData, ReadMeResponse, ReadNotebookData, ReadNotebookResponse, ReadNoteData, ReadNoteError, ReadNoteResponse, ReadRoadmapData, ReadRoadmapResponse, ReadSettingsData, ReadSettingsResponse, ReadTurnData, ReadTurnError, ReadTurnResponse, RedeemInviteData, RedeemInviteError, RedeemInviteResponse, SendMessageData, SendMessageError, SendMessageResponse, SendOnboardingMessageData, SendOnboardingMessageError, SendOnboardingMessageResponse, SignOutData, SignOutError, SignOutResponse, StudyNowData, StudyNowResponse, StudyTogetherData, StudyTogetherResponse, TestConnectionData, TestConnectionResponse, UpdateSettingsData, UpdateSettingsError, UpdateSettingsResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -103,6 +103,45 @@ export const signOutMutation = (options?: Partial<Options<SignOutData>>): UseMut
     const mutationOptions: UseMutationOptions<SignOutResponse, SignOutError, Options<SignOutData>> = {
         mutationFn: async (fnOptions) => {
             const { data } = await signOut({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};
+
+export const readDemoQueryKey = (options?: Options<ReadDemoData>) => createQueryKey('readDemo', options);
+
+/**
+ * Read Demo
+ *
+ * The demo buddy and its plan's days, for the landing page.
+ */
+export const readDemoOptions = (options?: Options<ReadDemoData>) => queryOptions<ReadDemoResponse, DefaultError, ReadDemoResponse, ReturnType<typeof readDemoQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await readDemo({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: readDemoQueryKey(options)
+});
+
+/**
+ * Ask
+ *
+ * One audited reply from the demo buddy, on the plan day the visitor picked.
+ */
+export const askMutation = (options?: Partial<Options<AskData>>): UseMutationOptions<AskResponse, AskError, Options<AskData>> => {
+    const mutationOptions: UseMutationOptions<AskResponse, AskError, Options<AskData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await ask({
                 ...options,
                 ...fnOptions,
                 throwOnError: true

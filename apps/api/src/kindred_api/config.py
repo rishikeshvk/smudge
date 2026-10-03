@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     # How long an unredeemed invite code works.
     invite_days: int = Field(default=7, ge=1)
 
+    # The landing page's demo buddy: turns a day for every visitor together, turns an
+    # hour per visitor, and the pages allowed to call it.
+    demo_daily_turns: int = Field(default=30, ge=0)
+    demo_client_turns_per_hour: int = Field(default=5, ge=1)
+    demo_origins: list[str] = ["https://smudge.expo.app"]
+
     # Swaps real time for the persisted dev clock and enables /dev time controls.
     dev_mode: bool = False
 

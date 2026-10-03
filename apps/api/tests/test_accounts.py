@@ -62,3 +62,13 @@ async def test_the_list_shows_who_has_a_buddy_and_a_plan(
 
     assert "owner" in lines[0] and "Juno" in lines[0] and "2026-10-01" in lines[0]
     assert "member" in lines[1] and "no plan" in lines[1]
+
+
+@pytest.mark.anyio
+async def test_users_lists_the_demo_buddy_as_demo(session: AsyncSession) -> None:
+    session.add(User(timezone="UTC", is_demo=True))
+    await session.flush()
+
+    lines = await list_users(session)
+
+    assert "demo" in lines[0]

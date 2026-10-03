@@ -1,4 +1,4 @@
-.PHONY: film film-take up serve down migrate db-reset seed ingest embed-model turn probe simulate replay site site-deploy test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
+.PHONY: film film-take up serve down migrate db-reset seed demo-seed ingest embed-model turn probe simulate replay site site-deploy test check fmt llm-ping api-types icons invite users revoke mobile mobile-tunnel mobile-usb mobile-build mobile-preview mobile-update
 
 ALEMBIC = uv run alembic -c apps/api/alembic.ini
 
@@ -40,6 +40,10 @@ embed-model:
 
 seed: migrate
 	uv run python -m kindred_api.seed curricula/aws-2week.yaml
+
+# The landing page's demo buddy, with the hand-written notes; ON=live on the VM.
+demo-seed: migrate
+	uv run python -m kindred_api.demo_seed curricula/aws-2week.yaml
 
 # Fetches each topic's reading list from the web; stored pages are skipped.
 ingest: migrate
